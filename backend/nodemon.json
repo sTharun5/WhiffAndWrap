@@ -1,0 +1,13 @@
+{
+    "watch": [
+        "src"
+    ],
+    "ext": "ts,json",
+    "ignore": [
+        "node_modules",
+        "dist",
+        "uploads"
+    ],
+    "exec": "./node_modules/.bin/ts-node src/index.ts",
+    "delay": "500"
+}
