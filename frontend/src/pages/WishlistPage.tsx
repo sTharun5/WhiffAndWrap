@@ -3,6 +3,7 @@ import { useToast } from '../contexts/ToastContext';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import Skeleton from '../components/Skeleton';
+import { FiHeart, FiArrowLeft, FiX, FiShoppingBag, FiStar } from 'react-icons/fi';
 
 const BACKEND = 'http://localhost:5001';
 
@@ -44,14 +45,14 @@ export default function WishlistPage() {
                         className="btn btn-ghost btn-sm"
                         style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
                     >
-                        <span>←</span> Back to Store
+                        <FiArrowLeft /> Back to Store
                     </button>
                 </div>
-                <h1 className="section-title" style={{ marginBottom: 32 }}>My Wishlist ♡</h1>
+                <h1 className="section-title" style={{ marginBottom: 32 }}>My Wishlist <FiHeart style={{ verticalAlign: 'middle', fontSize: '1.5rem', opacity: 0.6 }} /></h1>
 
                 {wishlist.length === 0 ? (
                     <div className="empty-state" style={{ padding: 'var(--space-16) 0' }}>
-                        <div className="empty-state__icon" style={{ fontSize: '5rem' }}>♡</div>
+                        <div className="empty-state__icon" style={{ fontSize: '4rem', opacity: 0.1, color: 'var(--color-primary)' }}><FiStar /></div>
                         <h2 className="empty-state__title" style={{ fontSize: '2rem' }}>You haven't saved any favorites yet</h2>
                         <p style={{ maxWidth: 400, margin: '12px auto' }}>
                             Love something? Tap the heart icon on any product to save it here for later.
@@ -81,17 +82,17 @@ export default function WishlistPage() {
                                     <div style={{ display: 'flex', gap: 8, padding: '0 16px 16px' }}>
                                         <button
                                             className="btn btn-primary btn-sm"
-                                            style={{ flex: 1 }}
+                                            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                                             onClick={() => { addItem({ productId: p.id, name: p.name, price: p.price, quantity: 1, image: img }); addToast(`${p.name} added to cart!`, 'success'); }}
                                         >
-                                            Add to Cart
+                                            <FiShoppingBag /> Add to Cart
                                         </button>
                                         <button
                                             className="btn btn-ghost btn-sm"
                                             style={{ color: 'var(--color-error)' }}
                                             onClick={() => toggleWishlist(p.id)}
                                         >
-                                            ✕
+                                            <FiX />
                                         </button>
                                     </div>
                                 </div>

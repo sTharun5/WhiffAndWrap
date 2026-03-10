@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
 import { useWishlist } from '../contexts/WishlistContext';
+import { FiHeart, FiShoppingBag, FiStar, FiX, FiSearch, FiArrowLeft } from 'react-icons/fi';
 
 interface Props {
     product: any;
@@ -30,7 +31,7 @@ export default function ProductCard({ product }: Props) {
 
     const image = getImage(product.images);
     const wishlisted = isWishlisted(product.id);
-    const stars = '★'.repeat(Math.round(product.avgRating || 0)) + '☆'.repeat(5 - Math.round(product.avgRating || 0));
+    const rating = Math.round(product.avgRating || 0);
 
     const handleWishlist = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -43,7 +44,7 @@ export default function ProductCard({ product }: Props) {
             if (wishlisted) {
                 addToast('Removed from wishlist', 'info');
             } else {
-                addToast('Added to wishlist ❤️', 'success');
+                addToast('Added to wishlist', 'success');
             }
         } catch { addToast('Could not update wishlist', 'error'); }
     };
@@ -53,7 +54,7 @@ export default function ProductCard({ product }: Props) {
         e.stopPropagation();
         setAdding(true);
         addItem({ productId: product.id, name: product.name, price: product.price, quantity: 1, image });
-        addToast(`${product.name} added to cart 🛍`, 'success');
+        addToast(`${product.name} added to cart`, 'success');
         setTimeout(() => setAdding(false), 800);
     };
 
@@ -82,7 +83,7 @@ export default function ProductCard({ product }: Props) {
                         onClick={handleWishlist}
                         title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                     >
-                        {wishlisted ? '❤️' : '♡'}
+                        {wishlisted ? <FiHeart style={{ fill: 'currentColor' }} /> : <FiHeart />}
                     </button>
                 </div>
                 <div className="product-card__body">
@@ -95,8 +96,12 @@ export default function ProductCard({ product }: Props) {
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
                             {product.avgRating && (
                                 <span className="product-card__rating">
-                                    <span className="stars" style={{ fontSize: '0.75rem' }}>{stars.slice(0, 5)}</span>
-                                    <span style={{ color: 'var(--color-muted)' }}>({product.reviewCount})</span>
+                                    <span style={{ fontSize: '0.75rem', display: 'flex', gap: 1 }}>
+                                        {[...Array(5)].map((_, i) => (
+                                            <FiStar key={i} style={{ fill: i < rating ? 'var(--color-primary)' : 'none', color: i < rating ? 'var(--color-primary)' : 'var(--color-border)' }} />
+                                        ))}
+                                    </span>
+                                    <span style={{ color: 'var(--color-muted)', fontSize: '0.85rem' }}>({product.reviewCount})</span>
                                 </span>
                             )}
                         </div>
@@ -107,7 +112,7 @@ export default function ProductCard({ product }: Props) {
                         onClick={handleAddToCart}
                         disabled={adding}
                     >
-                        {adding ? '✓ Added!' : 'Add to Cart 🛍'}
+                        {adding ? <><FiShoppingBag /> Added!</> : <><FiShoppingBag /> Add to Cart</>}
                     </button>
                 </div>
             </Link>
@@ -130,7 +135,7 @@ export default function ProductCard({ product }: Props) {
                             }}
                             onClick={() => setPreviewImage(null)}
                         >
-                            ✕ Close
+                            <FiX /> Close
                         </button>
                         <img
                             src={previewImage}

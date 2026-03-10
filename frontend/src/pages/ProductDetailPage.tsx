@@ -7,6 +7,9 @@ import { useWishlist } from '../contexts/WishlistContext';
 import Alert from '../components/Alert';
 import Skeleton from '../components/Skeleton';
 import { useToast } from '../contexts/ToastContext';
+import {
+    FiShoppingBag, FiCheckCircle, FiHeart, FiHexagon, FiZap, FiInfo, FiClock, FiStar, FiArrowLeft, FiScissors, FiEdit3, FiX
+} from 'react-icons/fi';
 import './ProductDetailPage.css';
 
 const BACKEND = 'http://localhost:5001';
@@ -96,7 +99,7 @@ export default function ProductDetailPage() {
         });
         setHaptic(true);
         setTimeout(() => setHaptic(false), 300);
-        addToast(`${product.name} added to cart 🛍`, 'success');
+        addToast(`${product.name} added to cart`, 'success');
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,7 +120,7 @@ export default function ProductDetailPage() {
         setSubmittingReview(true);
         try {
             await api.addReview(product.id, { rating, comment });
-            addToast('Review submitted! ✓', 'success');
+            addToast('Review submitted!', 'success');
             setRating(0); setComment('');
             const updated = await api.getProduct(product.id);
             setProduct(updated);
@@ -130,7 +133,7 @@ export default function ProductDetailPage() {
         if (!id) return;
         try {
             await toggleWishlist(id);
-            addToast(wishlisted ? 'Removed from wishlist' : 'Added to wishlist ❤️', 'success');
+            addToast(wishlisted ? 'Removed from wishlist' : 'Added to wishlist', 'success');
         } catch { addToast('Could not update wishlist', 'error'); }
     };
 
@@ -144,7 +147,7 @@ export default function ProductDetailPage() {
                         className="btn btn-ghost btn-sm"
                         style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
                     >
-                        <span>←</span> Back
+                        <FiArrowLeft /> Back
                     </button>
                     <nav className="pd-breadcrumb" style={{ marginBottom: 0 }}>
                         <button onClick={() => navigate('/')}>Home</button>
@@ -207,20 +210,24 @@ export default function ProductDetailPage() {
                                     marginTop: 4
                                 }}
                             >
-                                {wishlisted ? '❤️' : '♡'}
+                                {wishlisted ? <FiHeart fill="var(--color-primary)" /> : <FiHeart />}
                             </button>
                         </div>
 
                         {avgRating && (
                             <div className="pd-info__rating">
-                                <span className="stars">{'★'.repeat(Math.round(avgRating))}</span>
+                                <span className="stars" style={{ display: 'flex', gap: 2 }}>
+                                    {[...Array(5)].map((_, i) => (
+                                        <FiStar key={i} style={{ fill: i < Math.round(avgRating) ? 'var(--color-primary)' : 'none', color: i < Math.round(avgRating) ? 'var(--color-primary)' : 'var(--color-border)', fontSize: '1rem' }} />
+                                    ))}
+                                </span>
                                 <span className="pd-info__rating-text">{avgRating.toFixed(1)} ({product.reviews?.length} reviews)</span>
                             </div>
                         )}
 
                         <div className="pd-info__price" style={{ marginBottom: 16 }}>₹{product.price.toLocaleString('en-IN')}</div>
 
-                        <Alert variant="info" title="Made to Order 🌸" icon="✂️">
+                        <Alert variant="info" title="Made to Order" icon={<FiScissors />}>
                             Every item is carefully handcrafted from scratch. Please place your order <strong>6–7 days in advance</strong> to allow time for creation and delivery.
                         </Alert>
 
@@ -234,8 +241,8 @@ export default function ProductDetailPage() {
                         {/* Personalization */}
                         {opts.length > 0 && (
                             <div className="pd-personalization">
-                                <h3 className="pd-personalization__title">Personalize Your Gift ✨</h3>
-                                <Alert variant="tip" icon="💡">
+                                <h3 className="pd-personalization__title">Personalize Your Gift <FiZap style={{ verticalAlign: 'middle', fontSize: '1.2rem', color: 'var(--color-secondary)' }} /></h3>
+                                <Alert variant="tip" icon={<FiInfo />}>
                                     Add personal touches — names, messages, or your own photo. We craft each one by hand.
                                 </Alert>
                                 <div style={{ marginTop: 12 }} />
@@ -247,7 +254,9 @@ export default function ProductDetailPage() {
                                                 <input type="file" accept="image/*,.heic,.heif" onChange={handleImageUpload} className="form-input" />
                                                 <p style={{ fontSize: '0.75rem', color: 'var(--color-muted)', marginTop: 4 }}>Supports JPG, PNG, WebP & HEIC (iPhone photos) · Max 15 MB</p>
                                                 {uploading && (
-                                                    <div className="alert-strip alert-strip--info" style={{ marginTop: 6 }}>⏳ Processing your image…</div>
+                                                    <div className="alert-strip alert-strip--info" style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                        <FiClock /> Processing your image…
+                                                    </div>
                                                 )}
                                                 {userImage && (
                                                     <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -259,7 +268,9 @@ export default function ProductDetailPage() {
                                                             title="Click to zoom"
                                                             loading="lazy"
                                                         />
-                                                        <div className="alert-strip alert-strip--success">✅ Image uploaded successfully!</div>
+                                                        <div className="alert-strip alert-strip--success" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                            <FiCheckCircle /> Image uploaded successfully!
+                                                        </div>
                                                     </div>
                                                 )}
                                             </>
@@ -292,7 +303,7 @@ export default function ProductDetailPage() {
                                 style={{ flex: 1 }}
                                 onClick={handleAddToCart}
                             >
-                                Add to Cart 🛍
+                                <FiShoppingBag style={{ marginRight: 10 }} /> Add to Cart
                             </button>
                         </div>
 
@@ -312,8 +323,10 @@ export default function ProductDetailPage() {
                         <div className="pd-reviews__summary">
                             <div className="pd-reviews__avg">{avgRating.toFixed(1)}</div>
                             <div>
-                                <div className="stars" style={{ fontSize: '1.5rem' }}>
-                                    {'★'.repeat(Math.round(avgRating))}{'☆'.repeat(5 - Math.round(avgRating))}
+                                <div className="stars" style={{ fontSize: '1.5rem', display: 'flex', gap: 4 }}>
+                                    {[...Array(5)].map((_, i) => (
+                                        <FiStar key={i} style={{ fill: i < Math.round(avgRating) ? 'var(--color-primary)' : 'none', color: i < Math.round(avgRating) ? 'var(--color-primary)' : 'var(--color-border)' }} />
+                                    ))}
                                 </div>
                                 <p style={{ color: 'var(--color-muted)', fontSize: '0.88rem' }}>Based on {product.reviews?.length} reviews</p>
                             </div>
@@ -323,9 +336,11 @@ export default function ProductDetailPage() {
                     {user && (
                         <form onSubmit={handleReview} className="pd-review-form">
                             <h3>Write a Review</h3>
-                            <div className="pd-star-picker">
+                            <div className="pd-star-picker" style={{ display: 'flex', gap: 6 }}>
                                 {[1, 2, 3, 4, 5].map(s => (
-                                    <button key={s} type="button" onClick={() => setRating(s)} style={{ fontSize: '1.8rem', background: 'none', border: 'none', cursor: 'pointer', color: s <= rating ? '#F5B942' : '#ddd' }}>★</button>
+                                    <button key={s} type="button" onClick={() => setRating(s)} style={{ fontSize: '1.8rem', background: 'none', border: 'none', cursor: 'pointer', color: s <= rating ? '#F5B942' : '#ddd', display: 'flex', padding: 0 }}>
+                                        <FiStar style={{ fill: s <= rating ? 'currentColor' : 'none' }} />
+                                    </button>
                                 ))}
                             </div>
                             <textarea
@@ -350,7 +365,11 @@ export default function ProductDetailPage() {
                                     }
                                     <div>
                                         <strong style={{ fontSize: '0.9rem' }}>{r.user.name}</strong>
-                                        <div className="stars" style={{ fontSize: '0.85rem' }}>{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</div>
+                                        <div className="stars" style={{ fontSize: '0.85rem', display: 'flex', gap: 2 }}>
+                                            {[...Array(5)].map((_, i) => (
+                                                <FiStar key={i} style={{ fill: i < r.rating ? 'var(--color-primary)' : 'none', color: i < r.rating ? 'var(--color-primary)' : 'var(--color-border)' }} />
+                                            ))}
+                                        </div>
                                     </div>
                                     <span style={{ marginLeft: 'auto', fontSize: '0.78rem', color: 'var(--color-muted)' }}>
                                         {new Date(r.createdAt).toLocaleDateString()}
@@ -361,7 +380,7 @@ export default function ProductDetailPage() {
                         ))}
                         {(!product.reviews || product.reviews.length === 0) && (
                             <div className="empty-state" style={{ padding: 'var(--space-8) 0' }}>
-                                <div className="empty-state__icon">⭐</div>
+                                <div className="empty-state__icon"><FiStar /></div>
                                 <p className="empty-state__title">No reviews yet. Be the first!</p>
                             </div>
                         )}
@@ -382,11 +401,14 @@ export default function ProductDetailPage() {
                                 zIndex: 2,
                                 borderRadius: 'var(--radius-full)',
                                 boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                                padding: '8px 16px'
+                                padding: '8px 16px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6
                             }}
                             onClick={() => setPreviewImage(null)}
                         >
-                            ✕ Close
+                            <FiX /> Close
                         </button>
                         <img
                             src={previewImage}

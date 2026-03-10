@@ -1,4 +1,5 @@
-import React, { ReactNode } from 'react';
+import { ReactNode } from 'react';
+import { FiInfo, FiCheckCircle, FiAlertTriangle, FiXCircle, FiZap, FiX } from 'react-icons/fi';
 import './Alert.css';
 
 type AlertVariant = 'info' | 'success' | 'warning' | 'error' | 'tip';
@@ -7,17 +8,17 @@ interface AlertProps {
     variant?: AlertVariant;
     title?: string;
     children: ReactNode;
-    icon?: string;
+    icon?: ReactNode;
     dismissible?: boolean;
     onDismiss?: () => void;
 }
 
-const defaults: Record<AlertVariant, { icon: string; label: string }> = {
-    info: { icon: 'ℹ️', label: 'Info' },
-    success: { icon: '✅', label: 'Success' },
-    warning: { icon: '⚠️', label: 'Heads up' },
-    error: { icon: '❌', label: 'Error' },
-    tip: { icon: '💡', label: 'Tip' },
+const defaults: Record<AlertVariant, { icon: ReactNode; label: string }> = {
+    info: { icon: <FiInfo />, label: 'Info' },
+    success: { icon: <FiCheckCircle />, label: 'Success' },
+    warning: { icon: <FiAlertTriangle />, label: 'Heads up' },
+    error: { icon: <FiXCircle />, label: 'Error' },
+    tip: { icon: <FiZap />, label: 'Tip' },
 };
 
 export default function Alert({ variant = 'info', title, children, icon, dismissible, onDismiss }: AlertProps) {
@@ -30,7 +31,14 @@ export default function Alert({ variant = 'info', title, children, icon, dismiss
                 <div className="alert__content">{children}</div>
             </div>
             {dismissible && (
-                <button className="alert__dismiss" onClick={onDismiss} aria-label="Dismiss">✕</button>
+                <button
+                    className="alert__dismiss"
+                    onClick={onDismiss}
+                    aria-label="Dismiss"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                    <FiX />
+                </button>
             )}
         </div>
     );

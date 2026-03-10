@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { FiCheckCircle, FiXCircle, FiInfo, FiAlertTriangle } from 'react-icons/fi';
 
 interface Toast {
     id: string;
@@ -27,8 +28,11 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
         setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 4000);
     }, []);
 
-    const icons: Record<Toast['type'], string> = {
-        success: '✓', error: '✕', info: 'ℹ', warning: '⚠',
+    const icons: Record<Toast['type'], ReactNode> = {
+        success: <FiCheckCircle />,
+        error: <FiXCircle />,
+        info: <FiInfo />,
+        warning: <FiAlertTriangle />,
     };
 
     return (
@@ -37,7 +41,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
             <div className="toast-container">
                 {toasts.map(t => (
                     <div key={t.id} className={`toast ${t.type}`}>
-                        <span style={{ fontSize: '1rem', fontWeight: 700 }}>{icons[t.type]}</span>
+                        <span className="toast-icon">{icons[t.type]}</span>
                         <span>{t.message}</span>
                     </div>
                 ))}

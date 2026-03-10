@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
+import { FiPackage, FiHeart, FiArrowLeft } from 'react-icons/fi';
 
 export default function ProfilePage() {
     const { user } = useAuth();
@@ -15,7 +16,7 @@ export default function ProfilePage() {
                         className="btn btn-ghost btn-sm"
                         style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
                     >
-                        <span>←</span> Back to Home
+                        <FiArrowLeft /> Back to Store
                     </button>
                 </div>
                 <h1 className="section-title" style={{ marginBottom: 32 }}>My Profile</h1>
@@ -49,12 +50,12 @@ export default function ProfilePage() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                     <Link to="/orders" className="card" style={{ padding: 'var(--space-6)', display: 'block', textDecoration: 'none' }}>
-                        <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>📦</div>
+                        <div style={{ fontSize: '2.5rem', marginBottom: 8, opacity: 0.1, color: 'var(--color-primary)' }}><FiPackage /></div>
                         <h3 style={{ fontWeight: 700, color: 'var(--color-text)' }}>My Orders</h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginTop: 4 }}>Track your handmade gifts</p>
                     </Link>
                     <Link to="/wishlist" className="card" style={{ padding: 'var(--space-6)', display: 'block', textDecoration: 'none' }}>
-                        <div style={{ fontSize: '2.5rem', marginBottom: 8 }}>♡</div>
+                        <div style={{ fontSize: '2.5rem', marginBottom: 8, opacity: 0.1, color: 'var(--color-primary)' }}><FiHeart /></div>
                         <h3 style={{ fontWeight: 700, color: 'var(--color-text)' }}>My Wishlist</h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginTop: 4 }}>Saved items you love</p>
                     </Link>

@@ -1,22 +1,35 @@
+/* Global Admin Theme Override */
+.admin-theme {
+    background-color: #FFFFFF !important;
+    min-height: 100vh;
+}
+
+.admin-theme .skeleton {
+    background: linear-gradient(90deg, #F0F0F0 25%, #E0E0E0 50%, #F0F0F0 75%);
+    background-size: 1000px 100%;
+}
+
+/* Admin Dashboard Layout */
 .admin-dashboard {
     display: grid;
     grid-template-columns: 260px 1fr;
-    min-height: 100vh;
-    padding-top: 0;
+    min-height: calc(100vh - 72px);
+    background: #FFFFFF;
 }
 
 /* Sidebar */
 .admin-sidebar {
     background: #1B1F1C;
-    /* Sophisticated deep charcoal-green */
     display: flex;
     flex-direction: column;
     padding: var(--space-6) 0;
     position: sticky;
-    top: 0;
-    height: 100vh;
+    top: 72px;
+    /* Sticky below Navbar */
+    height: calc(100vh - 72px);
     overflow-y: auto;
     border-right: 1px solid rgba(255, 255, 255, 0.05);
+    z-index: 100;
 }
 
 .admin-sidebar__logo {
@@ -44,58 +57,6 @@
     flex-direction: column;
     gap: var(--space-1);
     padding: 0 var(--space-3);
-}
-
-.admin-sidebar__profile {
-    padding: var(--space-4) var(--space-5);
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    margin-bottom: var(--space-4);
-}
-
-.admin-sidebar__avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-}
-
-.admin-sidebar__avatar--initials {
-    background: var(--color-primary);
-    color: white;
-    font-size: 0.9rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    border: none;
-}
-
-.admin-sidebar__user-info {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.admin-sidebar__user-name {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: white;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-}
-
-.admin-sidebar__user-email {
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.5);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
 }
 
 .admin-sidebar__link {
@@ -127,12 +88,62 @@
     font-weight: 700;
 }
 
-/* Main */
+.admin-sidebar__profile {
+    padding: var(--space-4) var(--space-5);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: var(--space-4);
+}
+
+.admin-sidebar__avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-sidebar__avatar--initials {
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.admin-sidebar__user-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.admin-sidebar__user-name {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.admin-sidebar__user-email {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+/* Main Content Area */
 .admin-main {
-    background: #F9F7F5;
-    /* Warmer luxury background */
+    background: #FFFFFF;
     padding: var(--space-10);
-    min-height: 100vh;
+    min-height: calc(100vh - 72px);
 }
 
 .admin__section-title {
@@ -143,20 +154,26 @@
     margin-bottom: var(--space-6);
 }
 
-/* Analytics */
+/* Analytics Stats */
 .admin-analytics-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: var(--space-5);
     margin-bottom: var(--space-8);
+}
+
+.admin-charts-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-bottom: 32px;
 }
 
 .admin-stat-card {
     background: white;
     border-radius: var(--radius-lg);
     padding: var(--space-6);
-    text-align: left;
-    /* More professional left-align */
     border: 1px solid var(--color-border);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
     transition: transform var(--transition-base);
@@ -187,17 +204,17 @@
     letter-spacing: 0.08em;
 }
 
-/* Table */
+/* Tables */
 .admin-table-wrap {
     overflow-x: auto;
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-border);
+    background: white;
 }
 
 .admin-table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
 }
 
 .admin-table th {
@@ -208,7 +225,7 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-text-light);
-    background: #F1EDEA;
+    background: #F8F9FA;
     border-bottom: 2px solid var(--color-border);
 }
 
@@ -219,15 +236,7 @@
     vertical-align: middle;
 }
 
-.admin-table tr:last-child td {
-    border-bottom: none;
-}
-
-.admin-table tr:hover td {
-    background: var(--color-off-white);
-}
-
-/* Orders */
+/* Order Cards */
 .admin-orders-list {
     display: flex;
     flex-direction: column;
@@ -238,7 +247,7 @@
     background: white;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    padding: var(--space-5) var(--space-6);
+    padding: var(--space-6);
 }
 
 .admin-order-card__header {
@@ -250,21 +259,6 @@
     gap: var(--space-3);
 }
 
-.admin-order-card__items {
-    display: flex;
-    gap: var(--space-2);
-    flex-wrap: wrap;
-    margin-bottom: var(--space-4);
-}
-
-.admin-order-card__items span {
-    font-size: 0.78rem;
-    background: var(--color-cream);
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    color: var(--color-text-light);
-}
-
 .admin-order-card__actions {
     display: flex;
     gap: var(--space-3);
@@ -274,10 +268,42 @@
     border-top: 1px solid var(--color-border);
 }
 
-@media (max-width: 900px) {
+/* Reels & Forms */
+.admin-reels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px;
+}
+
+.admin-reel-upload-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    align-items: end;
+}
+
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* --- Mobile Responsiveness (Under 768px) --- */
+.admin-mobile-header,
+.admin-sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 768px) {
+
+    /* Hide global site navbar on mobile admin pages */
+    .admin-theme .navbar {
+        display: none !important;
+    }
+
     .admin-dashboard {
         grid-template-columns: 1fr;
-        padding-top: 60px;
+        min-height: 100vh;
     }
 
     .admin-mobile-header {
@@ -289,7 +315,7 @@
         height: 60px;
         background: var(--color-dark);
         color: white;
-        z-index: 1001;
+        z-index: 2000;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
@@ -303,186 +329,60 @@
 
     .admin-sidebar {
         position: fixed;
-        top: 60px;
-        left: -260px;
-        width: 260px;
-        height: calc(100vh - 60px);
-        z-index: 1000;
-        transition: left 0.3s ease;
-        display: flex;
+        top: 0;
+        left: -280px;
+        width: 280px;
+        height: 100vh;
+        z-index: 2100;
+        transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        padding-top: var(--space-10);
     }
 
     .admin-sidebar.mobile-open {
         left: 0;
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
+        box-shadow: 15px 0 40px rgba(0, 0, 0, 0.4);
     }
 
-    /* Overlay when sidebar is open */
     .admin-sidebar-backdrop {
         display: block;
         position: fixed;
-        inset: 60px 0 0 0;
-        background: rgba(0, 0, 0, 0.4);
-        z-index: 999;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2050;
+        backdrop-filter: blur(4px);
     }
 
-    .admin-analytics-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    /* Charts side-by-side → stack */
-    .admin-charts-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    .admin-hamburger {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        width: 24px;
-        height: 16px;
-        background: none;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-    }
-
-    .admin-hamburger span {
-        width: 100%;
-        height: 2px;
-        background: white;
-        border-radius: 2px;
-        transition: all 0.3s ease;
-    }
-
-    .admin-hamburger.open span:nth-child(1) {
-        transform: translateY(7px) rotate(45deg);
-    }
-
-    .admin-hamburger.open span:nth-child(2) {
-        opacity: 0;
-    }
-
-    .admin-hamburger.open span:nth-child(3) {
-        transform: translateY(-7px) rotate(-45deg);
-    }
-
-    /* Order card actions stacked */
-    .admin-order-card__actions {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .admin-order-card__actions>div {
-        max-width: 100% !important;
-        width: 100%;
-    }
-
-    /* Date + action buttons wrap nicely */
-    .admin-order-card__actions .order-action-btns {
-        flex-wrap: wrap;
-    }
-
-    /* Product form modal – stack columns */
-    .modal .modal__body [style*="grid-template-columns: 1fr 1fr"] {
-        grid-template-columns: 1fr !important;
-    }
-
-    /* Modal should fill screen on mobile */
-    .modal {
-        width: 95vw !important;
-        max-width: 95vw !important;
-    }
-}
-
-.admin-mobile-header {
-    display: none;
-}
-
-/* Sidebar backdrop (hidden by default, shown via JS) */
-.admin-sidebar-backdrop {
-    display: none;
-}
-
-@media (max-width: 600px) {
     .admin-main {
-        padding: var(--space-5) var(--space-4);
+        padding: var(--space-6) var(--space-4);
+        padding-top: 80px;
+        /* Offset for admin-mobile-header */
+        min-height: 100vh;
     }
 
+    /* Analytics Responsive */
     .admin-analytics-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: var(--space-3);
+        grid-template-columns: 1fr;
     }
 
-    .admin-stat-card {
-        padding: var(--space-4) var(--space-3);
-    }
-
-    .admin-stat-card__value {
-        font-size: 1.4rem;
-    }
-
-    .admin__section-title {
-        font-size: 1.3rem;
-    }
-
-    /* Reel upload form stacks */
-    .admin-reel-upload-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    /* Charts become single column on small screens */
     .admin-charts-grid {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: 1fr;
     }
 
-    /* Order items wrap */
-    .admin-order-card__items {
-        flex-direction: column;
+    .admin-reels-grid {
+        grid-template-columns: 1fr;
     }
 
-    /* Reduce chart height on mobile */
-    .admin-chart-container {
-        height: 250px !important;
+    .admin-reel-upload-grid {
+        grid-template-columns: 1fr;
     }
 
-    /* Modal full-screen on small phones */
-    .modal {
-        width: 100vw !important;
-        max-width: 100vw !important;
-        max-height: 95vh;
-        overflow-y: auto;
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
-        margin: auto 0 0;
+    /* Form Grids Responsive */
+    .admin-form-grid {
+        grid-template-columns: 1fr;
     }
 
-    .modal-overlay {
-        align-items: flex-end;
-    }
-
-    /* Stat cards 2-col always */
-    .admin-analytics-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    /* Table scrollable horizontally */
+    /* Table Card Layout */
     .admin-table-wrap {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .admin-table th,
-    .admin-table td {
-        white-space: nowrap;
-        padding: 10px 12px;
-    }
-}
-
-/* ====== MOBILE CARD LAYOUT FOR ADMIN TABLES ====== */
-/* On small screens, transform tables into cards */
-@media (max-width: 640px) {
-    .admin-table-wrap {
-        overflow-x: unset;
         border: none;
         background: transparent;
     }
@@ -496,7 +396,6 @@
         display: block;
     }
 
-    /* Hide table headers (will show as label via data-label) */
     .admin-table thead tr {
         position: absolute;
         top: -9999px;
@@ -507,60 +406,70 @@
         background: white;
         border: 1px solid var(--color-border);
         border-radius: var(--radius-lg);
-        margin-bottom: 12px;
-        padding: var(--space-4) var(--space-4);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        margin-bottom: var(--space-4);
+        padding: var(--space-4);
+        box-shadow: var(--shadow-sm);
     }
 
     .admin-table td {
-        padding: 6px 0;
+        padding: 8px 0;
         border: none;
         display: flex;
         align-items: center;
-        gap: 10px;
-        font-size: 0.87rem;
-        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 0.9rem;
     }
 
-    /* Show label before each cell value */
     .admin-table td::before {
         content: attr(data-label);
-        font-size: 0.72rem;
         font-weight: 700;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
         color: var(--color-muted);
-        min-width: 80px;
-        flex-shrink: 0;
+        min-width: 90px;
     }
 
-    /* Image cell: just show the image without a label */
-    .admin-table td.admin-td-img {
-        display: block;
-        margin-bottom: 4px;
-    }
-
-    .admin-table td.admin-td-img::before {
+    .admin-td-img::before {
         display: none;
     }
 
-    /* Action buttons in table: full width */
-    .admin-table td .btn {
-        flex: 1;
-    }
-
-    /* Order card adjustments for mobile */
-    .admin-order-card {
-        padding: var(--space-4);
+    .admin-td-img {
+        display: block;
+        padding-bottom: 12px;
     }
 
     .admin-order-card__actions {
         flex-direction: column;
+        align-items: stretch;
     }
 
-    /* Status select full-width on mobile */
-    .admin-order-card__actions>div {
-        max-width: 100% !important;
+    .admin-hamburger {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 24px;
+        height: 18px;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+
+    .admin-hamburger span {
         width: 100%;
+        height: 2px;
+        background: white;
+        transition: 0.3s;
+    }
+
+    .admin-hamburger.open span:nth-child(1) {
+        transform: translateY(8px) rotate(45deg);
+    }
+
+    .admin-hamburger.open span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .admin-hamburger.open span:nth-child(3) {
+        transform: translateY(-8px) rotate(-45deg);
     }
 }

@@ -2,14 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import Skeleton from '../components/Skeleton';
+import { FiFileText, FiCheckCircle, FiPackage, FiTruck, FiHome, FiArrowLeft } from 'react-icons/fi';
 import './OrdersPage.css';
 
 const STATUS_STEPS = [
-    { key: 'PLACED', label: 'Placed', icon: '📝' },
-    { key: 'ACCEPTED', label: 'Accepted', icon: '✓' },
-    { key: 'PREPARING', label: 'Preparing', icon: '🎁' },
-    { key: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', icon: '🚗' },
-    { key: 'DELIVERED', label: 'Delivered', icon: '🏠' },
+    { key: 'PLACED', label: 'Placed', icon: <FiFileText /> },
+    { key: 'ACCEPTED', label: 'Accepted', icon: <FiCheckCircle /> },
+    { key: 'PREPARING', label: 'Preparing', icon: <FiPackage /> },
+    { key: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', icon: <FiTruck /> },
+    { key: 'DELIVERED', label: 'Delivered', icon: <FiHome /> },
 ];
 
 export default function OrdersPage() {
@@ -32,7 +33,7 @@ export default function OrdersPage() {
                         className="btn btn-ghost btn-sm"
                         style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
                     >
-                        <span>←</span> Back to Home
+                        <FiArrowLeft /> Back to Home
                     </button>
                 </div>
                 <Skeleton height={40} width={200} style={{ marginBottom: 32 }} />
@@ -54,14 +55,14 @@ export default function OrdersPage() {
                         className="btn btn-ghost btn-sm"
                         style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
                     >
-                        <span>←</span> Back to Home
+                        <FiArrowLeft /> Back to Home
                     </button>
                 </div>
                 <h1 className="section-title" style={{ marginBottom: 32 }}>My Orders</h1>
 
                 {orders.length === 0 ? (
                     <div className="empty-state" style={{ padding: 'var(--space-16) 0' }}>
-                        <div className="empty-state__icon" style={{ fontSize: '5rem' }}>📦</div>
+                        <div className="empty-state__icon" style={{ fontSize: '4rem', opacity: 0.1, color: 'var(--color-primary)' }}><FiPackage /></div>
                         <h2 className="empty-state__title" style={{ fontSize: '2rem' }}>No orders found</h2>
                         <p style={{ maxWidth: 400, margin: '12px auto' }}>You haven't placed any orders yet. Discover our handmade gifts and place your first order!</p>
                         <Link to="/products" className="btn btn-primary btn-lg" style={{ marginTop: 24 }}>Start Shopping</Link>
@@ -96,7 +97,7 @@ export default function OrdersPage() {
                                                 key={step.key}
                                                 className={`order-card__step ${i <= stepIdx ? 'done' : ''} ${i === stepIdx ? 'active' : ''}`}
                                             >
-                                                <div className="order-card__step-dot">{i < stepIdx ? '✓' : step.icon}</div>
+                                                <div className="order-card__step-dot">{i < stepIdx ? <FiCheckCircle /> : step.icon}</div>
                                                 <span className="order-card__step-label">{step.label}</span>
                                             </div>
                                         ))}

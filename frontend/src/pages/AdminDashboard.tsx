@@ -9,6 +9,9 @@ import getCroppedImg from '../utils/cropImage';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
+import {
+    FiShoppingBag, FiCheckCircle, FiClock, FiXCircle, FiTrendingUp, FiScissors, FiUploadCloud, FiCheck, FiPhone, FiFileText, FiTruck, FiHome, FiArrowRight, FiX, FiPackage, FiPlus, FiBarChart2, FiUser, FiPlay, FiZap, FiArrowLeft
+} from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import './AdminDashboard.css';
 
@@ -33,13 +36,13 @@ function Analytics() {
             <h2 className="admin__section-title">Overview</h2>
 
             {/* Top Stat Cards */}
-            <div className="admin-analytics-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', marginBottom: 32 }}>
+            <div className="admin-analytics-grid">
                 {[
-                    { label: 'Total Orders', value: data.totalOrders, icon: '📦' },
-                    { label: 'Completed', value: data.completedOrders, icon: '✅' },
-                    { label: 'Pending', value: data.pendingOrders, icon: '⏳' },
-                    { label: 'Rejected', value: data.rejectedOrders, icon: '❌' },
-                    { label: 'Revenue', value: `₹${(+data.totalRevenue).toLocaleString('en-IN')}`, icon: '💰' },
+                    { label: 'Total Orders', value: data.totalOrders, icon: <FiShoppingBag /> },
+                    { label: 'Completed', value: data.completedOrders, icon: <FiCheckCircle /> },
+                    { label: 'Pending', value: data.pendingOrders, icon: <FiClock /> },
+                    { label: 'Rejected', value: data.rejectedOrders, icon: <FiXCircle /> },
+                    { label: 'Revenue', value: `₹${(+data.totalRevenue).toLocaleString('en-IN')}`, icon: <FiTrendingUp /> },
                 ].map(s => (
                     <div key={s.label} className="admin-stat-card">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -52,7 +55,7 @@ function Analytics() {
             </div>
 
             {/* Charts Section */}
-            <div className="admin-charts-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, alignItems: 'start' }}>
+            <div className="admin-charts-grid">
 
                 {/* Revenue Trend Chart */}
                 <div className="card" style={{ padding: 24, border: '1px solid var(--color-border)' }}>
@@ -233,7 +236,7 @@ function CropperModal({ files, onComplete, onCancel }: { files: File[], onComple
             <div className="modal" style={{ width: 600, height: 600, display: 'flex', flexDirection: 'column' }}>
                 <div className="modal__header">
                     <h2>Crop Image {currentIndex + 1} of {files.length}</h2>
-                    <button className="btn btn-ghost btn-sm" onClick={onCancel}>✕</button>
+                    <button className="btn btn-ghost btn-sm" onClick={onCancel}><FiX /></button>
                 </div>
                 <div className="modal__body" style={{ flex: 1, position: 'relative', background: '#333', borderRadius: 8, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {!imageSrc && processing && <div style={{ color: '#aaa', fontWeight: 500 }}>Converting HEIC format...</div>}
@@ -271,8 +274,8 @@ function CropperModal({ files, onComplete, onCancel }: { files: File[], onComple
                     </div>
                     <div className="modal__footer" style={{ borderTop: 'none', padding: 0 }}>
                         <button className="btn btn-ghost" onClick={onCancel} disabled={processing}>Cancel All</button>
-                        <button className="btn btn-primary" onClick={handleNext} disabled={processing}>
-                            {processing ? 'Processing...' : currentIndex < files.length - 1 ? 'Next Image ➜' : '✓ Finish & Upload'}
+                        <button className="btn btn-primary" onClick={handleNext} disabled={processing} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {processing ? 'Processing...' : currentIndex < files.length - 1 ? <>{currentIndex + 1 < files.length ? 'Next Image' : 'Finish'} <FiArrowRight /></> : <><FiCheck /> Finish & Upload</>}
                         </button>
                     </div>
                 </div>
@@ -325,7 +328,7 @@ function ProductForm({ initial, onSave, onClose }: { initial?: any, onSave: () =
             } else {
                 setForm(f => ({ ...f, images: f.images ? f.images + ',' + urls.join(',') : urls.join(',') }));
             }
-            addToast('Images cropped and uploaded! ✅', 'success');
+            addToast('Images cropped and uploaded!', 'success');
         } catch { addToast('Upload failed', 'error'); }
         finally { setUploading(false); }
     };
@@ -376,10 +379,10 @@ function ProductForm({ initial, onSave, onClose }: { initial?: any, onSave: () =
                 <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 700 }}>
                     <div className="modal__header">
                         <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem' }}>{initial ? 'Edit Product' : 'New Product'}</h2>
-                        <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+                        <button className="btn btn-ghost btn-sm" onClick={onClose}><FiX /></button>
                     </div>
                     <form onSubmit={handleSubmit}>
-                        <div className="modal__body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                        <div className="modal__body admin-form-grid">
                             {[
                                 { label: 'Product Name', key: 'name', full: true },
                                 { label: 'Price (₹)', key: 'price', type: 'number' },
@@ -420,10 +423,14 @@ function ProductForm({ initial, onSave, onClose }: { initial?: any, onSave: () =
                                 <label className="form-label">Upload Images (JPG, PNG, WebP, HEIC)</label>
                                 <input type="file" multiple accept="image/*,.heic,.heif" onChange={handleImageSelect} className="form-input" />
                                 {uploading && (
-                                    <div className="alert-strip alert-strip--info" style={{ marginTop: 6 }}>⏳ Processing and uploading cropped images…</div>
+                                    <div className="alert-strip alert-strip--info" style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <FiClock /> Processing and uploading cropped images…
+                                    </div>
                                 )}
                                 {!uploading && form.images && (
-                                    <div className="alert-strip alert-strip--success" style={{ marginTop: 6 }}>✅ {form.images.split(',').filter(Boolean).length} image(s) ready</div>
+                                    <div className="alert-strip alert-strip--success" style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <FiCheck /> {form.images.split(',').filter(Boolean).length} image(s) ready
+                                    </div>
                                 )}
                             </div>
                             <div className="form-group" style={{ gridColumn: '1/-1' }}>
@@ -448,7 +455,7 @@ function ProductForm({ initial, onSave, onClose }: { initial?: any, onSave: () =
                                                     onClick={() => handleEditImage(url, i)}
                                                     style={{ position: 'absolute', top: -5, right: -5, background: 'var(--color-primary)', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}
                                                 >
-                                                    ✂️
+                                                    <FiScissors />
                                                 </button>
                                             </div>
                                         );
@@ -518,7 +525,9 @@ function AdminProducts() {
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                 <h2 className="admin__section-title">Products</h2>
-                <button className="btn btn-primary btn-sm" onClick={() => { setEditing(null); setFormOpen(true); }}>+ Add Product</button>
+                <button className="btn btn-primary btn-sm" onClick={() => { setEditing(null); setFormOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <FiPlus /> Add Product
+                </button>
             </div>
 
             {loading ? (
@@ -584,7 +593,7 @@ function ProductPreviewModal({ product, onClose }: { product: any, onClose: () =
                         alt={product.name}
                         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                     />
-                    <button className="btn btn-ghost" style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', borderRadius: '50%', width: 32, height: 32, padding: 0 }} onClick={onClose}>✕</button>
+                    <button className="btn btn-ghost" style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', borderRadius: '50%', width: 32, height: 32, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onClose}><FiX /></button>
 
                     {images.length > 1 && (
                         <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 8 }}>
@@ -685,8 +694,8 @@ function AdminOrders() {
                                         <div style={{ fontWeight: 600 }}>{order.user.name}</div>
                                         <div style={{ color: 'var(--color-muted)' }}>{order.user.email}</div>
                                         {order.phoneNumber && (
-                                            <div style={{ color: 'var(--color-primary)', marginTop: 2, fontWeight: 500 }}>
-                                                📞 {order.phoneNumber}
+                                            <div style={{ color: 'var(--color-primary)', marginTop: 2, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                <FiPhone size={12} /> {order.phoneNumber}
                                             </div>
                                         )}
                                     </div>
@@ -703,7 +712,7 @@ function AdminOrders() {
                                 {order.orderItems.map((item: any) => (
                                     <div
                                         key={item.id}
-                                        style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--color-cream)', padding: '6px 12px', borderRadius: 12, cursor: 'pointer', transition: 'transform 0.2s' }}
+                                        style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#F8F9FA', padding: '6px 12px', borderRadius: 12, cursor: 'pointer', transition: 'transform 0.2s' }}
                                         onClick={() => setPreviewProduct(item.product)}
                                         onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                                         onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
@@ -737,12 +746,12 @@ function AdminOrders() {
                                         }}
                                         disabled={updating === order.id || order.status === 'REJECTED'}
                                         options={[
-                                            { value: 'PLACED', label: '📝 Placed' },
-                                            { value: 'ACCEPTED', label: '✔️ Accepted' },
-                                            { value: 'PREPARING', label: '🎁 Preparing' },
-                                            { value: 'OUT_FOR_DELIVERY', label: '🚗 Out for Delivery' },
-                                            { value: 'DELIVERED', label: '🏠 Delivered' },
-                                            { value: 'REJECTED', label: '❌ Rejected (Locked)', disabled: true }
+                                            { value: 'PLACED', label: 'Placed', icon: <FiFileText /> },
+                                            { value: 'ACCEPTED', label: 'Accepted', icon: <FiCheckCircle /> },
+                                            { value: 'PREPARING', label: 'Preparing', icon: <FiPackage /> },
+                                            { value: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', icon: <FiTruck /> },
+                                            { value: 'DELIVERED', label: 'Delivered', icon: <FiHome /> },
+                                            { value: 'REJECTED', label: 'Rejected (Locked)', disabled: true, icon: <FiXCircle /> }
                                         ]}
                                     />
                                 </div>
@@ -759,8 +768,9 @@ function AdminOrders() {
                                             className="btn btn-primary btn-sm"
                                             onClick={() => updateOrder(order.id, 'ACCEPTED', deliveryDates[order.id])}
                                             disabled={updating === order.id || !deliveryDates[order.id]}
+                                            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
                                         >
-                                            {updating === order.id ? 'Updating...' : '✓ Accept'}
+                                            {updating === order.id ? 'Updating...' : <><FiCheck /> Accept</>}
                                         </button>
                                         <button
                                             className="btn btn-sm"
@@ -783,7 +793,7 @@ function AdminOrders() {
                     <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
                         <div className="modal__header">
                             <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem' }}>Reject Order</h2>
-                            <button className="btn btn-ghost btn-sm" onClick={() => setRejectionModal(null)}>✕</button>
+                            <button className="btn btn-ghost btn-sm" onClick={() => setRejectionModal(null)}><FiX /></button>
                         </div>
                         <div className="modal__body">
                             <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: 16 }}>
@@ -875,7 +885,7 @@ function AdminReels() {
         try {
             const { url } = await api.uploadVideo(file);
             await api.admin.createReel({ title, videoUrl: url, priority: 0 });
-            addToast('Reel uploaded and added! 🎥', 'success');
+            addToast('Reel uploaded and added!', 'success');
             setTitle('');
             load();
         } catch (err: any) {
@@ -911,7 +921,7 @@ function AdminReels() {
 
             <div className="card" style={{ padding: 24, marginBottom: 32, border: '1px solid var(--color-border)' }}>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: 16 }}>Upload New Reel</h3>
-                <div className="admin-reel-upload-grid" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'end' }}>
+                <div className="admin-reel-upload-grid">
                     <div className="form-group" style={{ marginBottom: 0 }}>
                         <label className="form-label">Reel Title (Optional)</label>
                         <input
@@ -925,7 +935,7 @@ function AdminReels() {
                     </div>
                     <div className="form-group" style={{ marginBottom: 0 }}>
                         <label className="btn btn-primary" style={{ cursor: uploading ? 'not-allowed' : 'pointer', opacity: uploading ? 0.7 : 1 }}>
-                            {uploading ? 'Uploading...' : '📁 Select Video & Upload'}
+                            {uploading ? 'Uploading...' : <><FiUploadCloud /> Select Video & Upload</>}
                             <input
                                 type="file"
                                 accept="video/mp4,video/quicktime,video/webm"
@@ -937,8 +947,8 @@ function AdminReels() {
                     </div>
                 </div>
                 {uploading && (
-                    <div className="alert-strip alert-strip--info" style={{ marginTop: 16 }}>
-                        ⏳ Uploading video... please wait (up to 50MB supported).
+                    <div className="alert-strip alert-strip--info" style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <FiClock /> Uploading video... please wait (up to 50MB supported).
                     </div>
                 )}
             </div>
@@ -948,7 +958,7 @@ function AdminReels() {
             ) : reels.length === 0 ? (
                 <div className="empty-state">No reels added yet. Upload one above to get started!</div>
             ) : (
-                <div className="admin-reels-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 24 }}>
+                <div className="admin-reels-grid">
                     {reels.map(reel => (
                         <div key={reel.id} className="admin-reel-card" style={{ background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--color-border)', position: 'relative' }}>
                             <video
@@ -1015,10 +1025,10 @@ function PolicyForm({ initial, onSave, onClose }: { initial?: any, onSave: () =>
             <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 1000, width: '95%' }}>
                 <div className="modal__header">
                     <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem' }}>{initial ? 'Edit Policy' : 'New Policy'}</h2>
-                    <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+                    <button className="btn btn-ghost btn-sm" onClick={onClose}><FiX /></button>
                 </div>
                 <form onSubmit={handleSubmit}>
-                    <div className="modal__body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                    <div className="modal__body admin-form-grid">
                         <div className="policy-editor-left">
                             <div className="form-group">
                                 <label className="form-label">Policy Title</label>
@@ -1072,8 +1082,11 @@ function PolicyForm({ initial, onSave, onClose }: { initial?: any, onSave: () =>
                                 <h1 style={{ fontFamily: 'var(--font-serif)', marginBottom: 16 }}>{form.title || 'Policy Title'}</h1>
                                 {form.content || 'Your content will appear here...'}
                             </div>
-                            <div style={{ marginTop: 12, fontSize: '0.75rem', color: 'var(--color-muted)', background: 'var(--color-cream)', padding: 12, borderRadius: 8 }}>
-                                💡 <strong>Tip:</strong> Simply type your policy text. Use double line breaks for new paragraphs. All formatting (like lists) should be done manually with plain text.
+                            <div style={{ marginTop: 12, fontSize: '0.75rem', color: 'var(--color-muted)', background: 'var(--color-cream)', padding: 12, borderRadius: 8, display: 'flex', alignItems: 'start', gap: 8 }}>
+                                <FiZap style={{ color: 'var(--color-secondary)', flexShrink: 0, marginTop: 2 }} />
+                                <div>
+                                    <strong>Tip:</strong> Simply type your policy text. Use double line breaks for new paragraphs. All formatting (like lists) should be done manually with plain text.
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1085,7 +1098,7 @@ function PolicyForm({ initial, onSave, onClose }: { initial?: any, onSave: () =>
                     </div>
                 </form>
             </div>
-        </div>
+        </div >
     );
 }
 
@@ -1122,7 +1135,9 @@ function AdminPolicies() {
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                 <h2 className="admin__section-title">Store Policies</h2>
-                <button className="btn btn-primary btn-sm" onClick={() => { setEditing(null); setFormOpen(true); }}>+ Add Policy</button>
+                <button className="btn btn-primary btn-sm" onClick={() => { setEditing(null); setFormOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <FiPlus /> Add Policy
+                </button>
             </div>
 
             {loading ? (
@@ -1166,12 +1181,12 @@ export default function AdminDashboard() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const navItems = [
-        { path: '/admin', label: 'Analytics', icon: '📊' },
-        { path: '/admin/products', label: 'Products', icon: '🛍' },
-        { path: '/admin/orders', label: 'Orders', icon: '📦' },
-        { path: '/admin/users', label: 'Users', icon: '👤' },
-        { path: '/admin/reels', label: 'Reels', icon: '🎥' },
-        { path: '/admin/policies', label: 'Policies', icon: '📑' },
+        { path: '/admin', label: 'Analytics', icon: <FiBarChart2 /> },
+        { path: '/admin/products', label: 'Products', icon: <FiShoppingBag /> },
+        { path: '/admin/orders', label: 'Orders', icon: <FiPackage /> },
+        { path: '/admin/users', label: 'Users', icon: <FiUser /> },
+        { path: '/admin/reels', label: 'Reels', icon: <FiPlay /> },
+        { path: '/admin/policies', label: 'Policies', icon: <FiFileText /> },
     ];
 
     useEffect(() => {
@@ -1220,14 +1235,14 @@ export default function AdminDashboard() {
                             className={`admin-sidebar__link ${location.pathname === item.path ? 'active' : ''}`}
                             onClick={() => navigate(item.path)}
                         >
-                            <span>{item.icon}</span>
+                            <span style={{ display: 'flex' }}>{item.icon}</span>
                             <span>{item.label}</span>
                         </button>
                     ))}
                 </nav>
                 <div style={{ padding: '0 var(--space-4)', marginTop: '20px' }}>
-                    <Link to="/" className="admin-sidebar__link">
-                        <span>←</span>
+                    <Link to="/" className="admin-sidebar__link" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <FiArrowLeft />
                         <span>Back to Store</span>
                     </Link>
                 </div>

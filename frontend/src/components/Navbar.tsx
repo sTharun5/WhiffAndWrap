@@ -5,6 +5,9 @@ import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import { useConfirm } from '../contexts/ConfirmContext';
+import {
+    FiBell, FiHeart, FiShoppingBag, FiUser, FiPackage, FiSettings, FiLogOut, FiLogIn, FiHelpCircle, FiX, FiChevronDown
+} from 'react-icons/fi';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -83,26 +86,22 @@ export default function Navbar() {
                         {user && (
                             <>
                                 <Link to="/notifications" className="navbar__icon-btn" title="Notifications">
-                                    🔔
+                                    <FiBell size={20} />
                                     {unreadCount > 0 && <span className="navbar__cart-badge">{unreadCount}</span>}
                                 </Link>
                                 <Link to="/wishlist" className="navbar__icon-btn" title="Wishlist">
-                                    ♡
+                                    <FiHeart size={20} />
                                     {wishlist.length > 0 && <span className="navbar__cart-badge" style={{ background: 'var(--color-secondary)' }}>{wishlist.length}</span>}
                                 </Link>
                             </>
                         )}
                         <Link to="/support" className="navbar__icon-btn" title="Help & Support">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                                <line x1="12" y1="17" x2="12.01" y2="17" />
-                            </svg>
+                            <FiHelpCircle size={20} />
                         </Link>
                     </div>
 
                     <Link to="/cart" className="navbar__icon-btn navbar__cart-btn" title="Cart">
-                        🛍
+                        <FiShoppingBag size={20} />
                         {totalItems > 0 && <span className="navbar__cart-badge">{totalItems}</span>}
                     </Link>
 
@@ -119,7 +118,7 @@ export default function Navbar() {
                                 }
                                 <div className="navbar__profile-info">
                                     <span className="navbar__username">{user.name.split(' ')[0]}</span>
-                                    <span className={`navbar__chevron ${profileOpen ? 'open' : ''}`}>▾</span>
+                                    <FiChevronDown className={`navbar__chevron ${profileOpen ? 'open' : ''}`} />
                                 </div>
                             </button>
 
@@ -130,15 +129,15 @@ export default function Navbar() {
                                         <p className="navbar__dropdown-email">{user.email}</p>
                                     </div>
                                     <div className="navbar__dropdown-divider" />
-                                    <Link to="/profile" className="navbar__dropdown-item">👤 My Profile</Link>
-                                    <Link to="/orders" className="navbar__dropdown-item">📦 My Orders</Link>
-                                    <Link to="/wishlist" className="navbar__dropdown-item">♡ Wishlist</Link>
+                                    <Link to="/profile" className="navbar__dropdown-item"><FiUser /> My Profile</Link>
+                                    <Link to="/orders" className="navbar__dropdown-item"><FiPackage /> My Orders</Link>
+                                    <Link to="/wishlist" className="navbar__dropdown-item"><FiHeart /> Wishlist</Link>
                                     {user.role === 'ADMIN' && (
-                                        <Link to="/admin" className="navbar__dropdown-item">⚙️ Admin Dashboard</Link>
+                                        <Link to="/admin" className="navbar__dropdown-item"><FiSettings /> Admin Dashboard</Link>
                                     )}
                                     <div className="navbar__dropdown-divider" />
                                     <button className="navbar__dropdown-item navbar__dropdown-logout" onClick={handleLogout}>
-                                        ↩ Logout
+                                        <FiLogOut /> Logout
                                     </button>
                                 </div>
                             )}
@@ -181,7 +180,7 @@ export default function Navbar() {
                             </div>
                         </div>
                     )}
-                    <button className="navbar__mobile-close" onClick={() => setMenuOpen(false)}>✕</button>
+                    <button className="navbar__mobile-close" onClick={() => setMenuOpen(false)}><FiX /></button>
                 </div>
 
                 <div className="navbar__mobile-content">
@@ -189,28 +188,24 @@ export default function Navbar() {
                         <Link key={l.to} to={l.to} className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>{l.label}</Link>
                     ))}
                     <Link to="/support" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '10px', verticalAlign: 'middle' }}>
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                            <line x1="12" y1="17" x2="12.01" y2="17" />
-                        </svg>
+                        <FiHelpCircle style={{ marginRight: '12px' }} />
                         Help & Support
                     </Link>
                     <div className="navbar__mobile-divider" />
                     {user ? (
                         <>
-                            <Link to="/profile" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>👤 My Profile</Link>
-                            <Link to="/orders" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>📦 My Orders</Link>
-                            <Link to="/notifications" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>🔔 Notifications {unreadCount > 0 && `(${unreadCount})`}</Link>
-                            <Link to="/wishlist" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>♡ Wishlist {wishlist.length > 0 && `(${wishlist.length})`}</Link>
+                            <Link to="/profile" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiUser style={{ marginRight: '12px' }} /> My Profile</Link>
+                            <Link to="/orders" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiPackage style={{ marginRight: '12px' }} /> My Orders</Link>
+                            <Link to="/notifications" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiBell style={{ marginRight: '12px' }} /> Notifications {unreadCount > 0 && `(${unreadCount})`}</Link>
+                            <Link to="/wishlist" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiHeart style={{ marginRight: '12px' }} /> Wishlist {wishlist.length > 0 && `(${wishlist.length})`}</Link>
                             {user.role === 'ADMIN' && (
-                                <Link to="/admin" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>⚙️ Admin Dashboard</Link>
+                                <Link to="/admin" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiSettings style={{ marginRight: '12px' }} /> Admin Dashboard</Link>
                             )}
                             <div className="navbar__mobile-divider" />
-                            <button className="navbar__mobile-link navbar__mobile-logout" onClick={() => { handleLogout(); setMenuOpen(false); }}>↩ Logout</button>
+                            <button className="navbar__mobile-link navbar__mobile-logout" onClick={() => { handleLogout(); setMenuOpen(false); }}><FiLogOut style={{ marginRight: '12px' }} /> Logout</button>
                         </>
                     ) : (
-                        <Link to="/auth" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>🔑 Sign In / Register</Link>
+                        <Link to="/auth" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiLogIn style={{ marginRight: '12px' }} /> Sign In / Register</Link>
                     )}
                 </div>
             </div>

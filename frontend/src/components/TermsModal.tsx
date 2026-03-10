@@ -28,7 +28,7 @@ export default function TermsModal() {
         setLoading(true);
         try {
             await api.acceptTerms();
-            addToast('Terms and Conditions accepted. Welcome! 🌸', 'success');
+            addToast('Terms and Conditions accepted. Welcome!', 'success');
             await refresh(); // Refresh user context to pick up the new termsVersion
         } catch (err: any) {
             addToast(err.message || 'Failed to accept terms', 'error');

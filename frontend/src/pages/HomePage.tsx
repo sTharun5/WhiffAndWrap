@@ -1,14 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import {
+    FiShoppingBag, FiKey, FiGift, FiHeart, FiStar, FiInstagram, FiTruck, FiAward, FiShield, FiArrowLeft, FiArrowRight, FiZap
+} from 'react-icons/fi';
 import { api } from '../lib/api';
 import './HomePage.css';
 
 const CATEGORIES = [
-    { name: 'Bouquets', icon: '💐', desc: 'Preserved & fresh bouquets' },
-    { name: 'Keychains', icon: '🔑', desc: 'Personalized & handcrafted' },
-    { name: 'Gift Wraps', icon: '🎁', desc: 'Elegant custom wrapping' },
-    { name: 'Personalized Crafts', icon: '✨', desc: 'Your name, your story' },
-    { name: 'Custom Gifts', icon: '🌟', desc: 'Unique handmade gifts' },
+    { name: 'Bouquets', icon: <FiGift />, desc: 'Preserved & fresh bouquets' },
+    { name: 'Keychains', icon: <FiKey />, desc: 'Personalized & handcrafted' },
+    { name: 'Gift Wraps', icon: <FiShoppingBag />, desc: 'Elegant custom wrapping' },
+    { name: 'Personalized Crafts', icon: <FiZap />, desc: 'Your name, your story' },
+    { name: 'Custom Gifts', icon: <FiStar />, desc: 'Unique handmade gifts' },
 ];
 
 const BACKEND = 'http://localhost:5001';
@@ -17,11 +20,6 @@ function getImage(images: any): string {
     const list = Array.isArray(images) ? images : (typeof images === 'string' ? JSON.parse(images || '[]') : []);
     if (!list.length) return 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300';
     return list[0].startsWith('http') ? list[0] : `${BACKEND}${list[0]}`;
-}
-
-function getVideoUrl(url: string): string {
-    if (!url) return '';
-    return url.startsWith('http') ? url : `${BACKEND}${url}`;
 }
 
 export default function HomePage() {
@@ -123,7 +121,7 @@ export default function HomePage() {
             <section className="hero" style={{ background: slide.bg }}>
                 <div className="container hero__inner">
                     <div className="hero__content" key={`content-${heroIndex}`}>
-                        <span className="label-text hero-animate-1" style={{ color: slide.accent }}>Handmade with  Love</span>
+                        <span className="label-text hero-animate-1" style={{ color: slide.accent }}>Handmade with <FiHeart /> Love</span>
                         <h1 className="hero__title hero-animate-2">
                             {slide.title}<br />
                             <span className="hero__title-accent" style={{ color: slide.accent }}>{slide.subtitle}</span>
@@ -151,8 +149,8 @@ export default function HomePage() {
                 {/* Hero Navigation Arrows */}
                 {products.length > 1 && (
                     <>
-                        <button className="hero__nav hero__nav--prev" onClick={prevSlide} aria-label="Previous Slide">←</button>
-                        <button className="hero__nav hero__nav--next" onClick={nextSlide} aria-label="Next Slide">→</button>
+                        <button className="hero__nav hero__nav--prev" onClick={prevSlide} aria-label="Previous Slide"><FiArrowLeft /></button>
+                        <button className="hero__nav hero__nav--next" onClick={nextSlide} aria-label="Next Slide"><FiArrowRight /></button>
                     </>
                 )}
 
@@ -174,41 +172,19 @@ export default function HomePage() {
                 <div className="container trust-bar__inner">
                     {[
                         {
-                            icon: (
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
-                                    <path d="M15 18H9" />
-                                    <path d="M19 18h2a1 1 0 0 0 1-1v-4.24a2 2 0 0 0-.81-1.6l-2.48-1.87a2 2 0 0 0-1.21-.45H14" />
-                                    <circle cx="7" cy="18" r="2" />
-                                    <circle cx="17" cy="18" r="2" />
-                                </svg>
-                            ),
+                            icon: <FiAward />,
                             text: 'Truly Handmade by Us'
                         },
                         {
-                            icon: (
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                                    <circle cx="12" cy="10" r="3" />
-                                </svg>
-                            ),
+                            icon: <FiTruck />,
                             text: 'Delivered with Extra Care'
                         },
                         {
-                            icon: (
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-                                </svg>
-                            ),
+                            icon: <FiZap />,
                             text: 'Personalized for Your Story'
                         },
                         {
-                            icon: (
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
-                                    <path d="m9 12 2 2 4-4" />
-                                </svg>
-                            ),
+                            icon: <FiShield />,
                             text: 'Artisan Quality Guaranteed'
                         },
                     ].map((item, idx) => (
@@ -267,7 +243,7 @@ export default function HomePage() {
                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />
                             ) : (
-                                <span style={{ fontSize: '6rem' }}>🌸</span>
+                                <div style={{ fontSize: '3rem', opacity: 0.2 }}><FiHeart /></div>
                             )}
                         </div>
                     </div>
@@ -293,11 +269,11 @@ export default function HomePage() {
                         Discover our newest handcrafted gifts, see behind-the-scenes magic, and place custom orders directly through DMs.
                     </p>
                     <div className="instagram-actions" style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <a href="https://ig.me/m/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-lg" style={{ background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', border: 'none', color: 'white', fontWeight: 600 }}>
-                            🛍️ Order Us on Instagram
+                        <a href="https://ig.me/m/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-lg" style={{ background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', border: 'none', color: 'white', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <FiShoppingBag /> Order Us on Instagram
                         </a>
-                        <a href="https://instagram.com/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-lg" style={{ borderColor: '#bc1888', color: '#bc1888', fontWeight: 600 }}>
-                            📸 Follow Us on Instagram
+                        <a href="https://instagram.com/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-lg" style={{ borderColor: '#bc1888', color: '#bc1888', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <FiInstagram /> Follow Us on Instagram
                         </a>
                     </div>
                 </div>

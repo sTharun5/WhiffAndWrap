@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { api } from '../lib/api';
+import { FiPlay, FiX, FiArrowLeft, FiInstagram } from 'react-icons/fi';
 import './ReelsPage.css';
 
 const BACKEND = 'http://localhost:5001';
@@ -9,7 +10,6 @@ function getVideoUrl(url: string): string {
     return url.startsWith('http') ? url : `${BACKEND}${url}`;
 }
 
-/* ---- Sub-components for Reels ---- */
 const ReelVideo = ({ reel }: { reel: any }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -44,7 +44,7 @@ const ReelVideo = ({ reel }: { reel: any }) => {
                     className="reel-video"
                 />
                 <div className="reel-card__overlay">
-                    <div className="reel-card__play">▶</div>
+                    <div className="reel-card__play"><FiPlay style={{ fill: 'currentColor' }} /></div>
                     <h4 className="reel-card__title">{reel.title || 'Crafted Moment'}</h4>
                 </div>
             </div>
@@ -52,7 +52,7 @@ const ReelVideo = ({ reel }: { reel: any }) => {
             {isExpanded && (
                 <div className="reel-modal" onClick={() => setIsExpanded(false)}>
                     <div className="reel-modal__content" onClick={e => e.stopPropagation()}>
-                        <button className="reel-modal__close" onClick={() => setIsExpanded(false)}>✕</button>
+                        <button className="reel-modal__close" onClick={() => setIsExpanded(false)}><FiX /></button>
                         <video
                             src={getVideoUrl(reel.videoUrl)}
                             controls
@@ -78,7 +78,6 @@ export default function ReelsPage() {
             .finally(() => setLoading(false));
     }, []);
 
-    // Intersection Observer for scroll animations
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -114,7 +113,7 @@ export default function ReelsPage() {
                                 className="btn btn-ghost btn-sm"
                                 style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
                             >
-                                <span>←</span> Back to Home
+                                <FiArrowLeft /> Back to Home
                             </button>
                         </div>
                         <span className="label-text" style={{ display: 'inline-block', marginTop: 40 }}>Process In Motion</span>
@@ -139,7 +138,7 @@ export default function ReelsPage() {
                             <div className="reels-empty-card">
                                 <div className="reels-empty__visual">
                                     <div className="reels-empty__placeholder">
-                                        <div className="reels-empty__play-btn">▶</div>
+                                        <div className="reels-empty__play-btn"><FiPlay style={{ fill: 'currentColor' }} /></div>
                                     </div>
                                     <div className="reels-empty__placeholder-mini"></div>
                                     <div className="reels-empty__placeholder-mini"></div>
@@ -157,8 +156,9 @@ export default function ReelsPage() {
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="btn btn-secondary"
+                                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
                                         >
-                                            Follow on Instagram
+                                            <FiInstagram /> Follow on Instagram
                                         </a>
                                     </div>
                                 </div>

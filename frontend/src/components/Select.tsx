@@ -1,10 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, ReactNode } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 import './Select.css';
 
 interface SelectOption {
     label: string;
     value: string;
     disabled?: boolean;
+    icon?: ReactNode;
 }
 
 interface SelectProps {
@@ -45,10 +47,17 @@ export default function Select({ options, value, onChange, placeholder = 'Select
                 onClick={() => !disabled && setIsOpen(!isOpen)}
             >
                 <div className="custom-select__value">
-                    {selectedOption ? selectedOption.label : <span className="custom-select__placeholder">{placeholder}</span>}
+                    {selectedOption ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {selectedOption.icon && <span className="custom-select__opt-icon">{selectedOption.icon}</span>}
+                            <span>{selectedOption.label}</span>
+                        </div>
+                    ) : (
+                        <span className="custom-select__placeholder">{placeholder}</span>
+                    )}
                 </div>
                 <div className={`custom-select__arrow ${isOpen ? 'open' : ''}`}>
-                    ▼
+                    <FiChevronDown />
                 </div>
             </div>
 
@@ -81,7 +90,10 @@ export default function Select({ options, value, onChange, placeholder = 'Select
                                         setSearch('');
                                     }}
                                 >
-                                    {opt.label}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        {opt.icon && <span className="custom-select__opt-icon">{opt.icon}</span>}
+                                        <span>{opt.label}</span>
+                                    </div>
                                 </div>
                             ))
                         ) : (

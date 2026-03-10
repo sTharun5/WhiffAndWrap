@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
 import { api } from '../lib/api';
+import { FiArrowLeft, FiX, FiUploadCloud, FiInstagram } from 'react-icons/fi';
 import './SupportPage.css';
 
 export default function SupportPage() {
@@ -93,7 +94,7 @@ export default function SupportPage() {
                         className="btn btn-ghost btn-sm"
                         style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
                     >
-                        <span>←</span> Back
+                        <FiArrowLeft /> Back
                     </button>
                 </div>
                 <span className="label-text">Help & Support</span>
@@ -145,11 +146,7 @@ export default function SupportPage() {
                         <label>Screenshots (Max 5)</label>
                         <div className="file-upload-container" onClick={() => fileInputRef.current?.click()}>
                             <div className="file-upload-placeholder">
-                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 'var(--space-2)', color: 'var(--color-primary)' }}>
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                    <polyline points="17 8 12 3 7 8" />
-                                    <line x1="12" y1="3" x2="12" y2="15" />
-                                </svg>
+                                <FiUploadCloud style={{ width: 32, height: 32, marginBottom: 'var(--space-2)', color: 'var(--color-primary)' }} />
                                 <span>Click to Upload screenshots</span>
                                 <small>Or drag and drop files here (PNG, JPG up to 10MB)</small>
                             </div>
@@ -175,7 +172,7 @@ export default function SupportPage() {
                                                 e.stopPropagation();
                                                 removeScreenshot(idx);
                                             }}
-                                        >✕</button>
+                                        ><FiX /></button>
                                     </div>
                                 ))}
                             </div>
@@ -196,8 +193,8 @@ export default function SupportPage() {
                         <h3>Direct Contact</h3>
                         <p>Prefer other ways to reach us?</p>
                         <div className="support-links">
-                            <a href="https://instagram.com/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm btn-block">
-                                Contact on Instagram
+                            <a href="https://instagram.com/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm btn-block" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                                <FiInstagram /> Contact on Instagram
                             </a>
                         </div>
                     </div>

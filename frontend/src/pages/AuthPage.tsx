@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { HiOutlineShoppingBag, HiOutlineSparkles, HiOutlineTruck, HiOutlineHeart } from 'react-icons/hi2';
+import { FiArrowLeft, FiEye, FiEyeOff } from 'react-icons/fi';
 import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../contexts/ToastContext';
@@ -37,7 +39,7 @@ export default function AuthPage() {
                 image: payload.picture,
             });
             login(data.token, data.user);
-            addToast(`Welcome, ${data.user.name?.split(' ')[0]}! 🌸`, 'success');
+            addToast(`Welcome back, ${data.user.name?.split(' ')[0]}`, 'success');
             navigate(data.user.role === 'ADMIN' ? '/admin' : '/');
         } catch (err: any) {
             addToast(err.message || 'Google sign-in failed', 'error');
@@ -75,7 +77,7 @@ export default function AuthPage() {
                 return () => script.removeEventListener('load', initGsi);
             }
         }
-    }, []);
+    }, [handleGsiCredential]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -95,7 +97,7 @@ export default function AuthPage() {
                 data = await api.register({ name, email, password, termsAccepted });
             }
             login(data.token, data.user);
-            addToast(`Welcome${data.user.name ? ', ' + data.user.name.split(' ')[0] : ''}! 🌸`, 'success');
+            addToast(`Welcome back${data.user.name ? ', ' + data.user.name.split(' ')[0] : ''}`, 'success');
             navigate(data.user.role === 'ADMIN' ? '/admin' : '/');
         } catch (err: any) {
             setFormError(err.message || 'Authentication failed');
@@ -106,28 +108,31 @@ export default function AuthPage() {
 
     return (
         <div className="auth-page">
+            <button
+                onClick={() => navigate('/')}
+                className="auth-back-btn"
+                title="Back to Store"
+                style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+                <FiArrowLeft />
+                <span className="auth-back-btn__text">Back to Store</span>
+            </button>
+
             <div className="auth-page__left">
-                <div className="auth-page__brand" style={{ position: 'relative' }}>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="btn btn-ghost btn-sm"
-                        style={{ position: 'absolute', top: -40, left: 0, padding: '4px 8px', display: 'flex', alignItems: 'center', gap: 6 }}
-                    >
-                        <span>←</span> Back to Store
-                    </button>
+                <div className="auth-page__brand">
                     <img src="/logo.png" alt="Whiff & Wrap Logo" className="auth-page__brand-logo" />
                     <h1 className="auth-page__brand-name">Whiff & Wrap</h1>
                     <p className="auth-page__brand-tagline">Handcrafted gifts made with love</p>
                 </div>
                 <div className="auth-page__features">
                     {[
-                        { icon: '🛍', text: 'Shop unique handmade gifts' },
-                        { icon: '✨', text: 'Personalize your orders' },
-                        { icon: '📦', text: 'Track your deliveries' },
-                        { icon: '♡', text: 'Save your wishlist' },
+                        { icon: <HiOutlineShoppingBag />, text: 'Shop unique handmade gifts' },
+                        { icon: <HiOutlineSparkles />, text: 'Personalize your orders' },
+                        { icon: <HiOutlineTruck />, text: 'Track your deliveries' },
+                        { icon: <HiOutlineHeart />, text: 'Save your wishlist' },
                     ].map(f => (
                         <div key={f.text} className="auth-page__feature">
-                            <span>{f.icon}</span>
+                            <span className="auth-page__feature-icon">{f.icon}</span>
                             <span>{f.text}</span>
                         </div>
                     ))}
@@ -206,8 +211,9 @@ export default function AuthPage() {
                                     className="password-toggle-btn"
                                     onClick={() => setShowPassword(!showPassword)}
                                     aria-label="Toggle password visibility"
+                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                                 >
-                                    {showPassword ? '🙈' : '👁️'}
+                                    {showPassword ? <FiEyeOff /> : <FiEye />}
                                 </button>
                             </div>
                         </div>
@@ -237,7 +243,7 @@ export default function AuthPage() {
                             style={{ width: '100%', marginTop: 8 }}
                             disabled={loading || (mode === 'register' && !termsAccepted)}
                         >
-                            {loading ? <><span className="spinner" />Processing...</> : (mode === 'login' ? 'Sign In 🌸' : 'Create Account 🌸')}
+                            {loading ? <><span className="spinner" />Processing...</> : (mode === 'login' ? 'Sign In' : 'Create Account')}
                         </button>
                     </form>
                 </div>

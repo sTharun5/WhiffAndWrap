@@ -72,15 +72,16 @@ function AppRoutes() {
 }
 
 function AppLayout() {
+  const location = useLocation();
+  const isAdminPath = location.pathname.startsWith('/admin');
+
   return (
-    <BrowserRouter>
-      <div className="page-layout">
-        <TermsModal />
-        <Navbar />
-        <AppRoutes />
-        <Footer />
-      </div>
-    </BrowserRouter>
+    <div className={`page-layout ${isAdminPath ? 'admin-theme' : ''}`}>
+      <TermsModal />
+      <Navbar />
+      <AppRoutes />
+      {!isAdminPath && <Footer />}
+    </div>
   );
 }
 
@@ -92,7 +93,9 @@ export default function App() {
           <WishlistProvider>
             <CartProvider>
               <ConfirmProvider>
-                <AppLayout />
+                <BrowserRouter>
+                  <AppLayout />
+                </BrowserRouter>
               </ConfirmProvider>
             </CartProvider>
           </WishlistProvider>

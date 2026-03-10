@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../lib/api';
+import { FiFileText, FiCheckCircle, FiPackage, FiTruck, FiHome, FiArrowLeft, FiXCircle } from 'react-icons/fi';
 
 const STATUS_STEPS = [
-    { key: 'PLACED', label: 'Order Placed', icon: '📝' },
-    { key: 'ACCEPTED', label: 'Order Accepted', icon: '✓' },
-    { key: 'PREPARING', label: 'Preparing Gift', icon: '🎁' },
-    { key: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', icon: '🚗' },
-    { key: 'DELIVERED', label: 'Delivered', icon: '🏠' },
+    { key: 'PLACED', label: 'Order Placed', icon: <FiFileText /> },
+    { key: 'ACCEPTED', label: 'Order Accepted', icon: <FiCheckCircle /> },
+    { key: 'PREPARING', label: 'Preparing Gift', icon: <FiPackage /> },
+    { key: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', icon: <FiTruck /> },
+    { key: 'DELIVERED', label: 'Delivered', icon: <FiHome /> },
 ];
 
 const BACKEND = 'http://localhost:5001';
@@ -38,7 +39,7 @@ export default function OrderDetailPage() {
     if (!order) return (
         <div className="container" style={{ padding: 'var(--space-16) 0' }}>
             <div className="empty-state">
-                <div className="empty-state__icon">❌</div>
+                <div className="empty-state__icon" style={{ opacity: 0.1, color: 'var(--color-primary)', fontSize: '3rem' }}><FiXCircle /></div>
                 <p className="empty-state__title">Order not found</p>
                 <Link to="/orders" className="btn btn-primary" style={{ marginTop: 16 }}>Back to Orders</Link>
             </div>
@@ -50,8 +51,8 @@ export default function OrderDetailPage() {
     return (
         <div className="fade-in" style={{ padding: 'var(--space-10) 0 var(--space-16)' }}>
             <div className="container" style={{ maxWidth: 800 }}>
-                <Link to="/orders" style={{ color: 'var(--color-primary)', fontSize: '0.9rem', marginBottom: 24, display: 'inline-block' }}>
-                    ← Back to Orders
+                <Link to="/orders" style={{ color: 'var(--color-primary)', fontSize: '0.9rem', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <FiArrowLeft /> Back to Orders
                 </Link>
 
                 <div className="card" style={{ marginBottom: 24 }}>
@@ -79,8 +80,8 @@ export default function OrderDetailPage() {
                         <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.1rem', marginBottom: 24 }}>Order Progress</h3>
                         <div className="status-tracker">
                             {STATUS_STEPS.map((step, i) => (
-                                <div key={step.key} className={`status-step ${i < stepIdx ? 'done' : ''} ${i === stepIdx ? 'active' : ''}`}>
-                                    <div className="status-step__dot">{i < stepIdx ? '✓' : step.icon}</div>
+                                <div key={step.key} className={`status-step ${i <= stepIdx ? 'done' : ''} ${i === stepIdx ? 'active' : ''}`}>
+                                    <div className="status-step__dot">{i < stepIdx ? <FiCheckCircle /> : step.icon}</div>
                                     <span className="status-step__label">{step.label}</span>
                                 </div>
                             ))}
