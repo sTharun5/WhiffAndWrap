@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Routes, Route, Link, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../lib/api';
 import { useToast } from '../contexts/ToastContext';
+import { useConfirm } from '../contexts/ConfirmContext';
+import Select from '../components/Select';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../utils/cropImage';
 import './AdminDashboard.css';
@@ -299,10 +301,16 @@ function ProductForm({ initial, onSave, onClose }: { initial?: any, onSave: () =
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Category</label>
-                                <select className="form-input" value={form.categoryId} onChange={e => setForm(p => ({ ...p, categoryId: e.target.value }))}>
-                                    <option value="">None</option>
-                                    {categories.map((c: any) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                </select>
+                                <Select
+                                    value={form.categoryId || ''}
+                                    onChange={val => setForm(p => ({ ...p, categoryId: val }))}
+                                    options={[
+                                        { label: 'None', value: '' },
+                                        ...categories.map((c: any) => ({ label: c.name, value: c.id }))
+                                    ]}
+                                    searchable
+                                    placeholder="Select a category"
+                                />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Personalization Options (comma separated)</label>
@@ -387,6 +395,7 @@ function AdminProducts() {
     const [editing, setEditing] = useState<any>(null);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const { addToast } = useToast();
+    const { confirm } = useConfirm();
 
     const load = () => {
         setLoading(true);
@@ -396,7 +405,12 @@ function AdminProducts() {
     useEffect(load, []);
 
     const handleDelete = async (id: string) => {
-        if (!window.confirm('Delete this product?')) return;
+        if (!(await confirm({
+            title: 'Delete Product',
+            message: 'This action cannot be undone. Are you sure you want to delete this product?',
+            confirmText: 'Delete',
+            danger: true
+        }))) return;
         try {
             await api.admin.deleteProduct(id);
             addToast('Product deleted', 'success');
@@ -615,28 +629,27 @@ function AdminOrders() {
                             )}
 
                             <div className="admin-order-card__actions" style={{ opacity: order.status === 'REJECTED' ? 0.7 : 1 }}>
-                                <select
-                                    className="form-input select-status"
-                                    style={{ maxWidth: 220, padding: '8px 40px 8px 14px', fontSize: '0.88rem' }}
-                                    value={order.status}
-                                    data-status={order.status}
-                                    onChange={e => {
-                                        const val = e.target.value;
-                                        if (val === 'REJECTED') {
-                                            setRejectionModal({ id: order.id, reason: '' });
-                                        } else {
-                                            updateOrder(order.id, val);
-                                        }
-                                    }}
-                                    disabled={updating === order.id || order.status === 'REJECTED'}
-                                >
-                                    <option value="PLACED">📝 Placed</option>
-                                    <option value="ACCEPTED">✔️ Accepted</option>
-                                    <option value="PREPARING">🎁 Preparing</option>
-                                    <option value="OUT_FOR_DELIVERY">🚗 Out for Delivery</option>
-                                    <option value="DELIVERED">🏠 Delivered</option>
-                                    <option value="REJECTED" disabled>❌ Rejected (Locked)</option>
-                                </select>
+                                <div style={{ maxWidth: 240, flex: 1 }}>
+                                    <Select
+                                        value={order.status}
+                                        onChange={val => {
+                                            if (val === 'REJECTED') {
+                                                setRejectionModal({ id: order.id, reason: '' });
+                                            } else {
+                                                updateOrder(order.id, val);
+                                            }
+                                        }}
+                                        disabled={updating === order.id || order.status === 'REJECTED'}
+                                        options={[
+                                            { value: 'PLACED', label: '📝 Placed' },
+                                            { value: 'ACCEPTED', label: '✔️ Accepted' },
+                                            { value: 'PREPARING', label: '🎁 Preparing' },
+                                            { value: 'OUT_FOR_DELIVERY', label: '🚗 Out for Delivery' },
+                                            { value: 'DELIVERED', label: '🏠 Delivered' },
+                                            { value: 'REJECTED', label: '❌ Rejected (Locked)', disabled: true }
+                                        ]}
+                                    />
+                                </div>
                                 {order.status === 'PLACED' && (
                                     <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
                                         <input
@@ -764,7 +777,7 @@ export default function AdminDashboard() {
             {/* Mobile Header */}
             <header className="admin-mobile-header">
                 <div className="admin-mobile-header__inner">
-                    <img src="/519350388_17845389072528262_7307843047216242767_n.jpg" alt="Logo" style={{ height: 32, width: 'auto', borderRadius: 4 }} />
+                    <img src="/logo.png" alt="Logo" style={{ height: 32, width: 'auto', borderRadius: 4 }} />
                     <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>Admin</span>
                     <button
                         className={`admin-hamburger ${mobileMenuOpen ? 'open' : ''}`}
@@ -778,7 +791,7 @@ export default function AdminDashboard() {
             {/* Sidebar */}
             <aside className={`admin-sidebar ${mobileMenuOpen ? 'mobile-open' : ''}`}>
                 <div className="admin-sidebar__logo">
-                    <img src="/519350388_17845389072528262_7307843047216242767_n.jpg" alt="Logo" style={{ height: 40, width: 'auto', borderRadius: 6, marginBottom: 8 }} />
+                    <img src="/logo.png" alt="Logo" style={{ height: 40, width: 'auto', borderRadius: 6, marginBottom: 8 }} />
                     <span>Whiff & Wrap</span>
                     <div className="label-text" style={{ marginTop: 2, color: 'rgba(255,255,255,0.6)' }}>Admin</div>
                 </div>

@@ -192,6 +192,25 @@ export default function HomePage() {
                     </div>
                 </div>
             </section>
+
+            {/* Instagram CTA Section */}
+            <section className="section instagram-section" style={{ background: 'var(--color-off-white)', padding: 'var(--space-16) 0', textAlign: 'center', borderTop: '1px solid var(--color-border)' }}>
+                <div className="container">
+                    <span className="label-text" style={{ color: 'var(--color-secondary)' }}>Stay Connected</span>
+                    <h2 className="section-title" style={{ marginTop: 8, fontSize: '2.5rem' }}>Join Our Instagram Family</h2>
+                    <p className="section-subtitle" style={{ maxWidth: 600, margin: '12px auto 32px' }}>
+                        Discover our newest handcrafted gifts, see behind-the-scenes magic, and place custom orders directly through DMs.
+                    </p>
+                    <div className="instagram-actions" style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <a href="https://ig.me/m/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-lg" style={{ background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', border: 'none', color: 'white', fontWeight: 600 }}>
+                            🛍️ Order Us on Instagram
+                        </a>
+                        <a href="https://instagram.com/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-lg" style={{ borderColor: '#bc1888', color: '#bc1888', fontWeight: 600 }}>
+                            📸 Follow Us on Instagram
+                        </a>
+                    </div>
+                </div>
+            </section>
         </div>
     );
 }

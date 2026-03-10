@@ -1,6 +1,7 @@
 .auth-page {
     min-height: 100vh;
     display: grid;
+    /* Redesign grid to balance ratio, and adjust padding inside */
     grid-template-columns: 1fr 1fr;
 }
 
@@ -9,49 +10,57 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+    /* Center content to reduce visual overwhelmingness */
     padding: var(--space-16);
     color: white;
+    text-align: center;
 }
 
 .auth-page__brand {
     margin-bottom: var(--space-12);
 }
 
-.auth-page__brand-icon {
-    font-size: 3rem;
+.auth-page__brand-logo {
+    height: 60px;
+    width: auto;
+    border-radius: 8px;
     display: block;
-    margin-bottom: var(--space-3);
+    margin: 0 auto var(--space-4) auto;
 }
 
 .auth-page__brand-name {
     font-family: var(--font-serif);
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     font-weight: 700;
     color: white;
     margin-bottom: var(--space-2);
 }
 
 .auth-page__brand-tagline {
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
 }
 
 .auth-page__features {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+    width: 100%;
+    max-width: 380px;
 }
 
 .auth-page__feature {
     display: flex;
     align-items: center;
+    text-align: left;
     gap: var(--space-4);
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.85);
-    padding: var(--space-3) var(--space-4);
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    padding: var(--space-4);
     background: rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-md);
-    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(12px);
 }
 
 .auth-page__right {
@@ -64,47 +73,50 @@
 
 .auth-card {
     width: 100%;
-    max-width: 440px;
+    max-width: 480px;
+    /* Slight width increase for better form layout */
     background: white;
     border-radius: var(--radius-xl);
     padding: var(--space-10);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-xl);
 }
 
 .auth-card__header {
     margin-bottom: var(--space-6);
+    text-align: center;
 }
 
 .auth-card__title {
     font-family: var(--font-serif);
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--color-text);
 }
 
 .auth-card__subtitle {
-    color: var(--color-muted);
-    font-size: 0.9rem;
-    margin-top: 4px;
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+    margin-top: 6px;
 }
 
+/* Redesigned Pill-shaped Tabs */
 .auth-toggle {
     display: flex;
-    background: var(--color-cream);
+    background: var(--color-background);
     border-radius: var(--radius-full);
-    padding: 3px;
-    margin-bottom: var(--space-6);
+    padding: 4px;
+    margin-bottom: var(--space-8);
 }
 
 .auth-toggle__btn {
     flex: 1;
-    padding: 9px;
+    padding: 10px 16px;
     border: none;
     background: transparent;
     border-radius: var(--radius-full);
-    font-size: 0.88rem;
+    font-size: 0.95rem;
     font-weight: 600;
-    color: var(--color-muted);
+    color: var(--color-text-light);
     cursor: pointer;
     transition: all var(--transition-fast);
 }
@@ -112,39 +124,18 @@
 .auth-toggle__btn.active {
     background: white;
     color: var(--color-primary);
-    box-shadow: var(--shadow-sm);
-}
-
-.google-btn {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-3);
-    padding: 12px;
-    border-radius: var(--radius-full);
-    border: 1.5px solid var(--color-border);
-    background: white;
-    font-size: 0.92rem;
-    font-weight: 600;
-    color: var(--color-text);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    margin-bottom: var(--space-5);
-}
-
-.google-btn:hover {
-    border-color: var(--color-primary);
-    background: var(--color-cream);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .auth-divider {
     display: flex;
     align-items: center;
     gap: var(--space-4);
-    margin-bottom: var(--space-5);
-    color: var(--color-muted);
-    font-size: 0.8rem;
+    margin: var(--space-5) 0;
+    color: var(--color-text-light);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
 }
 
 .auth-divider::before,
@@ -158,10 +149,86 @@
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-5);
 }
 
-@media (max-width: 768px) {
+/* Password eye-toggle wrapper */
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input-wrapper .form-input {
+    padding-right: 48px;
+    /* space for the eye icon */
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--color-text-light);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--transition-fast);
+}
+
+.password-toggle-btn:hover {
+    opacity: 0.7;
+}
+
+/* Robust Checkbox Group align strictly left */
+.checkbox-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 4px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    /* optical alignment with text */
+    cursor: pointer;
+    accent-color: var(--color-primary);
+}
+
+.checkbox-group label {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+/* Inline form errors */
+.auth-error-msg {
+    color: var(--color-danger);
+    background: rgba(220, 38, 38, 0.08);
+    /* Tailwind red-600 */
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-left: 3px solid var(--color-danger);
+}
+
+/* Disabled button states */
+.auth-form .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--color-border);
+    color: var(--color-text-light);
+}
+
+@media (max-width: 900px) {
     .auth-page {
         grid-template-columns: 1fr;
     }
@@ -171,7 +238,7 @@
     }
 
     .auth-page__right {
-        padding: var(--space-5) var(--space-4);
+        padding: var(--space-6) var(--space-4);
         align-items: flex-start;
         padding-top: var(--space-12);
     }

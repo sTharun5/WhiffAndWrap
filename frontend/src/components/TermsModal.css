@@ -1,0 +1,130 @@
+.terms-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(18, 12, 9, 0.85);
+    /* Darker blurred background */
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.terms-modal {
+    background: var(--color-white);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xl);
+    width: 100%;
+    max-width: 640px;
+    max-height: 85vh;
+    /* Restrict height slightly more so it definitely scrolls */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.terms-modal__header {
+    padding: 32px 40px;
+    /* Improved luxurious padding */
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-off-white);
+    flex-shrink: 0;
+    /* Ensures header is fixed */
+}
+
+.terms-modal__header h2 {
+    font-family: var(--font-serif);
+    font-size: 1.7rem;
+    color: var(--color-text);
+    margin: 0 0 12px;
+    font-weight: 700;
+}
+
+.terms-modal__header p {
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.terms-modal__content {
+    padding: 32px 40px;
+    overflow-y: auto;
+    /* Scrollable core */
+    font-size: 1rem;
+    color: var(--color-text);
+    line-height: 1.7;
+    flex: 1;
+    /* Inherit middle space */
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+    /* Smooth scrolling enabled */
+}
+
+.terms-modal__content h3 {
+    font-family: var(--font-serif);
+    font-size: 1.2rem;
+    color: var(--color-text);
+    margin: 32px 0 12px;
+    font-weight: 600;
+}
+
+.terms-modal__content h3:first-child {
+    margin-top: 0;
+}
+
+.terms-modal__content p {
+    margin-bottom: 16px;
+    color: var(--color-text-light);
+    font-size: 0.95rem;
+}
+
+.terms-modal__actions {
+    padding: 24px 40px;
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    background: var(--color-white);
+    flex-shrink: 0;
+    /* Ensures footer is fixed */
+}
+
+.terms-modal__actions .btn {
+    min-width: 150px;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+@media (max-width: 600px) {
+    .terms-modal-overlay {
+        padding: 16px;
+    }
+    .terms-modal__header,
+    .terms-modal__content,
+    .terms-modal__actions {
+        padding: 24px 20px;
+    }
+    .terms-modal__actions {
+        flex-direction: column;
+    }
+    .terms-modal__actions .btn {
+        width: 100%;
+    }
+}

@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 import { api } from '../lib/api';
+import { useToast } from './ToastContext';
 
 interface User {
     id: string;
@@ -9,7 +10,10 @@ interface User {
     email: string;
     role: 'USER' | 'ADMIN';
     image?: string | null;
+    termsVersion?: string | null;
 }
+
+export const CURRENT_TERMS_VERSION = '1.0';
 
 interface AuthContextType {
     user: User | null;
@@ -32,26 +36,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [token, setToken] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const { addToast } = useToast();
+
+    useEffect(() => {
+        const handleSessionTerminated = () => {
+            addToast('Your session was terminated because you logged in from another device.', 'error');
+            logout();
+        };
+        window.addEventListener('session-terminated', handleSessionTerminated);
+        return () => window.removeEventListener('session-terminated', handleSessionTerminated);
+    }, []);
 
     const login = (newToken: string, newUser: User) => {
-        sessionStorage.setItem('ww_token', newToken);
         setToken(newToken);
         setUser(newUser);
     };
 
-    const logout = () => {
-        sessionStorage.removeItem('ww_token');
+    const logout = async () => {
+        try { await api.logout(); } catch (err) { console.error(err); }
         setToken(null);
         setUser(null);
     };
 
     const refresh = async () => {
-        const stored = sessionStorage.getItem('ww_token');
-        if (!stored) { setLoading(false); return; }
         try {
-            setToken(stored);
+            // Directly query /me. If the cookie is valid, this succeeds regardless of sessionStorage.
             const me = await api.me();
             setUser(me);
+            // Optionally set token if needed in UI, though cookie does the heavy lifting
         } catch {
             logout();
         } finally {

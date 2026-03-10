@@ -12,9 +12,16 @@ async function request(endpoint: string, options: RequestInit = {}) {
     };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const res = await fetch(`${API_BASE}${endpoint}`, { ...options, headers });
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers,
+        credentials: 'include' // Allow cookies to be sent along with JSON token fallback
+    });
     if (!res.ok) {
         const err = await res.json().catch(() => ({ error: 'Request failed' }));
+        if (err.code === 'SESSION_TERMINATED') {
+            window.dispatchEvent(new CustomEvent('session-terminated', { detail: err.error }));
+        }
         throw new Error(err.error || 'Request failed');
     }
     return res.json();
@@ -26,6 +33,8 @@ export const api = {
     login: (body: any) => request('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
     googleLogin: (body: any) => request('/auth/google', { method: 'POST', body: JSON.stringify(body) }),
     me: () => request('/auth/me'),
+    logout: () => request('/auth/logout', { method: 'POST' }),
+    acceptTerms: () => request('/auth/accept-terms', { method: 'POST' }),
 
     // Products
     getProducts: (params?: Record<string, string>) => {
@@ -77,6 +86,7 @@ export const api = {
         formData.append('image', file);
         const res = await fetch(`${API_BASE}/upload/image`, {
             method: 'POST',
+            credentials: 'include',
             headers: { Authorization: `Bearer ${token}` },
             body: formData,
         });
@@ -89,6 +99,7 @@ export const api = {
         files.forEach(f => formData.append('images', f));
         const res = await fetch(`${API_BASE}/upload/images`, {
             method: 'POST',
+            credentials: 'include',
             headers: { Authorization: `Bearer ${token}` },
             body: formData,
         });

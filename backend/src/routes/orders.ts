@@ -26,6 +26,12 @@ router.post('/', authenticate, async (req: any, res) => {
             const product = products.find(p => p.id === item.productId);
             if (!product) { res.status(404).json({ error: `Product not found: ${item.productId}` }); return; }
 
+            // CRITICAL: Prevent negative or fractional quantities
+            if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+                res.status(400).json({ error: `Invalid quantity for product: ${item.productId}. Must be a positive integer.` });
+                return;
+            }
+
             totalAmount += product.price * item.quantity;
             orderItemsData.push({
                 productId: product.id,

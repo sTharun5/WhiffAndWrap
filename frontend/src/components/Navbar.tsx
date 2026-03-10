@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import { useNotifications } from '../contexts/NotificationContext';
+import { useConfirm } from '../contexts/ConfirmContext';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -35,8 +36,19 @@ export default function Navbar() {
     }, []);
 
     useEffect(() => { setMenuOpen(false); setProfileOpen(false); }, [location.pathname]);
+    const { confirm } = useConfirm();
 
-    const handleLogout = () => { logout(); navigate('/'); };
+    const handleLogout = async () => {
+        if (await confirm({
+            title: 'Sign Out',
+            message: 'Are you sure you want to sign out?',
+            danger: true,
+            confirmText: 'Confirm Logout'
+        })) {
+            logout();
+            navigate('/');
+        }
+    };
 
     const navLinks = [
         { to: '/', label: 'Home' },
@@ -48,7 +60,7 @@ export default function Navbar() {
             <div className="container navbar__inner">
                 {/* Logo */}
                 <Link to="/" className="navbar__logo">
-                    <img src="/519350388_17845389072528262_7307843047216242767_n.jpg" alt="Whiff & Wrap Logo" className="navbar__logo-img" />
+                    <img src="/logo.png" alt="Whiff & Wrap Logo" className="navbar__logo-img" />
                     <span className="navbar__logo-text">Whiff <span>&</span> Wrap</span>
                 </Link>
 
@@ -91,7 +103,7 @@ export default function Navbar() {
                                 aria-label="Profile menu"
                             >
                                 {user.image
-                                    ? <img src={user.image} alt={user.name} className="navbar__avatar" />
+                                    ? <img src={user.image} alt={user.name} className="navbar__avatar" referrerPolicy="no-referrer" />
                                     : <span className="navbar__avatar navbar__avatar--initials">{user.name[0]?.toUpperCase()}</span>
                                 }
                                 <span className="navbar__username">{user.name.split(' ')[0]}</span>

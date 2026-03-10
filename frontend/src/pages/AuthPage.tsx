@@ -16,7 +16,10 @@ export default function AuthPage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [termsAccepted, setTermsAccepted] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [formError, setFormError] = useState('');
     const { login } = useAuth();
     const { addToast } = useToast();
     const navigate = useNavigate();
@@ -76,19 +79,26 @@ export default function AuthPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setFormError('');
+
+        if (password.length < 6) {
+            setFormError('Password must be at least 6 characters long.');
+            return;
+        }
+
         setLoading(true);
         try {
             let data: any;
             if (mode === 'login') {
                 data = await api.login({ email, password });
             } else {
-                data = await api.register({ name, email, password });
+                data = await api.register({ name, email, password, termsAccepted });
             }
             login(data.token, data.user);
             addToast(`Welcome${data.user.name ? ', ' + data.user.name.split(' ')[0] : ''}! 🌸`, 'success');
             navigate(data.user.role === 'ADMIN' ? '/admin' : '/');
         } catch (err: any) {
-            addToast(err.message || 'Authentication failed', 'error');
+            setFormError(err.message || 'Authentication failed');
         } finally {
             setLoading(false);
         }
@@ -98,7 +108,7 @@ export default function AuthPage() {
         <div className="auth-page">
             <div className="auth-page__left">
                 <div className="auth-page__brand">
-                    <img src="/519350388_17845389072528262_7307843047216242767_n.jpg" alt="Whiff & Wrap Logo" className="auth-page__brand-logo" />
+                    <img src="/logo.png" alt="Whiff & Wrap Logo" className="auth-page__brand-logo" />
                     <h1 className="auth-page__brand-name">Whiff & Wrap</h1>
                     <p className="auth-page__brand-tagline">Handcrafted gifts made with love</p>
                 </div>
@@ -127,8 +137,20 @@ export default function AuthPage() {
                     </div>
 
                     <div className="auth-toggle">
-                        <button className={`auth-toggle__btn ${mode === 'login' ? 'active' : ''}`} onClick={() => setMode('login')}>Sign In</button>
-                        <button className={`auth-toggle__btn ${mode === 'register' ? 'active' : ''}`} onClick={() => setMode('register')}>Register</button>
+                        <button
+                            type="button"
+                            className={`auth-toggle__btn ${mode === 'login' ? 'active' : ''}`}
+                            onClick={() => { setMode('login'); setFormError(''); }}
+                        >
+                            Sign In
+                        </button>
+                        <button
+                            type="button"
+                            className={`auth-toggle__btn ${mode === 'register' ? 'active' : ''}`}
+                            onClick={() => { setMode('register'); setFormError(''); }}
+                        >
+                            Register
+                        </button>
                     </div>
 
                     {/* Official Google Sign-In Button rendered by Google's GSI library — no popup, no redirect URI needed */}
@@ -161,18 +183,53 @@ export default function AuthPage() {
                                 required
                             />
                         </div>
-                        <div className="form-group">
+                        <div className="form-group relative">
                             <label className="form-label">Password</label>
-                            <input
-                                type="password"
-                                className="form-input"
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                required minLength={3}
-                            />
+                            <div className="password-input-wrapper">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    className="form-input"
+                                    value={password}
+                                    onChange={e => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    required minLength={6}
+                                />
+                                <button
+                                    type="button"
+                                    className="password-toggle-btn"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    aria-label="Toggle password visibility"
+                                >
+                                    {showPassword ? '🙈' : '👁️'}
+                                </button>
+                            </div>
                         </div>
-                        <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: 8 }} disabled={loading}>
+
+                        {mode === 'register' && (
+                            <div className="checkbox-group">
+                                <input
+                                    type="checkbox"
+                                    id="termsCheckbox"
+                                    checked={termsAccepted}
+                                    onChange={e => setTermsAccepted(e.target.checked)}
+                                />
+                                <label htmlFor="termsCheckbox">
+                                    I agree to the Terms and Conditions and Privacy Policy.
+                                </label>
+                            </div>
+                        )}
+
+                        {formError && (
+                            <div className="auth-error-msg">
+                                {formError}
+                            </div>
+                        )}
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            style={{ width: '100%', marginTop: 8 }}
+                            disabled={loading || (mode === 'register' && !termsAccepted)}
+                        >
                             {loading ? <><span className="spinner" />Processing...</> : (mode === 'login' ? 'Sign In 🌸' : 'Create Account 🌸')}
                         </button>
                     </form>

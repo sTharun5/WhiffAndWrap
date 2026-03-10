@@ -9,7 +9,7 @@ export default function Footer() {
                     {/* Brand */}
                     <div className="footer__brand">
                         <Link to="/" className="footer__logo">
-                            <img src="/519350388_17845389072528262_7307843047216242767_n.jpg" alt="Whiff & Wrap Logo" className="footer__logo-img" />
+                            <img src="/logo.png" alt="Whiff & Wrap Logo" className="footer__logo-img" />
                             <span>Whiff & Wrap</span>
                         </Link>
                         <p className="footer__tagline">

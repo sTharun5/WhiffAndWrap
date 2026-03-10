@@ -5,11 +5,13 @@ import { CartProvider } from './contexts/CartContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { WishlistProvider } from './contexts/WishlistContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { ConfirmProvider } from './contexts/ConfirmContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
+import TermsModal from './components/TermsModal';
 import CartPage from './pages/CartPage';
 import WishlistPage from './pages/WishlistPage';
 import NotificationsPage from './pages/NotificationsPage';
@@ -40,6 +42,7 @@ function AppLayout() {
   return (
     <BrowserRouter>
       <div className="page-layout">
+        <TermsModal />
         <Navbar />
         <main className="main-content">
           <Routes>
@@ -65,16 +68,18 @@ function AppLayout() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <WishlistProvider>
-          <CartProvider>
-            <ToastProvider>
-              <AppLayout />
-            </ToastProvider>
-          </CartProvider>
-        </WishlistProvider>
-      </NotificationProvider>
-    </AuthProvider>
+    <ToastProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <WishlistProvider>
+            <CartProvider>
+              <ConfirmProvider>
+                <AppLayout />
+              </ConfirmProvider>
+            </CartProvider>
+          </WishlistProvider>
+        </NotificationProvider>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
