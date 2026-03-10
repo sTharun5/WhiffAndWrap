@@ -278,7 +278,6 @@
     .admin-dashboard {
         grid-template-columns: 1fr;
         padding-top: 60px;
-        /* Space for mobile header */
     }
 
     .admin-mobile-header {
@@ -318,8 +317,22 @@
         box-shadow: 10px 0 30px rgba(0, 0, 0, 0.3);
     }
 
+    /* Overlay when sidebar is open */
+    .admin-sidebar-backdrop {
+        display: block;
+        position: fixed;
+        inset: 60px 0 0 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 999;
+    }
+
     .admin-analytics-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Charts side-by-side → stack */
+    .admin-charts-grid {
+        grid-template-columns: 1fr !important;
     }
 
     .admin-hamburger {
@@ -353,15 +366,47 @@
     .admin-hamburger.open span:nth-child(3) {
         transform: translateY(-7px) rotate(-45deg);
     }
+
+    /* Order card actions stacked */
+    .admin-order-card__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-order-card__actions>div {
+        max-width: 100% !important;
+        width: 100%;
+    }
+
+    /* Date + action buttons wrap nicely */
+    .admin-order-card__actions .order-action-btns {
+        flex-wrap: wrap;
+    }
+
+    /* Product form modal – stack columns */
+    .modal .modal__body [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Modal should fill screen on mobile */
+    .modal {
+        width: 95vw !important;
+        max-width: 95vw !important;
+    }
 }
 
 .admin-mobile-header {
     display: none;
 }
 
-@media (max-width: 480px) {
+/* Sidebar backdrop (hidden by default, shown via JS) */
+.admin-sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 600px) {
     .admin-main {
-        padding: var(--space-4);
+        padding: var(--space-5) var(--space-4);
     }
 
     .admin-analytics-grid {
@@ -370,10 +415,152 @@
     }
 
     .admin-stat-card {
-        padding: var(--space-4) var(--space-2);
+        padding: var(--space-4) var(--space-3);
     }
 
     .admin-stat-card__value {
         font-size: 1.4rem;
+    }
+
+    .admin__section-title {
+        font-size: 1.3rem;
+    }
+
+    /* Reel upload form stacks */
+    .admin-reel-upload-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Charts become single column on small screens */
+    .admin-charts-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Order items wrap */
+    .admin-order-card__items {
+        flex-direction: column;
+    }
+
+    /* Reduce chart height on mobile */
+    .admin-chart-container {
+        height: 250px !important;
+    }
+
+    /* Modal full-screen on small phones */
+    .modal {
+        width: 100vw !important;
+        max-width: 100vw !important;
+        max-height: 95vh;
+        overflow-y: auto;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+        margin: auto 0 0;
+    }
+
+    .modal-overlay {
+        align-items: flex-end;
+    }
+
+    /* Stat cards 2-col always */
+    .admin-analytics-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Table scrollable horizontally */
+    .admin-table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        white-space: nowrap;
+        padding: 10px 12px;
+    }
+}
+
+/* ====== MOBILE CARD LAYOUT FOR ADMIN TABLES ====== */
+/* On small screens, transform tables into cards */
+@media (max-width: 640px) {
+    .admin-table-wrap {
+        overflow-x: unset;
+        border: none;
+        background: transparent;
+    }
+
+    .admin-table,
+    .admin-table thead,
+    .admin-table tbody,
+    .admin-table th,
+    .admin-table td,
+    .admin-table tr {
+        display: block;
+    }
+
+    /* Hide table headers (will show as label via data-label) */
+    .admin-table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .admin-table tr {
+        background: white;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        margin-bottom: 12px;
+        padding: var(--space-4) var(--space-4);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .admin-table td {
+        padding: 6px 0;
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.87rem;
+        flex-wrap: wrap;
+    }
+
+    /* Show label before each cell value */
+    .admin-table td::before {
+        content: attr(data-label);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--color-muted);
+        min-width: 80px;
+        flex-shrink: 0;
+    }
+
+    /* Image cell: just show the image without a label */
+    .admin-table td.admin-td-img {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .admin-table td.admin-td-img::before {
+        display: none;
+    }
+
+    /* Action buttons in table: full width */
+    .admin-table td .btn {
+        flex: 1;
+    }
+
+    /* Order card adjustments for mobile */
+    .admin-order-card {
+        padding: var(--space-4);
+    }
+
+    .admin-order-card__actions {
+        flex-direction: column;
+    }
+
+    /* Status select full-width on mobile */
+    .admin-order-card__actions>div {
+        max-width: 100% !important;
+        width: 100%;
     }
 }

@@ -52,12 +52,12 @@ function Analytics() {
             </div>
 
             {/* Charts Section */}
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, alignItems: 'start' }}>
+            <div className="admin-charts-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, alignItems: 'start' }}>
 
                 {/* Revenue Trend Chart */}
                 <div className="card" style={{ padding: 24, border: '1px solid var(--color-border)' }}>
                     <h3 style={{ fontSize: '1.1rem', marginBottom: 24, color: 'var(--color-text)' }}>Revenue Trend (Last 7 Days)</h3>
-                    <div style={{ width: '100%', height: 350 }}>
+                    <div className="admin-chart-container" style={{ width: '100%', height: 350 }}>
                         <ResponsiveContainer>
                             <LineChart data={data.revenueTrend} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" opacity={0.5} vertical={false} />
@@ -103,7 +103,7 @@ function Analytics() {
                 {/* Status Distribution Chart */}
                 <div className="card" style={{ padding: 24, border: '1px solid var(--color-border)' }}>
                     <h3 style={{ fontSize: '1.1rem', marginBottom: 24, color: 'var(--color-text)' }}>Order Status</h3>
-                    <div style={{ width: '100%', height: 300 }}>
+                    <div className="admin-chart-container" style={{ width: '100%', height: 300 }}>
                         {data.statusDistribution?.length > 0 ? (
                             <ResponsiveContainer>
                                 <PieChart>
@@ -532,7 +532,7 @@ function AdminProducts() {
                         <tbody>
                             {products.map(p => (
                                 <tr key={p.id}>
-                                    <td>
+                                    <td className="admin-td-img">
                                         <img
                                             src={getImage(p.images)}
                                             alt={p.name}
@@ -542,10 +542,10 @@ function AdminProducts() {
                                             onError={e => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=100'; }}
                                         />
                                     </td>
-                                    <td style={{ fontWeight: 600 }}>{p.name}</td>
-                                    <td><span className="badge badge-primary">{p.category?.name || '—'}</span></td>
-                                    <td style={{ fontWeight: 700, color: 'var(--color-primary)' }}>₹{p.price.toLocaleString('en-IN')}</td>
-                                    <td>
+                                    <td data-label="Name" style={{ fontWeight: 600 }}>{p.name}</td>
+                                    <td data-label="Category"><span className="badge badge-primary">{p.category?.name || '—'}</span></td>
+                                    <td data-label="Price" style={{ fontWeight: 700, color: 'var(--color-primary)' }}>₹{p.price.toLocaleString('en-IN')}</td>
+                                    <td data-label="Actions">
                                         <button className="btn btn-ghost btn-sm" style={{ marginRight: 6 }} onClick={() => { setEditing(p); setFormOpen(true); }}>Edit</button>
                                         <button className="btn btn-sm" style={{ background: 'rgba(192,57,43,0.1)', color: 'var(--color-error)', borderRadius: 'var(--radius-full)', border: 'none', padding: '6px 16px', fontWeight: 600, cursor: 'pointer' }} onClick={() => handleDelete(p.id)}>Delete</button>
                                     </td>
@@ -836,11 +836,11 @@ function AdminUsers() {
                         <tbody>
                             {users.map((u: any) => (
                                 <tr key={u.id}>
-                                    <td style={{ fontWeight: 600 }}>{u.name}</td>
-                                    <td style={{ color: 'var(--color-muted)' }}>{u.email}</td>
-                                    <td><span className={`badge badge-${u.role === 'ADMIN' ? 'primary' : 'success'}`}>{u.role}</span></td>
-                                    <td>{u._count?.orders ?? 0}</td>
-                                    <td style={{ fontSize: '0.83rem', color: 'var(--color-muted)' }}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                                    <td data-label="Name" style={{ fontWeight: 600 }}>{u.name}</td>
+                                    <td data-label="Email" style={{ color: 'var(--color-muted)' }}>{u.email}</td>
+                                    <td data-label="Role"><span className={`badge badge-${u.role === 'ADMIN' ? 'primary' : 'success'}`}>{u.role}</span></td>
+                                    <td data-label="Orders">{u._count?.orders ?? 0}</td>
+                                    <td data-label="Joined" style={{ fontSize: '0.83rem', color: 'var(--color-muted)' }}>{new Date(u.createdAt).toLocaleDateString()}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -911,7 +911,7 @@ function AdminReels() {
 
             <div className="card" style={{ padding: 24, marginBottom: 32, border: '1px solid var(--color-border)' }}>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: 16 }}>Upload New Reel</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'end' }}>
+                <div className="admin-reel-upload-grid" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'end' }}>
                     <div className="form-group" style={{ marginBottom: 0 }}>
                         <label className="form-label">Reel Title (Optional)</label>
                         <input
@@ -1136,10 +1136,10 @@ function AdminPolicies() {
                         <tbody>
                             {policies.map(p => (
                                 <tr key={p.id}>
-                                    <td style={{ fontWeight: 600 }}>{p.title}</td>
-                                    <td style={{ color: 'var(--color-muted)' }}>/{p.slug}</td>
-                                    <td>{new Date(p.updatedAt).toLocaleDateString()}</td>
-                                    <td>
+                                    <td data-label="Title" style={{ fontWeight: 600 }}>{p.title}</td>
+                                    <td data-label="Slug" style={{ color: 'var(--color-muted)' }}>/{p.slug}</td>
+                                    <td data-label="Updated">{new Date(p.updatedAt).toLocaleDateString()}</td>
+                                    <td data-label="Actions">
                                         <button className="btn btn-ghost btn-sm" style={{ marginRight: 6 }} onClick={() => { setEditing(p); setFormOpen(true); }}>Edit</button>
                                         <button className="btn btn-sm" style={{ background: 'rgba(192,57,43,0.1)', color: 'var(--color-error)', border: 'none', borderRadius: 'var(--radius-full)', padding: '6px 16px', fontWeight: 600 }} onClick={() => handleDelete(p.id)}>Delete</button>
                                     </td>
@@ -1232,6 +1232,14 @@ export default function AdminDashboard() {
                     </Link>
                 </div>
             </aside>
+
+            {/* Sidebar backdrop (mobile) */}
+            {mobileMenuOpen && (
+                <div
+                    className="admin-sidebar-backdrop"
+                    onClick={() => setMobileMenuOpen(false)}
+                />
+            )}
 
             {/* Main */}
             <main className="admin-main">

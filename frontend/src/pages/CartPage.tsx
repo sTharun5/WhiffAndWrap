@@ -18,6 +18,27 @@ export default function CartPage() {
     const [haptic, setHaptic] = React.useState(false);
     const [phoneNumber, setPhoneNumber] = React.useState('');
     const [agreedToPolicies, setAgreedToPolicies] = React.useState(false);
+    const [showPolicyModal, setShowPolicyModal] = React.useState(false);
+    const [hasScrolledPolicy, setHasScrolledPolicy] = React.useState(false);
+    const policyScrollRef = React.useRef<HTMLDivElement>(null);
+
+    const handlePolicyScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        const el = e.currentTarget;
+        const atBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 50;
+        if (atBottom) setHasScrolledPolicy(true);
+    };
+
+    const openPolicyModal = () => {
+        setHasScrolledPolicy(false);
+        setShowPolicyModal(true);
+        // Auto-mark as scrolled if content is short enough
+        setTimeout(() => {
+            const el = policyScrollRef.current;
+            if (el && el.scrollHeight <= el.clientHeight + 50) {
+                setHasScrolledPolicy(true);
+            }
+        }, 300);
+    };
 
     const handleCheckout = async () => {
         if (!user) { navigate('/auth'); return; }
@@ -30,12 +51,13 @@ export default function CartPage() {
         }
 
         if (!phoneNumber || phoneNumber.length < 10) {
-            addToast('Please enter a valid phone number', 'error');
+            addToast('Please enter a valid 10-digit phone number', 'error');
             return;
         }
 
         if (!agreedToPolicies) {
-            addToast('Please agree to our Store Policies to proceed', 'error');
+            addToast('Please read and agree to our Store Policies to proceed', 'error');
+            openPolicyModal();
             return;
         }
 
@@ -152,56 +174,89 @@ export default function CartPage() {
                         ) : (
                             <div className="phone-step fade-in">
                                 <h2 className="cart-summary__title">Contact Information</h2>
-                                <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: 16 }}>
-                                    Please provide a phone number so we can coordinate your delivery.
+                                <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: 20 }}>
+                                    We'll use this number only to coordinate delivery.
                                 </p>
-                                <div className="form-group" style={{ marginBottom: 20 }}>
-                                    <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', fontWeight: 600 }}>Phone Number</label>
-                                    <div style={{ position: 'relative' }}>
-                                        <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--color-muted)' }}>+91</span>
+
+                                {/* Phone number field */}
+                                <div className="checkout-phone-field" style={{ marginBottom: 20 }}>
+                                    <label className="checkout-field-label">Phone Number</label>
+                                    <div className="checkout-phone-input-wrap">
+                                        <span className="checkout-phone-prefix">+91</span>
                                         <input
                                             type="tel"
-                                            className="form-control"
-                                            placeholder="Enter 10-digit number"
+                                            className="checkout-phone-input"
+                                            placeholder="10-digit mobile number"
                                             value={phoneNumber}
                                             onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                                            style={{ paddingLeft: 45, width: '100%', height: 48 }}
+                                            maxLength={10}
+                                            inputMode="numeric"
                                             autoFocus
                                         />
-                                        <div className="cart-policy-agreement">
-                                            <label className="checkbox-container">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={agreedToPolicies}
-                                                    onChange={(e) => setAgreedToPolicies(e.target.checked)}
-                                                />
-                                                <span className="checkbox-mark"></span>
-                                                <span className="checkbox-text">
-                                                    I have read and agree to the <Link to="/policies" target="_blank">Store Policies</Link>, including the Cancellation & Refund Policy.
-                                                </span>
-                                            </label>
-                                        </div>
+                                        {phoneNumber.length === 10 && (
+                                            <span className="checkout-phone-check">✓</span>
+                                        )}
+                                    </div>
+                                    <p className="checkout-field-hint">{phoneNumber.length}/10 digits</p>
+                                </div>
 
-                                        <div style={{ display: 'flex', gap: 12 }}>
+                                {/* Policy Agreement */}
+                                <div className="checkout-policy-box">
+                                    <div className="checkout-policy-icon">📋</div>
+                                    <div className="checkout-policy-body">
+                                        <p className="checkout-policy-title">Store Policies Agreement</p>
+                                        <p className="checkout-policy-desc">
+                                            You must read and agree to our policies before placing your order.
+                                        </p>
+                                        {!agreedToPolicies ? (
                                             <button
-                                                className="btn btn-ghost"
-                                                style={{ flex: 1 }}
-                                                onClick={() => setShowPhoneStep(false)}
-                                                disabled={placing}
+                                                type="button"
+                                                className="btn btn-ghost btn-sm checkout-policy-read-btn"
+                                                onClick={openPolicyModal}
                                             >
-                                                Back
+                                                📖 Read & Agree to Policies
                                             </button>
-                                            <button
-                                                className="btn btn-primary"
-                                                style={{ flex: 2 }}
-                                                onClick={handleCheckout}
-                                                disabled={placing || phoneNumber.length < 10 || !agreedToPolicies}
-                                            >
-                                                {placing ? <><span className="spinner" /> Placing Order...</> : 'Place Order 🎁'}
-                                            </button>
-                                        </div>
+                                        ) : (
+                                            <div className="checkout-policy-agreed">
+                                                <span className="checkout-policy-agreed-icon">✓</span>
+                                                <span>Policies agreed</span>
+                                                <button
+                                                    type="button"
+                                                    className="checkout-policy-revoke"
+                                                    onClick={() => setAgreedToPolicies(false)}
+                                                >
+                                                    Revoke
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
+
+                                {/* Action Buttons */}
+                                <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
+                                    <button
+                                        className="btn btn-ghost"
+                                        style={{ flex: 1 }}
+                                        onClick={() => setShowPhoneStep(false)}
+                                        disabled={placing}
+                                    >
+                                        ← Back
+                                    </button>
+                                    <button
+                                        className="btn btn-primary"
+                                        style={{ flex: 2 }}
+                                        onClick={handleCheckout}
+                                        disabled={placing || phoneNumber.length < 10 || !agreedToPolicies}
+                                    >
+                                        {placing ? <><span className="spinner" /> Placing Order...</> : 'Place Order 🎁'}
+                                    </button>
+                                </div>
+
+                                {!agreedToPolicies && phoneNumber.length === 10 && (
+                                    <p style={{ fontSize: '0.78rem', color: 'var(--color-muted)', textAlign: 'center', marginTop: 10 }}>
+                                        Please read and agree to policies to enable Place Order.
+                                    </p>
+                                )}
                             </div>
                         )}
 
@@ -216,22 +271,13 @@ export default function CartPage() {
                 </div>
             </div>
 
+            {/* Image Preview Modal */}
             {previewImage && (
                 <div className="modal-overlay" style={{ zIndex: 10000, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }} onClick={() => setPreviewImage(null)}>
                     <div style={{ position: 'relative', width: '90vw', height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <button
                             className="btn btn-ghost btn-sm"
-                            style={{
-                                position: 'absolute',
-                                top: -10,
-                                right: -10,
-                                background: 'white',
-                                color: 'var(--color-text)',
-                                zIndex: 2,
-                                borderRadius: 'var(--radius-full)',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                                padding: '8px 16px'
-                            }}
+                            style={{ position: 'absolute', top: -10, right: -10, background: 'white', color: 'var(--color-text)', zIndex: 2, borderRadius: 'var(--radius-full)', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', padding: '8px 16px' }}
                             onClick={() => setPreviewImage(null)}
                         >
                             ✕ Close
@@ -239,16 +285,76 @@ export default function CartPage() {
                         <img
                             src={previewImage}
                             alt="Full Preview"
-                            style={{
-                                maxWidth: '100%',
-                                maxHeight: '100%',
-                                objectFit: 'contain',
-                                borderRadius: 12,
-                                boxShadow: '0 12px 48px rgba(0,0,0,0.6)',
-                                background: 'var(--color-cream)'
-                            }}
+                            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: 12, boxShadow: '0 12px 48px rgba(0,0,0,0.6)', background: 'var(--color-cream)' }}
                             onClick={e => e.stopPropagation()}
                         />
+                    </div>
+                </div>
+            )}
+
+            {/* Policy Read Modal */}
+            {showPolicyModal && (
+                <div className="modal-overlay fade-in policy-modal-overlay" onClick={() => setShowPolicyModal(false)}>
+                    <div className="policy-modal" onClick={e => e.stopPropagation()}>
+                        {/* Header */}
+                        <div className="policy-modal__header">
+                            <div>
+                                <div style={{ fontSize: '1.5rem', marginBottom: 4 }}>📋</div>
+                                <h2 className="policy-modal__title">Store Policies</h2>
+                                <p className="policy-modal__subtitle">Please read carefully before agreeing.</p>
+                            </div>
+                            <button className="policy-modal__close" onClick={() => setShowPolicyModal(false)}>✕</button>
+                        </div>
+
+                        {/* Scrollable content */}
+                        <div
+                            className="policy-modal__body"
+                            ref={policyScrollRef}
+                            onScroll={handlePolicyScroll}
+                        >
+                            <div className="policy-modal__section">
+                                <h3>🚫 Cancellation & Refund Policy</h3>
+                                <p>Due to the customized and handcrafted nature of our products, <strong>all sales are final</strong> once your order has been accepted and production has begun.</p>
+                                <p>We do <strong>not offer cancellations, refunds, or exchanges</strong> unless the item arrives damaged or defective due to shipping. Please ensure all personalization details are correct before placing your order.</p>
+                                <p>In the event of a damaged item, please contact us within 48 hours of delivery with photographic evidence.</p>
+                            </div>
+
+                            <div className="policy-modal__section">
+                                <h3>🚚 Shipping & Delivery Policy</h3>
+                                <p>We process and dispatch orders within 2–5 business days. Delivery timelines thereafter depend on your location and the courier service.</p>
+                                <p>We are <strong>not responsible for delays</strong> caused by courier services, adverse weather conditions, or incorrect addresses provided at checkout. Please ensure your delivery address and contact number are accurate.</p>
+                            </div>
+
+                            <div className="policy-modal__section">
+                                <h3>🔒 Privacy & Personal Data</h3>
+                                <p>We collect your phone number strictly for order fulfillment and delivery coordination. We do <strong>not share your personal data</strong> with third parties for marketing or any other purposes.</p>
+                            </div>
+
+                            <div className="policy-modal__section">
+                                <h3>📦 Order Acceptance</h3>
+                                <p>By clicking "I Agree to All Policies" below, you acknowledge that you have read and understood all the above policies and accept them in full.</p>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="policy-modal__footer">
+                            {!hasScrolledPolicy && (
+                                <p className="policy-modal__scroll-hint">↓ Scroll down to read all policies before agreeing</p>
+                            )}
+                            <button
+                                className="btn btn-primary btn-lg policy-modal__agree-btn"
+                                disabled={!hasScrolledPolicy}
+                                onClick={() => {
+                                    setAgreedToPolicies(true);
+                                    setShowPolicyModal(false);
+                                }}
+                            >
+                                {hasScrolledPolicy ? '✓ I Agree to All Policies' : 'Scroll to read all policies'}
+                            </button>
+                            <button className="btn btn-ghost policy-modal__decline-btn" onClick={() => setShowPolicyModal(false)}>
+                                Decline
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

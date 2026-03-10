@@ -177,16 +177,15 @@ router.get('/analytics', async (_req, res) => {
             else if (order.status === 'REJECTED') rejectedOrders++;
             else pendingOrders++;
 
-            // Revenue calculation: Only "completed or successfully delivered" orders
-            // OR strictly excluding REJECTED? The user specifically asked to exclude rejected/cancelled. Let's exclude REJECTED.
-            if (order.status !== 'REJECTED') {
+            // Revenue calculation: Only count DELIVERED orders
+            if (order.status === 'DELIVERED') {
                 totalRevenue += order.totalAmount;
             }
 
-            // Time series (group by date)
+            // Time series (group by date) — revenue only from DELIVERED orders
             const dateStr = new Date(order.createdAt).toISOString().split('T')[0];
             if (revenueByDateMap[dateStr] !== undefined) {
-                if (order.status !== 'REJECTED') {
+                if (order.status === 'DELIVERED') {
                     revenueByDateMap[dateStr] += order.totalAmount;
                 }
                 ordersByDateMap[dateStr] += 1;
