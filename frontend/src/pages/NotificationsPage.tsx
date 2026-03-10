@@ -23,6 +23,15 @@ export default function NotificationsPage() {
     return (
         <div className="fade-in" style={{ padding: 'var(--space-10) 0 var(--space-16)' }}>
             <div className="container" style={{ maxWidth: 800 }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="btn btn-ghost btn-sm"
+                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                        <span>←</span> Back to Home
+                    </button>
+                </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
                     <h1 className="section-title" style={{ margin: 0 }}>Notifications 🔔</h1>
                     {filteredNotifications.some(n => !n.read) && (

@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useWishlist } from '../contexts/WishlistContext';
 import Alert from '../components/Alert';
+import Skeleton from '../components/Skeleton';
 import { useToast } from '../contexts/ToastContext';
 import './ProductDetailPage.css';
 
@@ -32,6 +33,7 @@ export default function ProductDetailPage() {
     const { user } = useAuth();
     const { addToast } = useToast();
     const { isWishlisted, toggleWishlist } = useWishlist();
+    const [haptic, setHaptic] = useState(false);
     const navigate = useNavigate();
 
     const wishlisted = id ? isWishlisted(id) : false;
@@ -48,11 +50,23 @@ export default function ProductDetailPage() {
     if (loading) return (
         <div className="pd-page">
             <div className="container pd-page__inner">
-                <div className="skeleton" style={{ height: 500, borderRadius: 16 }} />
-                <div>
-                    <div className="skeleton" style={{ height: 40, marginBottom: 16 }} />
-                    <div className="skeleton" style={{ height: 20, width: '60%', marginBottom: 12 }} />
-                    <div className="skeleton" style={{ height: 60, marginBottom: 16 }} />
+                <div className="pd-gallery">
+                    <Skeleton height={500} borderRadius={16} />
+                    <div className="pd-gallery__thumbs" style={{ marginTop: 16 }}>
+                        <Skeleton width={80} height={80} circle />
+                        <Skeleton width={80} height={80} circle />
+                        <Skeleton width={80} height={80} circle />
+                    </div>
+                </div>
+                <div className="pd-info">
+                    <Skeleton height={40} width="80%" style={{ marginBottom: 16 }} />
+                    <Skeleton height={20} width="40%" style={{ marginBottom: 12 }} />
+                    <Skeleton height={60} style={{ marginBottom: 16 }} />
+                    <Skeleton height={150} style={{ marginBottom: 16 }} />
+                    <div style={{ display: 'flex', gap: 12 }}>
+                        <Skeleton height={50} width={120} borderRadius="var(--radius-full)" />
+                        <Skeleton height={50} style={{ flex: 1 }} borderRadius="var(--radius-full)" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -80,6 +94,8 @@ export default function ProductDetailPage() {
             image: images[0],
             personalizationData: { ...personalization, ...(userImage ? { custom_image: userImage } : {}) },
         });
+        setHaptic(true);
+        setTimeout(() => setHaptic(false), 300);
         addToast(`${product.name} added to cart 🛍`, 'success');
     };
 
@@ -121,14 +137,23 @@ export default function ProductDetailPage() {
     return (
         <div className="pd-page fade-in">
             <div className="container">
-                {/* Breadcrumb */}
-                <nav className="pd-breadcrumb">
-                    <button onClick={() => navigate('/')}>Home</button>
-                    <span>/</span>
-                    <button onClick={() => navigate('/products')}>Products</button>
-                    <span>/</span>
-                    <span>{product.name}</span>
-                </nav>
+                {/* Breadcrumb & Back */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="btn btn-ghost btn-sm"
+                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                        <span>←</span> Back
+                    </button>
+                    <nav className="pd-breadcrumb" style={{ marginBottom: 0 }}>
+                        <button onClick={() => navigate('/')}>Home</button>
+                        <span>/</span>
+                        <button onClick={() => navigate('/products')}>Products</button>
+                        <span>/</span>
+                        <span>{product.name}</span>
+                    </nav>
+                </div>
 
                 <div className="pd-page__inner">
                     {/* Gallery */}
@@ -148,7 +173,7 @@ export default function ProductDetailPage() {
                                         }}
                                         title={i === activeImage ? "Click to zoom" : "Click to view"}
                                     >
-                                        <img src={img} alt="" />
+                                        <img src={img} alt="" loading="lazy" />
                                     </button>
                                 ))}
                             </div>
@@ -163,7 +188,7 @@ export default function ProductDetailPage() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
                             <h1 className="pd-info__title">{product.name}</h1>
                             <button
-                                className={`pd-info__wishlist ${wishlisted ? 'active' : ''}`}
+                                className={`pd-info__wishlist ${wishlisted ? 'active' : ''} ${haptic ? 'animate-haptic' : ''}`}
                                 onClick={handleWishlist}
                                 title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                                 style={{
@@ -232,6 +257,7 @@ export default function ProductDetailPage() {
                                                             style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, cursor: 'zoom-in' }}
                                                             onClick={() => setPreviewImage(`${BACKEND}${userImage}`)}
                                                             title="Click to zoom"
+                                                            loading="lazy"
                                                         />
                                                         <div className="alert-strip alert-strip--success">✅ Image uploaded successfully!</div>
                                                     </div>
@@ -262,7 +288,7 @@ export default function ProductDetailPage() {
                                 <button onClick={() => setQuantity(q => Math.min(100, q + 1))} className="pd-qty__btn">+</button>
                             </div>
                             <button
-                                className="btn btn-primary btn-lg"
+                                className={`btn btn-primary btn-lg ${haptic ? 'animate-haptic' : ''}`}
                                 style={{ flex: 1 }}
                                 onClick={handleAddToCart}
                             >

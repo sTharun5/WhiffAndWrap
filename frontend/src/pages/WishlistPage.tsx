@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useToast } from '../contexts/ToastContext';
 import { useCart } from '../contexts/CartContext';
 import { useWishlist } from '../contexts/WishlistContext';
+import Skeleton from '../components/Skeleton';
 
 const BACKEND = 'http://localhost:5001';
 
@@ -22,8 +23,11 @@ export default function WishlistPage() {
                 <div className="products-grid">
                     {Array.from({ length: 6 }).map((_, i) => (
                         <div key={i} className="product-card">
-                            <div className="skeleton" style={{ aspectRatio: '1' }} />
-                            <div style={{ padding: 16 }}><div className="skeleton" style={{ height: 40 }} /></div>
+                            <Skeleton height="300px" style={{ aspectRatio: '1' }} />
+                            <div style={{ padding: 16 }}>
+                                <Skeleton height={20} width="70%" style={{ marginBottom: 8 }} />
+                                <Skeleton height={40} />
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -34,14 +38,25 @@ export default function WishlistPage() {
     return (
         <div className="fade-in" style={{ padding: 'var(--space-10) 0 var(--space-16)' }}>
             <div className="container">
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="btn btn-ghost btn-sm"
+                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                        <span>←</span> Back to Store
+                    </button>
+                </div>
                 <h1 className="section-title" style={{ marginBottom: 32 }}>My Wishlist ♡</h1>
 
                 {wishlist.length === 0 ? (
-                    <div className="empty-state">
-                        <div className="empty-state__icon">♡</div>
-                        <h2 className="empty-state__title">Your wishlist is empty</h2>
-                        <p>Browse products and add them to your wishlist.</p>
-                        <Link to="/products" className="btn btn-primary" style={{ marginTop: 24 }}>Discover Products</Link>
+                    <div className="empty-state" style={{ padding: 'var(--space-16) 0' }}>
+                        <div className="empty-state__icon" style={{ fontSize: '5rem' }}>♡</div>
+                        <h2 className="empty-state__title" style={{ fontSize: '2rem' }}>You haven't saved any favorites yet</h2>
+                        <p style={{ maxWidth: 400, margin: '12px auto' }}>
+                            Love something? Tap the heart icon on any product to save it here for later.
+                        </p>
+                        <Link to="/products" className="btn btn-primary btn-lg" style={{ marginTop: 24 }}>Explore Collection</Link>
                     </div>
                 ) : (
                     <div className="products-grid">

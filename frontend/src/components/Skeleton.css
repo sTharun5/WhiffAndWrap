@@ -1,0 +1,22 @@
+.skeleton-loader {
+    display: block;
+    width: 100%;
+    margin-bottom: var(--space-2);
+    min-height: 1rem;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Optional: Layered skeletons for composite components */
+.skeleton-row {
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+}
+
+.skeleton-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    flex: 1;
+}

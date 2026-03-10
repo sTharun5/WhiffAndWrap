@@ -49,6 +49,10 @@ export const api = {
     // Reels
     getReels: () => request('/reels'),
 
+    // Policies
+    getPolicies: () => request('/policies'),
+    getPolicy: (slug: string) => request(`/policies/${slug}`),
+
     // Orders
     placeOrder: (body: any) => request('/orders', { method: 'POST', body: JSON.stringify(body) }),
     getMyOrders: () => request('/orders/my'),
@@ -83,6 +87,11 @@ export const api = {
         getReels: () => request('/admin/reels'),
         createReel: (body: any) => request('/admin/reels', { method: 'POST', body: JSON.stringify(body) }),
         deleteReel: (id: string) => request(`/admin/reels/${id}`, { method: 'DELETE' }),
+
+        getPolicies: () => request('/admin/policies'),
+        createPolicy: (body: any) => request('/admin/policies', { method: 'POST', body: JSON.stringify(body) }),
+        updatePolicy: (id: string, body: any) => request(`/admin/policies/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
+        deletePolicy: (id: string) => request(`/admin/policies/${id}`, { method: 'DELETE' }),
     },
 
     // Upload

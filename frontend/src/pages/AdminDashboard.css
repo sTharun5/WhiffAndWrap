@@ -7,7 +7,8 @@
 
 /* Sidebar */
 .admin-sidebar {
-    background: linear-gradient(180deg, var(--color-primary-dark) 0%, var(--color-dark) 100%);
+    background: #1B1F1C;
+    /* Sophisticated deep charcoal-green */
     display: flex;
     flex-direction: column;
     padding: var(--space-6) 0;
@@ -15,6 +16,7 @@
     top: 0;
     height: 100vh;
     overflow-y: auto;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .admin-sidebar__logo {
@@ -127,8 +129,9 @@
 
 /* Main */
 .admin-main {
-    background: var(--color-off-white);
-    padding: var(--space-8);
+    background: #F9F7F5;
+    /* Warmer luxury background */
+    padding: var(--space-10);
     min-height: 100vh;
 }
 
@@ -150,11 +153,18 @@
 
 .admin-stat-card {
     background: white;
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-lg);
     padding: var(--space-6);
-    text-align: center;
+    text-align: left;
+    /* More professional left-align */
     border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: transform var(--transition-base);
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .admin-stat-card__icon {
@@ -191,15 +201,15 @@
 }
 
 .admin-table th {
-    padding: 12px var(--space-4);
+    padding: 16px var(--space-4);
     text-align: left;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--color-muted);
-    background: var(--color-cream);
-    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-light);
+    background: #F1EDEA;
+    border-bottom: 2px solid var(--color-border);
 }
 
 .admin-table td {

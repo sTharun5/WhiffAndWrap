@@ -21,7 +21,7 @@ function getImage(images: any): string {
 }
 
 /* ---- Admin Analytics ---- */
-const COLORS = ['#8B4A73', '#C9956A', '#f39c12', '#2ecc71', '#e74c3c']; // Matching brand/status colors
+const COLORS = ['#D4A373', '#9B6B6B', '#6B8E23', '#4A3B31', '#D6D6D6']; // Muted luxury palette for charts
 
 function Analytics() {
     const [data, setData] = useState<any>(null);
@@ -42,8 +42,10 @@ function Analytics() {
                     { label: 'Revenue', value: `₹${(+data.totalRevenue).toLocaleString('en-IN')}`, icon: '💰' },
                 ].map(s => (
                     <div key={s.label} className="admin-stat-card">
-                        <div className="admin-stat-card__icon">{s.icon}</div>
-                        <div className="admin-stat-card__value">{s.value}</div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div className="admin-stat-card__value">{s.value}</div>
+                            <div className="admin-stat-card__icon" style={{ opacity: 0.4 }}>{s.icon}</div>
+                        </div>
                         <div className="admin-stat-card__label">{s.label}</div>
                     </div>
                 ))}
@@ -979,6 +981,183 @@ function AdminReels() {
     );
 }
 
+/* ---- Admin Policies ---- */
+function PolicyForm({ initial, onSave, onClose }: { initial?: any, onSave: () => void, onClose: () => void }) {
+    const [form, setForm] = useState({
+        title: initial?.title || '',
+        slug: initial?.slug || '',
+        content: initial?.content || '',
+    });
+    const [loading, setLoading] = useState(false);
+    const { addToast } = useToast();
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            if (initial?.id) {
+                await api.admin.updatePolicy(initial.id, form);
+                addToast('Policy updated!', 'success');
+            } else {
+                await api.admin.createPolicy(form);
+                addToast('Policy created!', 'success');
+            }
+            onSave();
+        } catch (err: any) {
+            addToast(err.message, 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 1000, width: '95%' }}>
+                <div className="modal__header">
+                    <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.3rem' }}>{initial ? 'Edit Policy' : 'New Policy'}</h2>
+                    <button className="btn btn-ghost btn-sm" onClick={onClose}>✕</button>
+                </div>
+                <form onSubmit={handleSubmit}>
+                    <div className="modal__body" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                        <div className="policy-editor-left">
+                            <div className="form-group">
+                                <label className="form-label">Policy Title</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="e.g., Privacy Policy"
+                                    value={form.title}
+                                    onChange={e => {
+                                        const newTitle = e.target.value;
+                                        const newSlug = newTitle.toLowerCase().trim()
+                                            .replace(/[^\w\s-]/g, '')
+                                            .replace(/[\s_-]+/g, '-')
+                                            .replace(/^-+|-+$/g, '');
+                                        setForm(p => ({ ...p, title: newTitle, slug: newSlug }));
+                                    }}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label className="form-label">
+                                    Content
+                                </label>
+                                <textarea
+                                    className="form-input form-textarea"
+                                    style={{ height: 400, fontSize: '14px', lineHeight: '1.6' }}
+                                    placeholder="Type your policy content here. Line breaks are preserved."
+                                    value={form.content}
+                                    onChange={e => setForm(p => ({ ...p, content: e.target.value }))}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        <div className="policy-editor-right">
+                            <label className="form-label" style={{ color: 'var(--color-primary)', fontWeight: 700 }}>LIVE PREVIEW</label>
+                            <div
+                                className="policy-preview-container"
+                                style={{
+                                    height: 520,
+                                    overflowY: 'auto',
+                                    padding: 24,
+                                    border: '1px solid var(--color-border)',
+                                    borderRadius: 12,
+                                    background: 'white',
+                                    lineHeight: '1.8',
+                                    whiteSpace: 'pre-wrap',
+                                    color: 'var(--color-text)'
+                                }}
+                            >
+                                <h1 style={{ fontFamily: 'var(--font-serif)', marginBottom: 16 }}>{form.title || 'Policy Title'}</h1>
+                                {form.content || 'Your content will appear here...'}
+                            </div>
+                            <div style={{ marginTop: 12, fontSize: '0.75rem', color: 'var(--color-muted)', background: 'var(--color-cream)', padding: 12, borderRadius: 8 }}>
+                                💡 <strong>Tip:</strong> Simply type your policy text. Use double line breaks for new paragraphs. All formatting (like lists) should be done manually with plain text.
+                            </div>
+                        </div>
+                    </div>
+                    <div className="modal__footer">
+                        <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="btn btn-primary" disabled={loading}>
+                            {loading ? 'Saving...' : initial ? 'Save Changes' : 'Create Policy'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+function AdminPolicies() {
+    const [policies, setPolicies] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [formOpen, setFormOpen] = useState(false);
+    const [editing, setEditing] = useState<any>(null);
+    const { addToast } = useToast();
+    const { confirm } = useConfirm();
+
+    const load = () => {
+        setLoading(true);
+        api.admin.getPolicies().then(setPolicies).catch(() => { }).finally(() => setLoading(false));
+    };
+
+    useEffect(load, []);
+
+    const handleDelete = async (id: string) => {
+        if (!(await confirm({
+            title: 'Delete Policy',
+            message: 'Are you sure you want to delete this policy?',
+            confirmText: 'Delete',
+            danger: true
+        }))) return;
+        try {
+            await api.admin.deletePolicy(id);
+            addToast('Policy deleted', 'success');
+            load();
+        } catch { addToast('Delete failed', 'error'); }
+    };
+
+    return (
+        <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <h2 className="admin__section-title">Store Policies</h2>
+                <button className="btn btn-primary btn-sm" onClick={() => { setEditing(null); setFormOpen(true); }}>+ Add Policy</button>
+            </div>
+
+            {loading ? (
+                <div className="skeleton" style={{ height: 200, borderRadius: 12 }} />
+            ) : (
+                <div className="admin-table-wrap">
+                    <table className="admin-table">
+                        <thead>
+                            <tr><th>Title</th><th>Slug</th><th>Last Updated</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            {policies.map(p => (
+                                <tr key={p.id}>
+                                    <td style={{ fontWeight: 600 }}>{p.title}</td>
+                                    <td style={{ color: 'var(--color-muted)' }}>/{p.slug}</td>
+                                    <td>{new Date(p.updatedAt).toLocaleDateString()}</td>
+                                    <td>
+                                        <button className="btn btn-ghost btn-sm" style={{ marginRight: 6 }} onClick={() => { setEditing(p); setFormOpen(true); }}>Edit</button>
+                                        <button className="btn btn-sm" style={{ background: 'rgba(192,57,43,0.1)', color: 'var(--color-error)', border: 'none', borderRadius: 'var(--radius-full)', padding: '6px 16px', fontWeight: 600 }} onClick={() => handleDelete(p.id)}>Delete</button>
+                                    </td>
+                                </tr>
+                            ))}
+                            {policies.length === 0 && (
+                                <tr><td colSpan={4} style={{ textAlign: 'center', padding: 40, color: 'var(--color-muted)' }}>No policies found. Create one.</td></tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {formOpen && <PolicyForm initial={editing} onSave={() => { setFormOpen(false); load(); }} onClose={() => setFormOpen(false)} />}
+        </div>
+    );
+}
+
 /* ---- Main Dashboard ---- */
 export default function AdminDashboard() {
     const { user } = useAuth();
@@ -992,6 +1171,7 @@ export default function AdminDashboard() {
         { path: '/admin/orders', label: 'Orders', icon: '📦' },
         { path: '/admin/users', label: 'Users', icon: '👤' },
         { path: '/admin/reels', label: 'Reels', icon: '🎥' },
+        { path: '/admin/policies', label: 'Policies', icon: '📑' },
     ];
 
     useEffect(() => {
@@ -1061,6 +1241,7 @@ export default function AdminDashboard() {
                     <Route path="/orders" element={<AdminOrders />} />
                     <Route path="/users" element={<AdminUsers />} />
                     <Route path="/reels" element={<AdminReels />} />
+                    <Route path="/policies" element={<AdminPolicies />} />
                 </Routes>
             </main>
         </div>

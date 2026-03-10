@@ -15,18 +15,27 @@ export default function CartPage() {
     const [placing, setPlacing] = React.useState(false);
     const [previewImage, setPreviewImage] = React.useState<string | null>(null);
     const [showPhoneStep, setShowPhoneStep] = React.useState(false);
+    const [haptic, setHaptic] = React.useState(false);
     const [phoneNumber, setPhoneNumber] = React.useState('');
+    const [agreedToPolicies, setAgreedToPolicies] = React.useState(false);
 
     const handleCheckout = async () => {
         if (!user) { navigate('/auth'); return; }
 
         if (!showPhoneStep) {
+            setHaptic(true);
+            setTimeout(() => setHaptic(false), 300);
             setShowPhoneStep(true);
             return;
         }
 
         if (!phoneNumber || phoneNumber.length < 10) {
             addToast('Please enter a valid phone number', 'error');
+            return;
+        }
+
+        if (!agreedToPolicies) {
+            addToast('Please agree to our Store Policies to proceed', 'error');
             return;
         }
 
@@ -49,13 +58,15 @@ export default function CartPage() {
     };
 
     if (items.length === 0) return (
-        <div className="cart-page">
-            <div className="container">
+        <div className="cart-page fade-in">
+            <div className="container" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div className="empty-state">
-                    <div className="empty-state__icon">🛍</div>
-                    <h2 className="empty-state__title">Your cart is empty</h2>
-                    <p>Discover our handmade gifts and add them to your cart.</p>
-                    <Link to="/products" className="btn btn-primary" style={{ marginTop: 24 }}>Shop Now</Link>
+                    <div className="empty-state__icon" style={{ fontSize: '5rem', opacity: 0.8 }}>🛍️</div>
+                    <h2 className="empty-state__title" style={{ fontSize: '2rem', marginTop: 16 }}>Your cart feels a bit light</h2>
+                    <p style={{ maxWidth: 400, margin: '12px auto', color: 'var(--color-text-light)' }}>
+                        Discover our collection of handcrafted gifts, preserved bouquets, and more to find the perfect gift.
+                    </p>
+                    <Link to="/products" className="btn btn-primary btn-lg" style={{ marginTop: 24 }}>Explore Our Collection</Link>
                 </div>
             </div>
         </div>
@@ -64,6 +75,15 @@ export default function CartPage() {
     return (
         <div className="cart-page fade-in">
             <div className="container">
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="btn btn-ghost btn-sm"
+                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                        <span>←</span> Back to Store
+                    </button>
+                </div>
                 <div className="cart-page__header">
                     <h1 className="section-title">Shopping Cart</h1>
                     <button className="btn btn-ghost btn-sm" onClick={clearCart}>Clear All</button>
@@ -121,7 +141,7 @@ export default function CartPage() {
                                     <span>₹{totalPrice.toLocaleString('en-IN')}</span>
                                 </div>
                                 <button
-                                    className="btn btn-primary"
+                                    className={`btn btn-primary ${haptic ? 'animate-haptic' : ''}`}
                                     style={{ width: '100%', marginTop: 16 }}
                                     onClick={handleCheckout}
                                     disabled={placing}
@@ -148,25 +168,39 @@ export default function CartPage() {
                                             style={{ paddingLeft: 45, width: '100%', height: 48 }}
                                             autoFocus
                                         />
+                                        <div className="cart-policy-agreement">
+                                            <label className="checkbox-container">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={agreedToPolicies}
+                                                    onChange={(e) => setAgreedToPolicies(e.target.checked)}
+                                                />
+                                                <span className="checkbox-mark"></span>
+                                                <span className="checkbox-text">
+                                                    I have read and agree to the <Link to="/policies" target="_blank">Store Policies</Link>, including the Cancellation & Refund Policy.
+                                                </span>
+                                            </label>
+                                        </div>
+
+                                        <div style={{ display: 'flex', gap: 12 }}>
+                                            <button
+                                                className="btn btn-ghost"
+                                                style={{ flex: 1 }}
+                                                onClick={() => setShowPhoneStep(false)}
+                                                disabled={placing}
+                                            >
+                                                Back
+                                            </button>
+                                            <button
+                                                className="btn btn-primary"
+                                                style={{ flex: 2 }}
+                                                onClick={handleCheckout}
+                                                disabled={placing || phoneNumber.length < 10 || !agreedToPolicies}
+                                            >
+                                                {placing ? <><span className="spinner" /> Placing Order...</> : 'Place Order 🎁'}
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div style={{ display: 'flex', gap: 12 }}>
-                                    <button
-                                        className="btn btn-ghost"
-                                        style={{ flex: 1 }}
-                                        onClick={() => setShowPhoneStep(false)}
-                                        disabled={placing}
-                                    >
-                                        Back
-                                    </button>
-                                    <button
-                                        className="btn btn-primary"
-                                        style={{ flex: 2 }}
-                                        onClick={handleCheckout}
-                                        disabled={placing || phoneNumber.length < 10}
-                                    >
-                                        {placing ? <><span className="spinner" /> Placing Order...</> : 'Place Order 🎁'}
-                                    </button>
                                 </div>
                             </div>
                         )}
@@ -181,6 +215,7 @@ export default function CartPage() {
                     </div>
                 </div>
             </div>
+
             {previewImage && (
                 <div className="modal-overlay" style={{ zIndex: 10000, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)' }} onClick={() => setPreviewImage(null)}>
                     <div style={{ position: 'relative', width: '90vw', height: '90vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

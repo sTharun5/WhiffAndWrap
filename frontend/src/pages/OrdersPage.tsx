@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../lib/api';
+import Skeleton from '../components/Skeleton';
 import './OrdersPage.css';
 
 const STATUS_STEPS = [
@@ -23,11 +24,23 @@ export default function OrdersPage() {
     }, []);
 
     if (loading) return (
-        <div className="orders-page">
+        <div className="orders-page fade-in">
             <div className="container">
-                {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="skeleton" style={{ height: 140, borderRadius: 16, marginBottom: 16 }} />
-                ))}
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="btn btn-ghost btn-sm"
+                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                        <span>←</span> Back to Home
+                    </button>
+                </div>
+                <Skeleton height={40} width={200} style={{ marginBottom: 32 }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <Skeleton key={i} height={140} borderRadius={16} />
+                    ))}
+                </div>
             </div>
         </div>
     );
@@ -35,14 +48,23 @@ export default function OrdersPage() {
     return (
         <div className="orders-page fade-in">
             <div className="container">
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="btn btn-ghost btn-sm"
+                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                        <span>←</span> Back to Home
+                    </button>
+                </div>
                 <h1 className="section-title" style={{ marginBottom: 32 }}>My Orders</h1>
 
                 {orders.length === 0 ? (
-                    <div className="empty-state">
-                        <div className="empty-state__icon">📦</div>
-                        <h2 className="empty-state__title">No orders yet</h2>
-                        <p>Once you place an order, it will appear here.</p>
-                        <Link to="/products" className="btn btn-primary" style={{ marginTop: 24 }}>Start Shopping</Link>
+                    <div className="empty-state" style={{ padding: 'var(--space-16) 0' }}>
+                        <div className="empty-state__icon" style={{ fontSize: '5rem' }}>📦</div>
+                        <h2 className="empty-state__title" style={{ fontSize: '2rem' }}>No orders found</h2>
+                        <p style={{ maxWidth: 400, margin: '12px auto' }}>You haven't placed any orders yet. Discover our handmade gifts and place your first order!</p>
+                        <Link to="/products" className="btn btn-primary btn-lg" style={{ marginTop: 24 }}>Start Shopping</Link>
                     </div>
                 ) : (
                     <div className="orders-list">

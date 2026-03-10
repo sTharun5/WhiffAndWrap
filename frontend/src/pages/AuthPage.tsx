@@ -107,7 +107,14 @@ export default function AuthPage() {
     return (
         <div className="auth-page">
             <div className="auth-page__left">
-                <div className="auth-page__brand">
+                <div className="auth-page__brand" style={{ position: 'relative' }}>
+                    <button
+                        onClick={() => navigate('/')}
+                        className="btn btn-ghost btn-sm"
+                        style={{ position: 'absolute', top: -40, left: 0, padding: '4px 8px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                        <span>←</span> Back to Store
+                    </button>
                     <img src="/logo.png" alt="Whiff & Wrap Logo" className="auth-page__brand-logo" />
                     <h1 className="auth-page__brand-name">Whiff & Wrap</h1>
                     <p className="auth-page__brand-tagline">Handcrafted gifts made with love</p>

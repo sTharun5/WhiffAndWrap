@@ -243,4 +243,38 @@ router.delete('/reels/:id', async (req, res) => {
     } catch { res.status(500).json({ error: 'Server error' }); }
 });
 
+// --- Policies Management ---
+router.get('/policies', async (_req, res) => {
+    try {
+        const policies = await prisma.policy.findMany({ orderBy: { title: 'asc' } });
+        res.json(policies);
+    } catch { res.status(500).json({ error: 'Server error' }); }
+});
+
+router.post('/policies', async (req, res) => {
+    try {
+        const { title, slug, content } = req.body;
+        const policy = await prisma.policy.create({ data: { title, slug, content } });
+        res.status(201).json(policy);
+    } catch (e) { console.error(e); res.status(500).json({ error: 'Server error' }); }
+});
+
+router.put('/policies/:id', async (req, res) => {
+    try {
+        const { title, slug, content } = req.body;
+        const policy = await prisma.policy.update({
+            where: { id: req.params.id },
+            data: { title, slug, content },
+        });
+        res.json(policy);
+    } catch { res.status(500).json({ error: 'Server error' }); }
+});
+
+router.delete('/policies/:id', async (req, res) => {
+    try {
+        await prisma.policy.delete({ where: { id: req.params.id } });
+        res.json({ success: true });
+    } catch { res.status(500).json({ error: 'Server error' }); }
+});
+
 export default router;

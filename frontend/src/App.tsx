@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import { ToastProvider } from './contexts/ToastContext';
@@ -22,11 +22,16 @@ import OrderDetailPage from './pages/OrderDetailPage';
 import AdminDashboard from './pages/AdminDashboard';
 import ReelsPage from './pages/ReelsPage';
 import SupportPage from './pages/SupportPage';
+import PolicyPage from './pages/PolicyPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="page-layout" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}><div className="spinner" style={{ width: 40, height: 40, borderWidth: 3, borderColor: 'var(--color-border)', borderTopColor: 'var(--color-primary)' }}></div></div>;
+  if (loading) return (
+    <div className="page-layout" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+      <div className="spinner" style={{ width: 40, height: 40, borderWidth: 3, borderColor: 'var(--color-border)', borderTopColor: 'var(--color-primary)' }}></div>
+    </div>
+  );
   if (!user) return <Navigate to="/auth" replace />;
   return <>{children}</>;
 }
@@ -38,32 +43,41 @@ function AdminRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function AppLayout() {
+function AppRoutes() {
+  const location = useLocation();
   const { user } = useAuth();
 
+  return (
+    <main className="main-content page-transition" key={location.pathname}>
+      <Routes location={location}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/reels" element={<ReelsPage />} />
+        <Route path="/products/:id" element={<ProductDetailPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/auth" element={user ? <Navigate to="/" /> : <AuthPage />} />
+        <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+        <Route path="/orders/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
+        <Route path="/support" element={<SupportPage />} />
+        <Route path="/policies" element={<PolicyPage />} />
+        <Route path="/policies/:slug" element={<PolicyPage />} />
+        <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </main>
+  );
+}
+
+function AppLayout() {
   return (
     <BrowserRouter>
       <div className="page-layout">
         <TermsModal />
         <Navbar />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/reels" element={<ReelsPage />} />
-            <Route path="/products/:id" element={<ProductDetailPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/auth" element={user ? <Navigate to="/" /> : <AuthPage />} />
-            <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
-            <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-            <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-            <Route path="/orders/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
-            <Route path="/support" element={<SupportPage />} />
-            <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </main>
+        <AppRoutes />
         <Footer />
       </div>
     </BrowserRouter>

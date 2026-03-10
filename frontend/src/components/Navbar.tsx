@@ -54,6 +54,7 @@ export default function Navbar() {
         { to: '/', label: 'Home' },
         { to: '/products', label: 'Products' },
         { to: '/reels', label: 'Crafted Moments' },
+        { to: '/policies', label: 'Policies' },
     ];
 
     return (

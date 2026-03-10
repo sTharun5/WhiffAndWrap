@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../lib/api';
 import ProductCard from '../components/ProductCard';
+import Skeleton from '../components/Skeleton';
 import './ProductsPage.css';
 
 export default function ProductsPage() {
@@ -50,8 +51,17 @@ export default function ProductsPage() {
 
     return (
         <div className="products-page fade-in">
-            <div className="products-page__hero">
-                <div className="container">
+            <div className="products-page__hero" style={{ position: 'relative' }}>
+                <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="btn btn-ghost btn-sm"
+                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
+                    >
+                        <span>←</span> Back to Home
+                    </button>
+                </div>
+                <div className="container" style={{ paddingTop: 40 }}>
                     <span className="label-text">Our Crafts</span>
                     <h1 className="section-title" style={{ marginTop: 8, color: 'white' }}>All Products</h1>
                     <p style={{ color: 'rgba(255,255,255,0.75)', marginTop: 8 }}>{total} handcrafted items</p>
@@ -96,11 +106,11 @@ export default function ProductsPage() {
                         <div className="products-grid">
                             {Array.from({ length: 12 }).map((_, i) => (
                                 <div key={i} className="product-card">
-                                    <div className="skeleton" style={{ aspectRatio: '1' }} />
+                                    <Skeleton height="100%" style={{ aspectRatio: '1', borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0' }} />
                                     <div style={{ padding: 16 }}>
-                                        <div className="skeleton" style={{ height: 12, width: '60%', marginBottom: 8 }} />
-                                        <div className="skeleton" style={{ height: 16, marginBottom: 12 }} />
-                                        <div className="skeleton" style={{ height: 32 }} />
+                                        <Skeleton height={12} width="60%" style={{ marginBottom: 8 }} />
+                                        <Skeleton height={16} style={{ marginBottom: 12 }} />
+                                        <Skeleton height={32} borderRadius="var(--radius-full)" />
                                     </div>
                                 </div>
                             ))}

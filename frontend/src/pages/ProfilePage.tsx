@@ -9,6 +9,15 @@ export default function ProfilePage() {
     return (
         <div className="fade-in" style={{ padding: 'var(--space-10) 0 var(--space-16)' }}>
             <div className="container" style={{ maxWidth: 640 }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
+                    <button
+                        onClick={() => window.location.href = '/'}
+                        className="btn btn-ghost btn-sm"
+                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                        <span>←</span> Back to Home
+                    </button>
+                </div>
                 <h1 className="section-title" style={{ marginBottom: 32 }}>My Profile</h1>
 
                 <div className="card" style={{ padding: 'var(--space-8)', marginBottom: 24 }}>

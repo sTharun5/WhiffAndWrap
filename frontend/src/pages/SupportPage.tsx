@@ -87,6 +87,15 @@ export default function SupportPage() {
     return (
         <div className="support-page container">
             <div className="support-header">
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
+                    <button
+                        onClick={() => window.history.back()}
+                        className="btn btn-ghost btn-sm"
+                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                        <span>←</span> Back
+                    </button>
+                </div>
                 <span className="label-text">Help & Support</span>
                 <h1 className="section-title">How can we help?</h1>
                 <p className="section-subtitle">

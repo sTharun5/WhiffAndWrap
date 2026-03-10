@@ -25,6 +25,7 @@ export default function ProductCard({ product }: Props) {
     const { addToast } = useToast();
     const { isWishlisted, toggleWishlist } = useWishlist();
     const [adding, setAdding] = useState(false);
+    const [haptic, setHaptic] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
 
     const image = getImage(product.images);
@@ -36,6 +37,8 @@ export default function ProductCard({ product }: Props) {
         e.stopPropagation();
         if (!user) { addToast('Please sign in to use wishlist', 'info'); return; }
         try {
+            setHaptic(true);
+            setTimeout(() => setHaptic(false), 300);
             await toggleWishlist(product.id);
             if (wishlisted) {
                 addToast('Removed from wishlist', 'info');
@@ -72,9 +75,10 @@ export default function ProductCard({ product }: Props) {
                         onClick={handlePreview}
                         style={{ cursor: 'zoom-in' }}
                         title="Click to view full image"
+                        onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400'; }}
                     />
                     <button
-                        className={`product-card__wishlist ${wishlisted ? 'active' : ''}`}
+                        className={`product-card__wishlist ${wishlisted ? 'active' : ''} ${haptic ? 'animate-haptic' : ''}`}
                         onClick={handleWishlist}
                         title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
                     >
@@ -98,7 +102,7 @@ export default function ProductCard({ product }: Props) {
                         </div>
                     </div>
                     <button
-                        className="btn btn-primary"
+                        className={`btn btn-primary ${adding ? 'animate-haptic' : ''}`}
                         style={{ width: '100%', marginTop: 12 }}
                         onClick={handleAddToCart}
                         disabled={adding}

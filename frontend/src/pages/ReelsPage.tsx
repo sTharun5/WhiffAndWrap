@@ -107,8 +107,17 @@ export default function ReelsPage() {
         <div className="reels-page fade-in">
             <section className="reels-hero">
                 <div className="container">
-                    <div className="section-header">
-                        <span className="label-text">Process In Motion</span>
+                    <div className="section-header" style={{ position: 'relative' }}>
+                        <div style={{ position: 'absolute', top: 0, left: 0, display: 'flex', alignItems: 'center' }}>
+                            <button
+                                onClick={() => window.location.href = '/'}
+                                className="btn btn-ghost btn-sm"
+                                style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
+                            >
+                                <span>←</span> Back to Home
+                            </button>
+                        </div>
+                        <span className="label-text" style={{ display: 'inline-block', marginTop: 40 }}>Process In Motion</span>
                         <h1 className="reels-page__title">Crafted Moments</h1>
                         <p className="section-subtitle">A glimpse into the artistry and care behind every single creation.</p>
                     </div>
