@@ -46,6 +46,9 @@ export const api = {
     // Categories
     getCategories: () => request('/categories'),
 
+    // Reels
+    getReels: () => request('/reels'),
+
     // Orders
     placeOrder: (body: any) => request('/orders', { method: 'POST', body: JSON.stringify(body) }),
     getMyOrders: () => request('/orders/my'),
@@ -77,6 +80,9 @@ export const api = {
         getAnalytics: () => request('/admin/analytics'),
         createCategory: (body: any) => request('/admin/categories', { method: 'POST', body: JSON.stringify(body) }),
         deleteCategory: (id: string) => request(`/admin/categories/${id}`, { method: 'DELETE' }),
+        getReels: () => request('/admin/reels'),
+        createReel: (body: any) => request('/admin/reels', { method: 'POST', body: JSON.stringify(body) }),
+        deleteReel: (id: string) => request(`/admin/reels/${id}`, { method: 'DELETE' }),
     },
 
     // Upload
@@ -98,6 +104,19 @@ export const api = {
         const formData = new FormData();
         files.forEach(f => formData.append('images', f));
         const res = await fetch(`${API_BASE}/upload/images`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+        });
+        if (!res.ok) throw new Error('Upload failed');
+        return res.json();
+    },
+    uploadVideo: async (file: File) => {
+        const token = getToken();
+        const formData = new FormData();
+        formData.append('video', file);
+        const res = await fetch(`${API_BASE}/upload/video`, {
             method: 'POST',
             credentials: 'include',
             headers: { Authorization: `Bearer ${token}` },

@@ -16,11 +16,12 @@ const storage = multer.memoryStorage();
 
 const upload = multer({
     storage,
-    limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+    limits: { fileSize: 50 * 1024 * 1024 }, // Increased to 50 MB for videos
     fileFilter: (_req, file, cb) => {
-        const extOk = /\.(jpeg|jpg|png|webp|heic|heif)$/i.test(path.extname(file.originalname));
-        const mimeOk = /^image\//i.test(file.mimetype) || file.mimetype === 'application/octet-stream';
-        (extOk || mimeOk) ? cb(null, true) : cb(new Error('Only image files are allowed'));
+        const isImage = /\.(jpeg|jpg|png|webp|heic|heif)$/i.test(path.extname(file.originalname));
+        const isVideo = /\.(mp4|mov|webm)$/i.test(path.extname(file.originalname));
+        const mimeOk = /^(image|video)\//i.test(file.mimetype) || file.mimetype === 'application/octet-stream';
+        (isImage || isVideo || mimeOk) ? cb(null, true) : cb(new Error('Only image and video files are allowed'));
     },
 });
 
@@ -75,6 +76,22 @@ router.post('/images', authenticate, upload.array('images', 10), async (req, res
     } catch (err) {
         console.error('Upload error:', err);
         res.status(500).json({ error: 'Image processing failed' });
+    }
+});
+
+// POST /api/upload/video — single
+router.post('/video', authenticate, upload.single('video'), async (req, res) => {
+    if (!req.file) { res.status(400).json({ error: 'No file uploaded' }); return; }
+    try {
+        const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+        const ext = path.extname(req.file.originalname).toLowerCase();
+        const filename = `${unique}${ext}`;
+
+        fs.writeFileSync(path.join(uploadDir, filename), req.file.buffer);
+        res.json({ url: `/uploads/${filename}` });
+    } catch (err) {
+        console.error('Video upload error:', err);
+        res.status(500).json({ error: 'Video upload failed' });
     }
 });
 

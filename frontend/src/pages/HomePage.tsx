@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../lib/api';
-import ProductCard from '../components/ProductCard';
 import './HomePage.css';
 
 const CATEGORIES = [
@@ -12,11 +11,25 @@ const CATEGORIES = [
     { name: 'Custom Gifts', icon: '🌟', desc: 'Unique handmade gifts' },
 ];
 
+const BACKEND = 'http://localhost:5001';
+
+function getImage(images: any): string {
+    const list = Array.isArray(images) ? images : (typeof images === 'string' ? JSON.parse(images || '[]') : []);
+    if (!list.length) return 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300';
+    return list[0].startsWith('http') ? list[0] : `${BACKEND}${list[0]}`;
+}
+
+function getVideoUrl(url: string): string {
+    if (!url) return '';
+    return url.startsWith('http') ? url : `${BACKEND}${url}`;
+}
+
 export default function HomePage() {
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [heroIndex, setHeroIndex] = useState(0);
     const navigate = useNavigate();
+    const { hash } = useLocation();
 
     const heroSlides = [
         {
@@ -26,6 +39,8 @@ export default function HomePage() {
             cta: 'Explore Our Collection',
             bg: 'linear-gradient(135deg, #F5ECE6 0%, #EDE0F5 100%)',
             accent: '#8B4A73',
+            link: '/products',
+            image: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&q=80&w=800'
         },
         {
             title: 'Every Gift,',
@@ -34,6 +49,8 @@ export default function HomePage() {
             cta: 'Shop Keychains',
             bg: 'linear-gradient(135deg, #FEF3E2 0%, #FDE8D0 100%)',
             accent: '#C9956A',
+            link: '/products?category=Keychains',
+            image: 'https://images.unsplash.com/photo-1582133637202-f4976efee14c?auto=format&fit=crop&q=80&w=800'
         },
         {
             title: 'Personalize',
@@ -42,18 +59,22 @@ export default function HomePage() {
             cta: 'Personalize Now',
             bg: 'linear-gradient(135deg, #EAF5EC 0%, #E2F5E8 100%)',
             accent: '#4A9B6F',
+            link: '/products',
+            image: 'https://images.unsplash.com/photo-1512418431373-cf1456e17352?auto=format&fit=crop&q=80&w=800'
         },
     ];
 
     useEffect(() => {
-        const timer = setInterval(() => setHeroIndex(i => (i + 1) % heroSlides.length), 5000);
+        const count = products.length > 0 ? products.length : heroSlides.length;
+        const timer = setInterval(() => setHeroIndex(i => (i + 1) % count), 5000);
         return () => clearInterval(timer);
-    }, []);
+    }, [products, heroSlides.length]);
 
     useEffect(() => {
         api.getProducts({ limit: '10' })
-            .then(data => setProducts(data.products || []))
-            .catch(() => setProducts([]))
+            .then(prodRes => {
+                setProducts(prodRes.products || []);
+            }).catch(err => console.error('Fetch error:', err))
             .finally(() => setLoading(false));
     }, []);
 
@@ -72,51 +93,77 @@ export default function HomePage() {
         return () => observer.disconnect();
     }, [products]);
 
-    const scrollProducts = (direction: -1 | 1) => {
-        const slider = document.getElementById('featured-slider');
-        if (slider) {
-            const scrollAmount = window.innerWidth > 768 ? 600 : 300;
-            slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
-        }
+    const activeProduct = products[heroIndex] || null;
+
+    // Fallback static slide while loading or if no products
+    const slide = activeProduct ? {
+        title: activeProduct.name,
+        subtitle: `₹${activeProduct.price.toLocaleString('en-IN')}`,
+        desc: activeProduct.description,
+        cta: 'View Details',
+        bg: 'linear-gradient(135deg, #F5ECE6 0%, #EDE0F5 100%)',
+        accent: '#8B4A73',
+        image: getImage(activeProduct.images),
+        link: `/products/${activeProduct.id}`
+    } : heroSlides[0];
+
+    const nextSlide = () => {
+        const count = products.length > 0 ? products.length : heroSlides.length;
+        setHeroIndex((heroIndex + 1) % count);
     };
 
-    const slide = heroSlides[heroIndex];
+    const prevSlide = () => {
+        const count = products.length > 0 ? products.length : heroSlides.length;
+        setHeroIndex((heroIndex - 1 + count) % count);
+    };
 
     return (
         <div className="home-page fade-in">
             {/* Hero Section */}
             <section className="hero" style={{ background: slide.bg }}>
                 <div className="container hero__inner">
-                    <div className="hero__content">
-                        <span className="label-text hero-animate-1" style={{ color: slide.accent }}>Handmade with 🌸 Love</span>
+                    <div className="hero__content" key={`content-${heroIndex}`}>
+                        <span className="label-text hero-animate-1" style={{ color: slide.accent }}>Handmade with  Love</span>
                         <h1 className="hero__title hero-animate-2">
                             {slide.title}<br />
                             <span className="hero__title-accent" style={{ color: slide.accent }}>{slide.subtitle}</span>
                         </h1>
                         <p className="hero__desc hero-animate-3">{slide.desc}</p>
                         <div className="hero__actions hero-animate-4">
-                            <Link to="/products" className="btn btn-primary btn-lg">{slide.cta}</Link>
+                            <Link to={slide.link} className="btn btn-primary btn-lg">{slide.cta}</Link>
                             <Link to="/products" className="btn btn-secondary btn-lg">Browse All</Link>
                         </div>
                     </div>
-                    <div className="hero__visual hero-animate-visual">
-                        <div className="hero__blob">
-                            <span className="hero__emoji">🌸</span>
-                        </div>
-                        <div className="hero__floats">
-                            <div className="hero__float hero__float--1">💐</div>
-                            <div className="hero__float hero__float--2">🎁</div>
-                            <div className="hero__float hero__float--3">✨</div>
-                        </div>
+                    <div className="hero__visual hero-animate-visual" key={`visual-${heroIndex}`}>
+                        {slide.image ? (
+                            <Link to={slide.link} className="hero__image-wrapper">
+                                <div className="hero__product-container">
+                                    <img src={slide.image} alt={slide.title} className="hero__product-image" />
+                                </div>
+                            </Link>
+                        ) : (
+                            <div className="hero__product-container hero__product-container--fallback">
+                            </div>
+                        )}
                     </div>
                 </div>
+
+                {/* Hero Navigation Arrows */}
+                {products.length > 1 && (
+                    <>
+                        <button className="hero__nav hero__nav--prev" onClick={prevSlide} aria-label="Previous Slide">←</button>
+                        <button className="hero__nav hero__nav--next" onClick={nextSlide} aria-label="Next Slide">→</button>
+                    </>
+                )}
+
                 {/* Hero Indicators */}
                 <div className="hero__indicators">
-                    {heroSlides.map((_, i) => (
+                    {(products.length > 0 ? products : heroSlides).map((_, i) => (
                         <button
                             key={i}
                             className={`hero__indicator ${i === heroIndex ? 'active' : ''}`}
                             onClick={() => setHeroIndex(i)}
+                            aria-label={`Go to slide ${i + 1}`}
                         />
                     ))}
                 </div>
@@ -126,12 +173,46 @@ export default function HomePage() {
             <section className="trust-bar scroll-animate">
                 <div className="container trust-bar__inner">
                     {[
-                        { icon: '🤝', text: 'Handcrafted with Love' },
-                        { icon: '🚗', text: 'Doorstep Delivery' },
-                        { icon: '🎨', text: 'Fully Customizable' },
-                        { icon: '⭐', text: 'Premium Quality' },
-                    ].map(item => (
-                        <div key={item.text} className="trust-bar__item">
+                        {
+                            icon: (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2" />
+                                    <path d="M15 18H9" />
+                                    <path d="M19 18h2a1 1 0 0 0 1-1v-4.24a2 2 0 0 0-.81-1.6l-2.48-1.87a2 2 0 0 0-1.21-.45H14" />
+                                    <circle cx="7" cy="18" r="2" />
+                                    <circle cx="17" cy="18" r="2" />
+                                </svg>
+                            ),
+                            text: 'Truly Handmade by Us'
+                        },
+                        {
+                            icon: (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                            ),
+                            text: 'Delivered with Extra Care'
+                        },
+                        {
+                            icon: (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                                </svg>
+                            ),
+                            text: 'Personalized for Your Story'
+                        },
+                        {
+                            icon: (
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+                                    <path d="m9 12 2 2 4-4" />
+                                </svg>
+                            ),
+                            text: 'Artisan Quality Guaranteed'
+                        },
+                    ].map((item, idx) => (
+                        <div key={idx} className="trust-bar__item">
                             <span className="trust-bar__icon">{item.icon}</span>
                             <span className="trust-bar__text">{item.text}</span>
                         </div>
@@ -148,61 +229,29 @@ export default function HomePage() {
                         <p className="section-subtitle">Explore our curated collections of handmade gifts for every occasion.</p>
                     </div>
                     <div className="categories-grid">
-                        {CATEGORIES.map(cat => (
-                            <button
-                                key={cat.name}
-                                className="category-card"
-                                onClick={() => navigate(`/products?category=${encodeURIComponent(cat.name)}`)}
-                            >
-                                <span className="category-card__icon">{cat.icon}</span>
-                                <h3 className="category-card__name">{cat.name}</h3>
-                                <p className="category-card__desc">{cat.desc}</p>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </section>
+                        {CATEGORIES.map((cat, idx) => {
+                            const catProduct = products.find(p => p.category?.name === cat.name);
+                            const catImage = catProduct ? getImage(catProduct.images) : null;
 
-            {/* Featured Products Component */}
-            <section className="section products-section scroll-animate">
-                <div className="container" style={{ position: 'relative' }}>
-                    <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                        <div>
-                            <span className="label-text">Handpicked For You</span>
-                            <h2 className="section-title" style={{ marginTop: 8 }}>Featured Gifts</h2>
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                            <button className="slider-nav-btn" aria-label="Previous" onClick={() => scrollProducts(-1)}>←</button>
-                            <button className="slider-nav-btn" aria-label="Next" onClick={() => scrollProducts(1)}>→</button>
-                            <span style={{ margin: '0 8px', color: 'var(--color-border)' }}>|</span>
-                            <Link to="/products" className="btn btn-secondary" style={{ padding: '8px 20px' }}>View All</Link>
-                        </div>
+                            return (
+                                <button
+                                    key={cat.name}
+                                    className={`category-card stagger-${idx + 1}`}
+                                    onClick={() => navigate(`/products?category=${encodeURIComponent(cat.name)}`)}
+                                >
+                                    <div className="category-card__visual">
+                                        {catImage ? (
+                                            <img src={catImage} alt={cat.name} className="category-card__img" />
+                                        ) : (
+                                            <span className="category-card__icon">{cat.icon}</span>
+                                        )}
+                                    </div>
+                                    <h3 className="category-card__name">{cat.name}</h3>
+                                    <p className="category-card__desc">{cat.desc}</p>
+                                </button>
+                            );
+                        })}
                     </div>
-
-                    {loading ? (
-                        <div className="product-slider" style={{ overflow: 'hidden' }}>
-                            {Array.from({ length: 4 }).map((_, i) => (
-                                <div key={i} className="product-card" style={{ flex: '0 0 auto', width: '280px' }}>
-                                    <div className="skeleton" style={{ aspectRatio: '1', borderRadius: '0' }} />
-                                    <div style={{ padding: 16 }}>
-                                        <div className="skeleton" style={{ height: 12, width: '60%', marginBottom: 8 }} />
-                                        <div className="skeleton" style={{ height: 16, width: '90%', marginBottom: 12 }} />
-                                        <div className="skeleton" style={{ height: 14, width: '40%' }} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="product-slider__wrapper">
-                            <div className="product-slider" id="featured-slider">
-                                {products.map(p => (
-                                    <div key={p.id} className="product-slider__item">
-                                        <ProductCard product={p} />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
                 </div>
             </section>
 
@@ -211,7 +260,15 @@ export default function HomePage() {
                 <div className="container story-section__inner">
                     <div className="story-section__visual">
                         <div className="story-section__image">
-                            <span style={{ fontSize: '6rem' }}>🌸</span>
+                            {products.length > 0 ? (
+                                <img
+                                    src={getImage(products[products.length - 1].images)}
+                                    alt="Our Craft"
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                            ) : (
+                                <span style={{ fontSize: '6rem' }}>🌸</span>
+                            )}
                         </div>
                     </div>
                     <div className="story-section__content">

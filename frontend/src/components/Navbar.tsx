@@ -53,6 +53,7 @@ export default function Navbar() {
     const navLinks = [
         { to: '/', label: 'Home' },
         { to: '/products', label: 'Products' },
+        { to: '/reels', label: 'Crafted Moments' },
     ];
 
     return (
@@ -77,18 +78,27 @@ export default function Navbar() {
 
                 {/* Right Actions */}
                 <div className="navbar__actions">
-                    {user && (
-                        <>
-                            <Link to="/notifications" className="navbar__icon-btn" title="Notifications">
-                                🔔
-                                {unreadCount > 0 && <span className="navbar__cart-badge">{unreadCount}</span>}
-                            </Link>
-                            <Link to="/wishlist" className="navbar__icon-btn" title="Wishlist">
-                                ♡
-                                {wishlist.length > 0 && <span className="navbar__cart-badge" style={{ background: 'var(--color-secondary)' }}>{wishlist.length}</span>}
-                            </Link>
-                        </>
-                    )}
+                    <div className="navbar__desktop-actions">
+                        {user && (
+                            <>
+                                <Link to="/notifications" className="navbar__icon-btn" title="Notifications">
+                                    🔔
+                                    {unreadCount > 0 && <span className="navbar__cart-badge">{unreadCount}</span>}
+                                </Link>
+                                <Link to="/wishlist" className="navbar__icon-btn" title="Wishlist">
+                                    ♡
+                                    {wishlist.length > 0 && <span className="navbar__cart-badge" style={{ background: 'var(--color-secondary)' }}>{wishlist.length}</span>}
+                                </Link>
+                            </>
+                        )}
+                        <Link to="/support" className="navbar__icon-btn" title="Help & Support">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                        </Link>
+                    </div>
 
                     <Link to="/cart" className="navbar__icon-btn navbar__cart-btn" title="Cart">
                         🛍
@@ -106,8 +116,10 @@ export default function Navbar() {
                                     ? <img src={user.image} alt={user.name} className="navbar__avatar" referrerPolicy="no-referrer" />
                                     : <span className="navbar__avatar navbar__avatar--initials">{user.name[0]?.toUpperCase()}</span>
                                 }
-                                <span className="navbar__username">{user.name.split(' ')[0]}</span>
-                                <span className={`navbar__chevron ${profileOpen ? 'open' : ''}`}>▾</span>
+                                <div className="navbar__profile-info">
+                                    <span className="navbar__username">{user.name.split(' ')[0]}</span>
+                                    <span className={`navbar__chevron ${profileOpen ? 'open' : ''}`}>▾</span>
+                                </div>
                             </button>
 
                             {profileOpen && (
@@ -146,27 +158,62 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Menu */}
-            {menuOpen && (
-                <div className="navbar__mobile-menu">
+            <div className={`navbar__mobile-menu ${menuOpen ? 'open' : ''}`}>
+                <div className="navbar__mobile-header">
+                    {user ? (
+                        <div className="navbar__mobile-user">
+                            {user.image
+                                ? <img src={user.image} alt={user.name} className="navbar__avatar" referrerPolicy="no-referrer" />
+                                : <span className="navbar__avatar navbar__avatar--initials">{user.name[0]?.toUpperCase()}</span>
+                            }
+                            <div className="navbar__mobile-user-info">
+                                <p className="navbar__mobile-user-name">{user.name}</p>
+                                <p className="navbar__mobile-user-email">{user.email}</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="navbar__mobile-user">
+                            <div className="navbar__avatar navbar__avatar--initials">?</div>
+                            <div className="navbar__mobile-user-info">
+                                <p className="navbar__mobile-user-name">Welcome Guest</p>
+                                <p className="navbar__mobile-user-email">Sign in to manage orders</p>
+                            </div>
+                        </div>
+                    )}
+                    <button className="navbar__mobile-close" onClick={() => setMenuOpen(false)}>✕</button>
+                </div>
+
+                <div className="navbar__mobile-content">
                     {navLinks.map(l => (
-                        <Link key={l.to} to={l.to} className="navbar__mobile-link">{l.label}</Link>
+                        <Link key={l.to} to={l.to} className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>{l.label}</Link>
                     ))}
+                    <Link to="/support" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '10px', verticalAlign: 'middle' }}>
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        Help & Support
+                    </Link>
+                    <div className="navbar__mobile-divider" />
                     {user ? (
                         <>
-                            <Link to="/profile" className="navbar__mobile-link">👤 My Profile</Link>
-                            <Link to="/orders" className="navbar__mobile-link">📦 My Orders</Link>
-                            <Link to="/notifications" className="navbar__mobile-link">🔔 Notifications {unreadCount > 0 && `(${unreadCount})`}</Link>
-                            <Link to="/wishlist" className="navbar__mobile-link">♡ Wishlist {wishlist.length > 0 && `(${wishlist.length})`}</Link>
+                            <Link to="/profile" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>👤 My Profile</Link>
+                            <Link to="/orders" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>📦 My Orders</Link>
+                            <Link to="/notifications" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>🔔 Notifications {unreadCount > 0 && `(${unreadCount})`}</Link>
+                            <Link to="/wishlist" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>♡ Wishlist {wishlist.length > 0 && `(${wishlist.length})`}</Link>
                             {user.role === 'ADMIN' && (
-                                <Link to="/admin" className="navbar__mobile-link">⚙️ Admin Dashboard</Link>
+                                <Link to="/admin" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>⚙️ Admin Dashboard</Link>
                             )}
-                            <button className="navbar__mobile-link navbar__mobile-logout" onClick={handleLogout}>↩ Logout</button>
+                            <div className="navbar__mobile-divider" />
+                            <button className="navbar__mobile-link navbar__mobile-logout" onClick={() => { handleLogout(); setMenuOpen(false); }}>↩ Logout</button>
                         </>
                     ) : (
-                        <Link to="/auth" className="navbar__mobile-link">🔑 Sign In / Register</Link>
+                        <Link to="/auth" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}>🔑 Sign In / Register</Link>
                     )}
                 </div>
-            )}
+            </div>
+            {menuOpen && <div className="navbar__mobile-overlay" onClick={() => setMenuOpen(false)} />}
         </nav>
     );
 }

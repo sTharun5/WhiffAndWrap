@@ -9,6 +9,7 @@ import getCroppedImg from '../utils/cropImage';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
+import { useAuth } from '../contexts/AuthContext';
 import './AdminDashboard.css';
 
 const BACKEND = 'http://localhost:5001';
@@ -848,8 +849,139 @@ function AdminUsers() {
     );
 }
 
+/* ---- Admin Reels ---- */
+function AdminReels() {
+    const [reels, setReels] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
+    const [title, setTitle] = useState('');
+    const { addToast } = useToast();
+    const { confirm } = useConfirm();
+
+    const load = () => {
+        setLoading(true);
+        api.admin.getReels().then(setReels).catch(() => { }).finally(() => setLoading(false));
+    };
+
+    useEffect(load, []);
+
+    const handleVideoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setUploading(true);
+        try {
+            const { url } = await api.uploadVideo(file);
+            await api.admin.createReel({ title, videoUrl: url, priority: 0 });
+            addToast('Reel uploaded and added! 🎥', 'success');
+            setTitle('');
+            load();
+        } catch (err: any) {
+            addToast(err.message || 'Upload failed', 'error');
+        } finally {
+            setUploading(false);
+            e.target.value = ''; // Reset input
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!(await confirm({
+            title: 'Delete Reel',
+            message: 'Are you sure you want to remove this reel?',
+            confirmText: 'Delete',
+            danger: true
+        }))) return;
+
+        try {
+            await api.admin.deleteReel(id);
+            addToast('Reel deleted', 'success');
+            load();
+        } catch {
+            addToast('Delete failed', 'error');
+        }
+    };
+
+    return (
+        <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+                <h2 className="admin__section-title">Reels (Crafted Moments)</h2>
+            </div>
+
+            <div className="card" style={{ padding: 24, marginBottom: 32, border: '1px solid var(--color-border)' }}>
+                <h3 style={{ fontSize: '1.1rem', marginBottom: 16 }}>Upload New Reel</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 16, alignItems: 'end' }}>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="form-label">Reel Title (Optional)</label>
+                        <input
+                            type="text"
+                            className="form-input"
+                            placeholder="e.g., Making of the Midnight Rose"
+                            value={title}
+                            onChange={e => setTitle(e.target.value)}
+                            disabled={uploading}
+                        />
+                    </div>
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                        <label className="btn btn-primary" style={{ cursor: uploading ? 'not-allowed' : 'pointer', opacity: uploading ? 0.7 : 1 }}>
+                            {uploading ? 'Uploading...' : '📁 Select Video & Upload'}
+                            <input
+                                type="file"
+                                accept="video/mp4,video/quicktime,video/webm"
+                                style={{ display: 'none' }}
+                                onChange={handleVideoSelect}
+                                disabled={uploading}
+                            />
+                        </label>
+                    </div>
+                </div>
+                {uploading && (
+                    <div className="alert-strip alert-strip--info" style={{ marginTop: 16 }}>
+                        ⏳ Uploading video... please wait (up to 50MB supported).
+                    </div>
+                )}
+            </div>
+
+            {loading ? (
+                <div className="skeleton" style={{ height: 200, borderRadius: 12 }} />
+            ) : reels.length === 0 ? (
+                <div className="empty-state">No reels added yet. Upload one above to get started!</div>
+            ) : (
+                <div className="admin-reels-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 24 }}>
+                    {reels.map(reel => (
+                        <div key={reel.id} className="admin-reel-card" style={{ background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid var(--color-border)', position: 'relative' }}>
+                            <video
+                                src={`${BACKEND}${reel.videoUrl}`}
+                                style={{ width: '100%', height: 300, objectFit: 'cover' }}
+                                muted
+                                onMouseEnter={e => e.currentTarget.play()}
+                                onMouseLeave={e => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                            />
+                            <div style={{ padding: 12 }}>
+                                <div style={{ fontSize: '0.9rem', fontWeight: 600, marginBottom: 8, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    {reel.title || 'Untitled Reel'}
+                                </div>
+                                <button
+                                    className="btn btn-sm"
+                                    style={{ width: '100%', background: 'rgba(192,57,43,0.1)', color: 'var(--color-error)', border: 'none' }}
+                                    onClick={() => handleDelete(reel.id)}
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                            <div style={{ position: 'absolute', top: 8, left: 8, background: 'rgba(0,0,0,0.5)', color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: '0.7rem', fontWeight: 700 }}>
+                                REEL
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 /* ---- Main Dashboard ---- */
 export default function AdminDashboard() {
+    const { user } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -859,6 +991,7 @@ export default function AdminDashboard() {
         { path: '/admin/products', label: 'Products', icon: '🛍' },
         { path: '/admin/orders', label: 'Orders', icon: '📦' },
         { path: '/admin/users', label: 'Users', icon: '👤' },
+        { path: '/admin/reels', label: 'Reels', icon: '🎥' },
     ];
 
     useEffect(() => {
@@ -888,6 +1021,18 @@ export default function AdminDashboard() {
                     <span>Whiff & Wrap</span>
                     <div className="label-text" style={{ marginTop: 2, color: 'rgba(255,255,255,0.6)' }}>Admin</div>
                 </div>
+
+                <div className="admin-sidebar__profile">
+                    {user?.image
+                        ? <img src={user.image} alt={user.name} className="admin-sidebar__avatar" referrerPolicy="no-referrer" />
+                        : <span className="admin-sidebar__avatar admin-sidebar__avatar--initials">{user?.name[0]?.toUpperCase() || 'A'}</span>
+                    }
+                    <div className="admin-sidebar__user-info">
+                        <p className="admin-sidebar__user-name">{user?.name || 'Admin User'}</p>
+                        <p className="admin-sidebar__user-email">{user?.email || 'admin@whiffwrap.com'}</p>
+                    </div>
+                </div>
+
                 <nav className="admin-sidebar__nav">
                     {navItems.map(item => (
                         <button
@@ -915,6 +1060,7 @@ export default function AdminDashboard() {
                     <Route path="/products" element={<AdminProducts />} />
                     <Route path="/orders" element={<AdminOrders />} />
                     <Route path="/users" element={<AdminUsers />} />
+                    <Route path="/reels" element={<AdminReels />} />
                 </Routes>
             </main>
         </div>

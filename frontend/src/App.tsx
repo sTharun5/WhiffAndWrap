@@ -20,6 +20,8 @@ import ProfilePage from './pages/ProfilePage';
 import OrdersPage from './pages/OrdersPage';
 import OrderDetailPage from './pages/OrderDetailPage';
 import AdminDashboard from './pages/AdminDashboard';
+import ReelsPage from './pages/ReelsPage';
+import SupportPage from './pages/SupportPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -48,6 +50,7 @@ function AppLayout() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/products" element={<ProductsPage />} />
+            <Route path="/reels" element={<ReelsPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/auth" element={user ? <Navigate to="/" /> : <AuthPage />} />
@@ -56,6 +59,7 @@ function AppLayout() {
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
             <Route path="/orders/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
+            <Route path="/support" element={<SupportPage />} />
             <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

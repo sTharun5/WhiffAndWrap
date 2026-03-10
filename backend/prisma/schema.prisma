@@ -7,6 +7,152 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id              String         @id @default(uuid())
+  name            String
+  email           String         @unique
+  googleId        String?        @unique
+  role            Role           @default(USER)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  image           String?
+  passwordHash    String?
+  lastLoginAt     DateTime?
+  termsAcceptedAt DateTime?
+  termsVersion    String?
+  notifications   Notification[]
+  orders          Order[]
+  reviews         Review[]
+  wishlists       Wishlist[]
+  SupportQuery    SupportQuery[]
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Product {
+  id                     String      @id @default(uuid())
+  name                   String
+  description            String      @db.Text
+  price                  Float
+  images                 Json
+  categoryId             String?
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  materials              String?
+  personalizationOptions Json?
+  tags                   Json?
+  orderItems             OrderItem[]
+  category               Category?   @relation(fields: [categoryId], references: [id])
+  reviews                Review[]
+  wishlists              Wishlist[]
+
+  @@index([categoryId], map: "Product_categoryId_fkey")
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  userId          String
+  status          OrderStatus @default(PLACED)
+  totalAmount     Float
+  deliveryDate    DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  phoneNumber     String?
+  rejectionReason String?
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderItems      OrderItem[]
+
+  @@index([userId], map: "Order_userId_fkey")
+}
+
+model OrderItem {
+  id                  String   @id @default(uuid())
+  orderId             String
+  productId           String
+  quantity            Int
+  createdAt           DateTime @default(now())
+  personalizationData Json?
+  price               Float
+  updatedAt           DateTime @updatedAt
+  order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product             Product  @relation(fields: [productId], references: [id])
+
+  @@index([orderId], map: "OrderItem_orderId_fkey")
+  @@index([productId], map: "OrderItem_productId_fkey")
+}
+
+model Wishlist {
+  id        String   @id @default(uuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([productId], map: "Wishlist_productId_fkey")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?  @db.Text
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([productId], map: "Review_productId_fkey")
+  @@index([userId], map: "Review_userId_fkey")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  message   String
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+  title     String   @default("Notification")
+  type      String   @default("USER")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Notification_userId_fkey")
+}
+
+model Reel {
+  id        String   @id @default(uuid())
+  title     String?
+  videoUrl  String
+  thumbnail String?
+  priority  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SupportQuery {
+  id          String   @id @default(uuid())
+  userId      String?
+  email       String
+  subject     String
+  message     String   @db.Text
+  screenshots Json?
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+}
+
 enum Role {
   USER
   ADMIN
@@ -19,121 +165,4 @@ enum OrderStatus {
   OUT_FOR_DELIVERY
   DELIVERED
   REJECTED
-}
-
-model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  passwordHash  String?
-  googleId      String?        @unique
-  name          String
-  image         String?
-  role          Role           @default(USER)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  lastLoginAt   DateTime?
-  termsVersion  String?
-  termsAcceptedAt DateTime?
-  
-  orders        Order[]
-  wishlists     Wishlist[]
-  reviews       Review[]
-  notifications Notification[]
-}
-
-model Category {
-  id          String    @id @default(uuid())
-  name        String    @unique
-  description String?
-  products    Product[]
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-}
-
-model Product {
-  id                     String    @id @default(uuid())
-  name                   String
-  description            String    @db.Text
-  price                  Float
-  images                 Json      // Array of image URLs
-  materials              String?
-  personalizationOptions Json?     // Configurable options, e.g., ["name", "message", "image"]
-  tags                   Json?     // Array of tags
-  
-  categoryId             String?
-  category               Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  
-  orderItems             OrderItem[]
-  wishlists              Wishlist[]
-  reviews                Review[]
-
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
-}
-
-model Order {
-  id           String        @id @default(uuid())
-  userId       String
-  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  phoneNumber  String?
-  totalAmount  Float
-  status       OrderStatus   @default(PLACED)
-  deliveryDate DateTime?
-  rejectionReason String?
-  orderItems   OrderItem[]
-  
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-}
-
-model OrderItem {
-  id                 String  @id @default(uuid())
-  orderId            String
-  order              Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId          String
-  product            Product @relation(fields: [productId], references: [id], onDelete: Restrict)
-  quantity           Int
-  price              Float
-  personalizationData Json?   // Storing actual user inputs for personalization
-  
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-}
-
-model Wishlist {
-  id        String  @id @default(uuid())
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
-  createdAt DateTime @default(now())
-  
-  @@unique([userId, productId])
-}
-
-model Review {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  rating    Int
-  comment   String?  @db.Text
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Notification {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  type      String   @default("USER") // "USER" or "ADMIN"
-  title     String   @default("Notification")
-  message   String
-  read      Boolean  @default(false)
-  
-  createdAt DateTime @default(now())
 }

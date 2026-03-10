@@ -1,0 +1,299 @@
+.reels-page {
+    padding-top: var(--space-24);
+    min-height: 80vh;
+    background: white;
+}
+
+.reels-page--loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reels-hero {
+    padding-bottom: var(--space-8);
+    text-align: center;
+}
+
+.reels-page__title {
+    font-family: var(--font-serif);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: var(--space-2) 0;
+}
+
+.reels-grid-section {
+    padding-bottom: var(--space-24);
+}
+
+.reels-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-10);
+    padding-top: var(--space-4);
+}
+
+/* Empty State Styling */
+.reels-empty-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--space-12) 0;
+    min-height: 50vh;
+}
+
+.reels-empty-card {
+    background: white;
+    border-radius: var(--radius-3xl);
+    padding: var(--space-12);
+    box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.04),
+        0 2px 10px rgba(139, 74, 115, 0.05);
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: var(--space-12);
+    align-items: center;
+    max-width: 900px;
+    width: 100%;
+    border: 1px solid var(--color-border-light);
+}
+
+.reels-empty__visual {
+    position: relative;
+    display: flex;
+    gap: 12px;
+    height: 320px;
+}
+
+.reels-empty__placeholder {
+    flex: 1;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.reels-empty__placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.05), transparent);
+}
+
+.reels-empty__play-btn {
+    width: 64px;
+    height: 64px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    box-shadow: 0 10px 20px rgba(139, 74, 115, 0.15);
+    z-index: 1;
+}
+
+.reels-empty__placeholder-mini {
+    width: 40px;
+    background: #f1f3f5;
+    border-radius: 12px;
+}
+
+.reels-empty__content {
+    text-align: left;
+}
+
+.reels-empty__badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: var(--color-accent-light);
+    color: var(--color-secondary);
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--space-4);
+}
+
+.reels-empty__text {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: var(--space-4);
+    line-height: 1.2;
+}
+
+.reels-empty__sub {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--color-text-light);
+    margin-bottom: var(--space-8);
+}
+
+.reels-empty__actions {
+    display: flex;
+    gap: 16px;
+}
+
+/* Reuse and adapt reel-card styles */
+.reel-card {
+    height: 540px;
+    border-radius: 32px;
+    background: var(--color-off-white);
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reel-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(139, 74, 115, 0.12);
+}
+
+.reel-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.reel-card__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, transparent 60%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: var(--space-8);
+    transition: background 0.4s ease;
+}
+
+.reel-card__play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 64px;
+    height: 64px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    opacity: 0;
+    transition: all 0.4s ease;
+}
+
+.reel-card:hover .reel-card__play {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.reel-card__title {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Modal */
+.reel-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(15px);
+    animation: fadeIn 0.3s ease;
+}
+
+.reel-modal__content {
+    width: 100%;
+    max-width: 450px;
+    position: relative;
+    padding: var(--space-6);
+}
+
+.reel-modal__video {
+    width: 100%;
+    border-radius: 24px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+
+.reel-modal__close {
+    position: absolute;
+    top: -40px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2.5rem;
+    cursor: pointer;
+}
+
+.reel-modal__title {
+    color: white;
+    text-align: center;
+    margin-top: var(--space-4);
+    font-size: 1.5rem;
+    font-family: var(--font-serif);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 992px) {
+    .reels-empty-card {
+        grid-template-columns: 1fr;
+        padding: var(--space-8);
+        gap: var(--space-8);
+        text-align: center;
+    }
+
+    .reels-empty__content {
+        text-align: center;
+    }
+
+    .reels-empty__actions {
+        justify-content: center;
+    }
+
+    .reels-empty__visual {
+        height: 240px;
+        justify-content: center;
+    }
+
+    .reels-empty__placeholder-mini {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .reels-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: var(--space-4);
+    }
+
+    .reel-card {
+        height: 480px;
+    }
+}

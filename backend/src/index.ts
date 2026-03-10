@@ -16,6 +16,8 @@ import notificationRoutes from './routes/notifications';
 import adminRoutes from './routes/admin';
 import uploadRoutes from './routes/upload';
 import categoryRoutes from './routes/categories';
+import reelRoutes from './routes/reels';
+import supportRoutes from './routes/support';
 
 const app = express();
 
@@ -76,6 +78,8 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes); // Uses multer which handles large multi-part data correctly
 app.use('/api/categories', categoryRoutes);
+app.use('/api/reels', reelRoutes);
+app.use('/api/support', supportRoutes);
 
 app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', message: 'Whiff & Wrap API running - Secured Core Synced' });

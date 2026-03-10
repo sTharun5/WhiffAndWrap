@@ -103,21 +103,41 @@
     .footer__grid {
         grid-template-columns: 1fr 1fr;
         gap: var(--space-8);
+        text-align: left;
     }
 
     .footer__brand {
         grid-column: 1 / -1;
+        margin-bottom: var(--space-4);
+    }
+
+    .footer__tagline {
+        max-width: 100%;
     }
 }
 
 @media (max-width: 480px) {
+    .footer {
+        padding: var(--space-12) 0 var(--space-8);
+    }
+
     .footer__grid {
         grid-template-columns: 1fr;
+        gap: var(--space-6);
+        text-align: center;
+    }
+
+    .footer__brand {
+        align-items: center;
+    }
+
+    .footer__social {
+        justify-content: center;
     }
 
     .footer__bottom {
         flex-direction: column;
-        gap: var(--space-2);
+        gap: var(--space-4);
         text-align: center;
     }
 }

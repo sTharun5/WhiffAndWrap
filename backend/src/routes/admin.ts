@@ -216,4 +216,31 @@ router.get('/analytics', async (_req, res) => {
     }
 });
 
+// --- Reels Management ---
+router.get('/reels', async (_req, res) => {
+    try {
+        const reels = await prisma.reel.findMany({
+            orderBy: { priority: 'desc' },
+        });
+        res.json(reels);
+    } catch { res.status(500).json({ error: 'Server error' }); }
+});
+
+router.post('/reels', async (req, res) => {
+    try {
+        const { title, videoUrl, thumbnail, priority } = req.body;
+        const reel = await prisma.reel.create({
+            data: { title, videoUrl, thumbnail, priority: parseInt(priority) || 0 },
+        });
+        res.status(201).json(reel);
+    } catch (e) { console.error(e); res.status(500).json({ error: 'Server error' }); }
+});
+
+router.delete('/reels/:id', async (req, res) => {
+    try {
+        await prisma.reel.delete({ where: { id: req.params.id } });
+        res.json({ success: true });
+    } catch { res.status(500).json({ error: 'Server error' }); }
+});
+
 export default router;
