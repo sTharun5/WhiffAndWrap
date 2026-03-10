@@ -193,21 +193,13 @@ export default function ProductDetailPage() {
                             </div>
                         )}
 
-                        <div className="pd-info__price">₹{product.price.toLocaleString('en-IN')}</div>
+                        <div className="pd-info__price" style={{ marginBottom: 16 }}>₹{product.price.toLocaleString('en-IN')}</div>
 
-                        {/* Stock alerts */}
-                        {product.stock === 0 && (
-                            <Alert variant="error" title="Out of Stock" icon="😔">
-                                This item is currently unavailable. Check back soon — we restock regularly!
-                            </Alert>
-                        )}
-                        {product.stock > 0 && product.stock <= 5 && (
-                            <Alert variant="warning" title={`Only ${product.stock} left!`} icon="⏳">
-                                This is almost gone. Grab it before it sells out.
-                            </Alert>
-                        )}
+                        <Alert variant="info" title="Made to Order 🌸" icon="✂️">
+                            Every item is carefully handcrafted from scratch. Please place your order <strong>6–7 days in advance</strong> to allow time for creation and delivery.
+                        </Alert>
 
-                        <p className="pd-info__desc">{product.description}</p>
+                        <p className="pd-info__desc" style={{ marginTop: 24 }}>{product.description}</p>
 
                         {product.materials && (
                             <div className="pd-info__materials">
@@ -267,15 +259,14 @@ export default function ProductDetailPage() {
                             <div className="pd-qty">
                                 <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="pd-qty__btn">−</button>
                                 <span className="pd-qty__val">{quantity}</span>
-                                <button onClick={() => setQuantity(q => Math.min(product.stock, q + 1))} className="pd-qty__btn">+</button>
+                                <button onClick={() => setQuantity(q => Math.min(100, q + 1))} className="pd-qty__btn">+</button>
                             </div>
                             <button
                                 className="btn btn-primary btn-lg"
                                 style={{ flex: 1 }}
                                 onClick={handleAddToCart}
-                                disabled={product.stock === 0}
                             >
-                                {product.stock === 0 ? 'Out of Stock' : 'Add to Cart 🛍'}
+                                Add to Cart 🛍
                             </button>
                         </div>
 
@@ -283,9 +274,6 @@ export default function ProductDetailPage() {
                             <button className="btn btn-secondary btn-sm" onClick={() => { navigate('/cart'); handleAddToCart(); }}>
                                 Buy Now
                             </button>
-                            <span style={{ fontSize: '0.85rem', color: 'var(--color-muted)', alignSelf: 'center' }}>
-                                {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-                            </span>
                         </div>
                     </div>
                 </div>

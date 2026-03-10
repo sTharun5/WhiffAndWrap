@@ -51,11 +51,34 @@ export default function HomePage() {
     }, []);
 
     useEffect(() => {
-        api.getProducts({ limit: '8' })
+        api.getProducts({ limit: '10' })
             .then(data => setProducts(data.products || []))
             .catch(() => setProducts([]))
             .finally(() => setLoading(false));
     }, []);
+
+    // Intersection Observer for scroll animations
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target); // Run once
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
+        return () => observer.disconnect();
+    }, [products]);
+
+    const scrollProducts = (direction: -1 | 1) => {
+        const slider = document.getElementById('featured-slider');
+        if (slider) {
+            const scrollAmount = window.innerWidth > 768 ? 600 : 300;
+            slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        }
+    };
 
     const slide = heroSlides[heroIndex];
 
@@ -65,18 +88,18 @@ export default function HomePage() {
             <section className="hero" style={{ background: slide.bg }}>
                 <div className="container hero__inner">
                     <div className="hero__content">
-                        <span className="label-text" style={{ color: slide.accent }}>Handmade with 🌸 Love</span>
-                        <h1 className="hero__title">
+                        <span className="label-text hero-animate-1" style={{ color: slide.accent }}>Handmade with 🌸 Love</span>
+                        <h1 className="hero__title hero-animate-2">
                             {slide.title}<br />
                             <span className="hero__title-accent" style={{ color: slide.accent }}>{slide.subtitle}</span>
                         </h1>
-                        <p className="hero__desc">{slide.desc}</p>
-                        <div className="hero__actions">
+                        <p className="hero__desc hero-animate-3">{slide.desc}</p>
+                        <div className="hero__actions hero-animate-4">
                             <Link to="/products" className="btn btn-primary btn-lg">{slide.cta}</Link>
                             <Link to="/products" className="btn btn-secondary btn-lg">Browse All</Link>
                         </div>
                     </div>
-                    <div className="hero__visual">
+                    <div className="hero__visual hero-animate-visual">
                         <div className="hero__blob">
                             <span className="hero__emoji">🌸</span>
                         </div>
@@ -100,7 +123,7 @@ export default function HomePage() {
             </section>
 
             {/* Trust Bar */}
-            <section className="trust-bar">
+            <section className="trust-bar scroll-animate">
                 <div className="container trust-bar__inner">
                     {[
                         { icon: '🤝', text: 'Handcrafted with Love' },
@@ -117,7 +140,7 @@ export default function HomePage() {
             </section>
 
             {/* Categories */}
-            <section className="section categories-section">
+            <section className="section categories-section scroll-animate">
                 <div className="container">
                     <div className="section-header">
                         <span className="label-text">What We Craft</span>
@@ -140,21 +163,26 @@ export default function HomePage() {
                 </div>
             </section>
 
-            {/* Featured Products */}
-            <section className="section products-section">
-                <div className="container">
+            {/* Featured Products Component */}
+            <section className="section products-section scroll-animate">
+                <div className="container" style={{ position: 'relative' }}>
                     <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                         <div>
                             <span className="label-text">Handpicked For You</span>
                             <h2 className="section-title" style={{ marginTop: 8 }}>Featured Gifts</h2>
                         </div>
-                        <Link to="/products" className="btn btn-secondary">View All →</Link>
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <button className="slider-nav-btn" aria-label="Previous" onClick={() => scrollProducts(-1)}>←</button>
+                            <button className="slider-nav-btn" aria-label="Next" onClick={() => scrollProducts(1)}>→</button>
+                            <span style={{ margin: '0 8px', color: 'var(--color-border)' }}>|</span>
+                            <Link to="/products" className="btn btn-secondary" style={{ padding: '8px 20px' }}>View All</Link>
+                        </div>
                     </div>
 
                     {loading ? (
-                        <div className="products-grid">
-                            {Array.from({ length: 8 }).map((_, i) => (
-                                <div key={i} className="product-card">
+                        <div className="product-slider" style={{ overflow: 'hidden' }}>
+                            {Array.from({ length: 4 }).map((_, i) => (
+                                <div key={i} className="product-card" style={{ flex: '0 0 auto', width: '280px' }}>
                                     <div className="skeleton" style={{ aspectRatio: '1', borderRadius: '0' }} />
                                     <div style={{ padding: 16 }}>
                                         <div className="skeleton" style={{ height: 12, width: '60%', marginBottom: 8 }} />
@@ -165,15 +193,21 @@ export default function HomePage() {
                             ))}
                         </div>
                     ) : (
-                        <div className="products-grid">
-                            {products.map(p => <ProductCard key={p.id} product={p} />)}
+                        <div className="product-slider__wrapper">
+                            <div className="product-slider" id="featured-slider">
+                                {products.map(p => (
+                                    <div key={p.id} className="product-slider__item">
+                                        <ProductCard product={p} />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>
             </section>
 
             {/* Story Section */}
-            <section className="story-section">
+            <section className="story-section scroll-animate">
                 <div className="container story-section__inner">
                     <div className="story-section__visual">
                         <div className="story-section__image">
@@ -194,7 +228,7 @@ export default function HomePage() {
             </section>
 
             {/* Instagram CTA Section */}
-            <section className="section instagram-section" style={{ background: 'var(--color-off-white)', padding: 'var(--space-16) 0', textAlign: 'center', borderTop: '1px solid var(--color-border)' }}>
+            <section className="section instagram-section scroll-animate" style={{ background: 'var(--color-off-white)', padding: 'var(--space-16) 0', textAlign: 'center', borderTop: '1px solid var(--color-border)' }}>
                 <div className="container">
                     <span className="label-text" style={{ color: 'var(--color-secondary)' }}>Stay Connected</span>
                     <h2 className="section-title" style={{ marginTop: 8, fontSize: '2.5rem' }}>Join Our Instagram Family</h2>

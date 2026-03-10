@@ -56,7 +56,6 @@ model Product {
   name                   String
   description            String    @db.Text
   price                  Float
-  stock                  Int       @default(0)
   images                 Json      // Array of image URLs
   materials              String?
   personalizationOptions Json?     // Configurable options, e.g., ["name", "message", "image"]

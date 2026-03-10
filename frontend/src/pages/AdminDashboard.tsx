@@ -6,6 +6,9 @@ import { useConfirm } from '../contexts/ConfirmContext';
 import Select from '../components/Select';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../utils/cropImage';
+import {
+    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
+} from 'recharts';
 import './AdminDashboard.css';
 
 const BACKEND = 'http://localhost:5001';
@@ -17,18 +20,24 @@ function getImage(images: any): string {
 }
 
 /* ---- Admin Analytics ---- */
+const COLORS = ['#8B4A73', '#C9956A', '#f39c12', '#2ecc71', '#e74c3c']; // Matching brand/status colors
+
 function Analytics() {
     const [data, setData] = useState<any>(null);
     useEffect(() => { api.admin.getAnalytics().then(setData).catch(() => { }); }, []);
     if (!data) return <div className="skeleton" style={{ height: 200, borderRadius: 16 }} />;
+
     return (
         <div>
             <h2 className="admin__section-title">Overview</h2>
-            <div className="admin-analytics-grid">
+
+            {/* Top Stat Cards */}
+            <div className="admin-analytics-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', marginBottom: 32 }}>
                 {[
-                    { label: 'Total Users', value: data.totalUsers, icon: '👤' },
                     { label: 'Total Orders', value: data.totalOrders, icon: '📦' },
-                    { label: 'Products', value: data.totalProducts, icon: '🛍' },
+                    { label: 'Completed', value: data.completedOrders, icon: '✅' },
+                    { label: 'Pending', value: data.pendingOrders, icon: '⏳' },
+                    { label: 'Rejected', value: data.rejectedOrders, icon: '❌' },
                     { label: 'Revenue', value: `₹${(+data.totalRevenue).toLocaleString('en-IN')}`, icon: '💰' },
                 ].map(s => (
                     <div key={s.label} className="admin-stat-card">
@@ -37,6 +46,90 @@ function Analytics() {
                         <div className="admin-stat-card__label">{s.label}</div>
                     </div>
                 ))}
+            </div>
+
+            {/* Charts Section */}
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24, alignItems: 'start' }}>
+
+                {/* Revenue Trend Chart */}
+                <div className="card" style={{ padding: 24, border: '1px solid var(--color-border)' }}>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: 24, color: 'var(--color-text)' }}>Revenue Trend (Last 7 Days)</h3>
+                    <div style={{ width: '100%', height: 350 }}>
+                        <ResponsiveContainer>
+                            <LineChart data={data.revenueTrend} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" opacity={0.5} vertical={false} />
+                                <XAxis
+                                    dataKey="date"
+                                    tickFormatter={(str) => {
+                                        const d = new Date(str);
+                                        return `${d.getDate()}/${d.getMonth() + 1}`;
+                                    }}
+                                    tick={{ fontSize: 12, fill: 'var(--color-muted)' }}
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <YAxis
+                                    yAxisId="left"
+                                    tickFormatter={(val) => `₹${val / 1000}k`}
+                                    tick={{ fontSize: 12, fill: 'var(--color-muted)' }}
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <YAxis
+                                    yAxisId="right"
+                                    orientation="right"
+                                    tick={{ fontSize: 12, fill: 'var(--color-muted)' }}
+                                    axisLine={false}
+                                    tickLine={false}
+                                />
+                                <RechartsTooltip
+                                    formatter={(value: any, name: any) => {
+                                        if (name === 'Revenue') return [`₹${Number(value).toLocaleString()}`, name];
+                                        return [value, name];
+                                    }}
+                                    contentStyle={{ borderRadius: 8, border: 'none', boxShadow: 'var(--shadow-md)' }}
+                                />
+                                <Legend />
+                                <Line yAxisId="left" type="monotone" dataKey="revenue" name="Revenue" stroke="var(--color-primary)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                <Line yAxisId="right" type="monotone" dataKey="orders" name="Orders" stroke="var(--color-secondary)" strokeWidth={2} dot={{ r: 3 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                {/* Status Distribution Chart */}
+                <div className="card" style={{ padding: 24, border: '1px solid var(--color-border)' }}>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: 24, color: 'var(--color-text)' }}>Order Status</h3>
+                    <div style={{ width: '100%', height: 300 }}>
+                        {data.statusDistribution?.length > 0 ? (
+                            <ResponsiveContainer>
+                                <PieChart>
+                                    <Pie
+                                        data={data.statusDistribution}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={60}
+                                        outerRadius={90}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                    >
+                                        {data.statusDistribution.map((_entry: any, index: number) => (
+                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <RechartsTooltip
+                                        formatter={(value: any) => [value, 'Orders']}
+                                        contentStyle={{ borderRadius: 8, border: 'none', boxShadow: 'var(--shadow-md)' }}
+                                    />
+                                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="empty-state" style={{ height: '100%' }}>No orders yet</div>
+                        )}
+                    </div>
+                </div>
+
             </div>
         </div>
     );

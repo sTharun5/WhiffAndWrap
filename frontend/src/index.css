@@ -106,17 +106,32 @@ img {
 
 .fade-in-img {
   opacity: 0;
-  animation: imgFadeIn 0.8s ease forwards;
+  animation: imgFadeIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes imgFadeIn {
   from {
     opacity: 0;
+    transform: scale(1.02);
   }
 
   to {
     opacity: 1;
+    transform: scale(1);
   }
+}
+
+/* ============ SCROLL ANIMATIONS ============ */
+.scroll-animate {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 1s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.scroll-animate.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 
@@ -217,7 +232,7 @@ h6 {
   letter-spacing: 0.02em;
   border: none;
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
   text-decoration: none;
 }
@@ -225,16 +240,16 @@ h6 {
 .btn-primary {
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
   color: var(--color-white);
-  box-shadow: 0 4px 15px rgba(139, 74, 115, 0.35);
+  box-shadow: 0 4px 15px rgba(139, 74, 115, 0.25);
 }
 
 .btn:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 25px rgba(139, 74, 115, 0.45);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 25px rgba(139, 74, 115, 0.35);
 }
 
 .btn:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(0) scale(0.99);
 }
 
 .btn-secondary:hover {
@@ -314,13 +329,15 @@ h6 {
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--color-border);
-  transition: all var(--transition-base);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
 }
 
 .product-card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(44, 32, 24, 0.08);
+  /* softer, lighter shadow */
+  transform: translateY(-4px);
+  /* minimal lift */
 }
 
 .product-card__image-wrap {
@@ -334,11 +351,12 @@ h6 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .product-card:hover .product-card__image {
-  transform: scale(1.08);
+  transform: scale(1.04);
+  /* elegant, slight zoom */
 }
 
 .product-card__badge {

@@ -65,7 +65,7 @@ router.delete('/categories/:id', async (req, res) => {
 router.get('/orders', async (_req, res) => {
     try {
         const orders = await prisma.order.findMany({
-            include: { user: { select: { name: true, email: true } }, orderItems: { include: { product: { select: { name: true, images: true, description: true, price: true, stock: true, materials: true, category: true } } } } },
+            include: { user: { select: { name: true, email: true } }, orderItems: { include: { product: { select: { name: true, images: true, description: true, price: true, materials: true, category: true } } } } },
             orderBy: { createdAt: 'desc' },
         });
         res.json(orders);
@@ -76,7 +76,7 @@ router.patch('/orders/:id', async (req, res) => {
     try {
         const { status, deliveryDate, rejectionReason } = req.body;
 
-        // Fetch order with items to handle stock restoration if rejected
+        // Fetch order with items if needed for notifications
         const order = await prisma.order.findUnique({
             where: { id: req.params.id },
             include: { user: true, orderItems: true }
@@ -94,7 +94,7 @@ router.patch('/orders/:id', async (req, res) => {
             include: { user: true },
         });
 
-        // Handle Rejection logic (No stock restoration needed as per new requirement)
+        // Handle Rejection logic
         if (status === 'REJECTED') {
             // Logic removed: products are prepared after ordering
         }
@@ -143,19 +143,77 @@ router.get('/users', async (_req, res) => {
 // --- Analytics ---
 router.get('/analytics', async (_req, res) => {
     try {
-        const [totalUsers, totalOrders, totalProducts, ordersData] = await Promise.all([
+        const [totalUsers, totalProducts, allOrders] = await Promise.all([
             prisma.user.count(),
-            prisma.order.count(),
             prisma.product.count(),
-            prisma.order.aggregate({ _sum: { totalAmount: true } }),
+            prisma.order.findMany({
+                select: { status: true, totalAmount: true, createdAt: true }
+            }),
         ]);
+
+        let totalRevenue = 0;
+        let completedOrders = 0;
+        let rejectedOrders = 0;
+        let pendingOrders = 0;
+
+        const statusDistribution: Record<string, number> = {};
+        const revenueByDateMap: Record<string, number> = {};
+        const ordersByDateMap: Record<string, number> = {};
+
+        // Generate last 7 days structure
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0];
+            revenueByDateMap[dateStr] = 0;
+            ordersByDateMap[dateStr] = 0;
+        }
+
+        allOrders.forEach(order => {
+            // Status counts
+            statusDistribution[order.status] = (statusDistribution[order.status] || 0) + 1;
+
+            if (order.status === 'DELIVERED') completedOrders++;
+            else if (order.status === 'REJECTED') rejectedOrders++;
+            else pendingOrders++;
+
+            // Revenue calculation: Only "completed or successfully delivered" orders
+            // OR strictly excluding REJECTED? The user specifically asked to exclude rejected/cancelled. Let's exclude REJECTED.
+            if (order.status !== 'REJECTED') {
+                totalRevenue += order.totalAmount;
+            }
+
+            // Time series (group by date)
+            const dateStr = new Date(order.createdAt).toISOString().split('T')[0];
+            if (revenueByDateMap[dateStr] !== undefined) {
+                if (order.status !== 'REJECTED') {
+                    revenueByDateMap[dateStr] += order.totalAmount;
+                }
+                ordersByDateMap[dateStr] += 1;
+            }
+        });
+
+        const revenueTrend = Object.keys(revenueByDateMap).map(date => ({
+            date,
+            revenue: revenueByDateMap[date],
+            orders: ordersByDateMap[date]
+        }));
+
         res.json({
             totalUsers,
-            totalOrders,
+            totalOrders: allOrders.length,
+            completedOrders,
+            rejectedOrders,
+            pendingOrders,
             totalProducts,
-            totalRevenue: ordersData._sum.totalAmount || 0,
+            totalRevenue,
+            statusDistribution: Object.keys(statusDistribution).map(status => ({ name: status, value: statusDistribution[status] })),
+            revenueTrend
         });
-    } catch { res.status(500).json({ error: 'Server error' }); }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 export default router;

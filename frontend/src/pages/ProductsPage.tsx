@@ -21,18 +21,24 @@ export default function ProductsPage() {
     }, []);
 
     useEffect(() => {
-        setLoading(true);
-        const params: any = { page: String(page), limit: '12' };
-        if (search) params.search = search;
-        if (category) params.category = category;
-        api.getProducts(params)
-            .then(data => {
+        const fetchProducts = async () => {
+            setLoading(true);
+            const params: any = { page: String(page), limit: '12' };
+            if (search) params.search = search;
+            if (category) params.category = category;
+
+            try {
+                const data = await api.getProducts(params);
                 setProducts(data.products || []);
                 setTotal(data.total || 0);
                 setPages(data.pages || 1);
-            })
-            .catch(() => setProducts([]))
-            .finally(() => setLoading(false));
+            } catch {
+                setProducts([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProducts();
     }, [search, category, page]);
 
     const setParam = (key: string, value: string) => {

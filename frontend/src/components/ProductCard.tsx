@@ -73,10 +73,6 @@ export default function ProductCard({ product }: Props) {
                         style={{ cursor: 'zoom-in' }}
                         title="Click to view full image"
                     />
-                    {product.stock <= 5 && product.stock > 0 && (
-                        <span className="product-card__badge">Only {product.stock} left!</span>
-                    )}
-                    {product.stock === 0 && <span className="product-card__badge" style={{ background: '#999' }}>Out of Stock</span>}
                     <button
                         className={`product-card__wishlist ${wishlisted ? 'active' : ''}`}
                         onClick={handleWishlist}
@@ -105,9 +101,9 @@ export default function ProductCard({ product }: Props) {
                         className="btn btn-primary"
                         style={{ width: '100%', marginTop: 12 }}
                         onClick={handleAddToCart}
-                        disabled={product.stock === 0 || adding}
+                        disabled={adding}
                     >
-                        {adding ? '✓ Added!' : product.stock === 0 ? 'Out of Stock' : 'Add to Cart 🛍'}
+                        {adding ? '✓ Added!' : 'Add to Cart 🛍'}
                     </button>
                 </div>
             </Link>
