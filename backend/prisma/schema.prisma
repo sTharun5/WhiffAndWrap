@@ -41,6 +41,7 @@ model Product {
   name                   String
   description            String      @db.Text
   price                  Float
+  isAvailable            Boolean     @default(true)
   images                 Json
   categoryId             String?
   createdAt              DateTime    @default(now())

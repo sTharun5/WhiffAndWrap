@@ -14,13 +14,13 @@
   --color-secondary: #C9956A;
   --color-secondary-light: #D6A880;
   --color-accent: #E8C9B0;
-  --color-accent-light: #F2E4D6;
+  --color-accent-light: #FFFFFF;
   --color-gold: #D4AF7A;
 
   /* Neutrals */
   --color-white: #FFFFFF;
-  --color-off-white: #FAF8F5;
-  --color-cream: #F5EFE6;
+  --color-off-white: #FFFFFF;
+  --color-cream: #FFFFFF;
   --color-light: #EDE8E3;
   --color-muted: #9C8D82;
   --color-text: #2C2018;
@@ -232,6 +232,18 @@ ul {
   max-width: var(--container-max);
   margin: 0 auto;
   padding: 0 var(--space-6);
+  width: 100%;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-center {
+  display: grid;
+  place-items: center;
 }
 
 .page-layout {
@@ -279,7 +291,7 @@ h6 {
 .section-subtitle {
   font-size: 1rem;
   color: var(--color-text-light);
-  margin-top: var(--space-2);
+  margin: var(--space-2) auto 0;
   max-width: 560px;
 }
 
@@ -700,6 +712,11 @@ h6 {
   text-align: center;
   padding: var(--space-20) var(--space-6);
   color: var(--color-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .empty-state__icon {
@@ -1086,4 +1103,34 @@ input[type="file"].form-input::file-selector-button:hover {
   background: rgba(139, 74, 115, 0.06);
   border-color: var(--color-primary);
   color: var(--color-primary-dark);
+}
+
+/* Catalog Mode Styles */
+.product-card__info-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.product-card__id {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-muted);
+  font-family: var(--font-sans);
+  background: var(--color-cream);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.product-card__description {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  line-height: 1.4;
+  margin-bottom: var(--space-3);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }

@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
-import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
-import { useWishlist } from '../contexts/WishlistContext';
+import { useConfirm } from '../contexts/ConfirmContext';
+import { openInstagramDM } from '../utils/InstagramOrderHelper';
 import Alert from '../components/Alert';
 import Skeleton from '../components/Skeleton';
 import { useToast } from '../contexts/ToastContext';
 import {
-    FiShoppingBag, FiCheckCircle, FiHeart, FiHexagon, FiZap, FiInfo, FiClock, FiStar, FiArrowLeft, FiScissors, FiEdit3, FiX
+    FiInstagram, FiCheckCircle, FiHexagon, FiZap, FiInfo, FiClock, FiStar, FiArrowLeft, FiScissors, FiEdit3, FiX
 } from 'react-icons/fi';
 import './ProductDetailPage.css';
 
@@ -32,14 +32,13 @@ export default function ProductDetailPage() {
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState('');
     const [submittingReview, setSubmittingReview] = useState(false);
-    const { addItem } = useCart();
     const { user } = useAuth();
     const { addToast } = useToast();
-    const { isWishlisted, toggleWishlist } = useWishlist();
+    const { confirm } = useConfirm();
     const [haptic, setHaptic] = useState(false);
     const navigate = useNavigate();
 
-    const wishlisted = id ? isWishlisted(id) : false;
+
 
     useEffect(() => {
         if (!id) return;
@@ -88,18 +87,51 @@ export default function ProductDetailPage() {
         ? product.reviews.reduce((s: number, r: any) => s + r.rating, 0) / product.reviews.length
         : null;
 
-    const handleAddToCart = () => {
-        addItem({
-            productId: product.id,
-            name: product.name,
-            price: product.price,
-            quantity,
-            image: images[0],
-            personalizationData: { ...personalization, ...(userImage ? { custom_image: userImage } : {}) },
+    const handleOrder = async () => {
+        if (!user) {
+            addToast('Please sign in to place an order', 'info');
+            return;
+        }
+
+        // Validate personalization
+        const missing = opts.filter(opt => opt !== 'custom_image' && !personalization[opt]);
+        if (missing.length > 0) {
+            const labels = missing.map(m => m.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())).join(', ');
+            addToast(`Please fill in required fields: ${labels}`, 'info');
+            return;
+        }
+
+        if (opts.includes('custom_image') && !userImage) {
+            const isConfirmed = await confirm({
+                title: 'No Image Uploaded',
+                message: 'You haven\'t uploaded a custom image. Do you want to proceed without one?',
+                confirmText: 'Yes, Proceed',
+                cancelText: 'Upload Now'
+            });
+            if (!isConfirmed) return;
+        }
+
+        const isConfirmed = await confirm({
+            title: 'Order via Instagram',
+            message: 'To place your order, the Product ID, details, and your personalization MUST be copied. Click below to copy them and open Instagram, then paste them into the DM.',
+            confirmText: 'Copy & Open Instagram',
+            cancelText: 'Cancel'
         });
-        setHaptic(true);
-        setTimeout(() => setHaptic(false), 300);
-        addToast(`${product.name} added to cart`, 'success');
+
+        if (isConfirmed) {
+            openInstagramDM({
+                id: product.id,
+                name: product.name,
+                description: product.description || '',
+                price: product.price,
+                image: images[0],
+                personalization: personalization,
+                customImage: userImage ? `${BACKEND}${userImage}` : undefined
+            });
+            addToast('Order details copied! Paste them in the Instagram DM.', 'success');
+            setHaptic(true);
+            setTimeout(() => setHaptic(false), 300);
+        }
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -128,14 +160,7 @@ export default function ProductDetailPage() {
         finally { setSubmittingReview(false); }
     };
 
-    const handleWishlist = async () => {
-        if (!user) { addToast('Please sign in to use wishlist', 'info'); return; }
-        if (!id) return;
-        try {
-            await toggleWishlist(id);
-            addToast(wishlisted ? 'Removed from wishlist' : 'Added to wishlist', 'success');
-        } catch { addToast('Could not update wishlist', 'error'); }
-    };
+
 
     return (
         <div className="pd-page fade-in">
@@ -190,28 +215,9 @@ export default function ProductDetailPage() {
                         )}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
                             <h1 className="pd-info__title">{product.name}</h1>
-                            <button
-                                className={`pd-info__wishlist ${wishlisted ? 'active' : ''} ${haptic ? 'animate-haptic' : ''}`}
-                                onClick={handleWishlist}
-                                title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-                                style={{
-                                    background: 'white',
-                                    border: '1px solid var(--color-border)',
-                                    borderRadius: '50%',
-                                    width: 44,
-                                    height: 44,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '1.4rem',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease',
-                                    color: wishlisted ? 'var(--color-primary)' : 'var(--color-text-light)',
-                                    marginTop: 4
-                                }}
-                            >
-                                {wishlisted ? <FiHeart fill="var(--color-primary)" /> : <FiHeart />}
-                            </button>
+                            <span className="product-card__id" style={{ marginTop: 8, fontSize: '0.75rem', color: 'var(--color-primary)', backgroundColor: 'rgba(139, 74, 115, 0.1)', padding: '4px 10px', borderRadius: 'var(--radius-full)', fontWeight: 600, letterSpacing: '0.05em' }}>
+                                #{product.id.split('-')[0]}
+                            </span>
                         </div>
 
                         {avgRating && (
@@ -225,7 +231,12 @@ export default function ProductDetailPage() {
                             </div>
                         )}
 
-                        <div className="pd-info__price" style={{ marginBottom: 16 }}>₹{product.price.toLocaleString('en-IN')}</div>
+                        <div className="pd-info__price" style={{ marginBottom: 16 }}>
+                            ₹{product.price.toLocaleString('en-IN')}
+                            {product.isAvailable === false && (
+                                <span className="badge badge-error" style={{ marginLeft: 12, fontSize: '0.8rem' }}>Out of Stock</span>
+                            )}
+                        </div>
 
                         <Alert variant="info" title="Made to Order" icon={<FiScissors />}>
                             Every item is carefully handcrafted from scratch. Please place your order <strong>6–7 days in advance</strong> to allow time for creation and delivery.
@@ -293,23 +304,14 @@ export default function ProductDetailPage() {
 
                         {/* Quantity & Cart */}
                         <div className="pd-actions">
-                            <div className="pd-qty">
-                                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="pd-qty__btn">−</button>
-                                <span className="pd-qty__val">{quantity}</span>
-                                <button onClick={() => setQuantity(q => Math.min(100, q + 1))} className="pd-qty__btn">+</button>
-                            </div>
                             <button
-                                className={`btn btn-primary btn-lg ${haptic ? 'animate-haptic' : ''}`}
-                                style={{ flex: 1 }}
-                                onClick={handleAddToCart}
+                                className={`btn btn-primary btn-lg ${haptic ? 'animate-haptic' : ''} ${product.isAvailable === false ? 'btn-disabled' : ''}`}
+                                style={{ flex: 1, backgroundColor: product.isAvailable === false ? 'var(--color-muted)' : '#E1306C', borderColor: product.isAvailable === false ? 'var(--color-muted)' : '#E1306C' }}
+                                onClick={handleOrder}
+                                disabled={product.isAvailable === false}
                             >
-                                <FiShoppingBag style={{ marginRight: 10 }} /> Add to Cart
-                            </button>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                            <button className="btn btn-secondary btn-sm" onClick={() => { navigate('/cart'); handleAddToCart(); }}>
-                                Buy Now
+                                <FiInstagram style={{ marginRight: 10 }} /> 
+                                {product.isAvailable === false ? 'Currently Unavailable' : 'Copy & Order'}
                             </button>
                         </div>
                     </div>

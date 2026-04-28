@@ -19,20 +19,54 @@ router.get('/products', async (_req, res) => {
 
 router.post('/products', async (req, res) => {
     try {
-        const { name, description, price, images, materials, personalizationOptions, tags, categoryId } = req.body;
+        const { name, description, price, images, materials, personalizationOptions, tags, categoryId, isAvailable } = req.body;
         const product = await prisma.product.create({
-            data: { name, description, price: parseFloat(price), images: images || [], materials, personalizationOptions, tags, categoryId: categoryId || null },
+            data: { 
+                name, 
+                description, 
+                price: parseFloat(price), 
+                images: images || [], 
+                materials, 
+                personalizationOptions, 
+                tags, 
+                categoryId: categoryId || null,
+                isAvailable: isAvailable !== undefined ? isAvailable : true
+            },
         });
+
+        // Notify all users about the new product
+        const users = await prisma.user.findMany({ where: { role: 'USER' } });
+        for (const user of users) {
+            await (prisma.notification.create as any)({
+                data: {
+                    userId: user.id,
+                    title: 'New Product Available! ✨',
+                    message: `We've just added "${name}" to our catalog! Check it out now.`,
+                    type: 'USER'
+                }
+            });
+        }
+
         res.status(201).json(product);
     } catch (e) { console.error(e); res.status(500).json({ error: 'Server error' }); }
 });
 
 router.put('/products/:id', async (req, res) => {
     try {
-        const { name, description, price, images, materials, personalizationOptions, tags, categoryId } = req.body;
+        const { name, description, price, images, materials, personalizationOptions, tags, categoryId, isAvailable } = req.body;
         const product = await prisma.product.update({
             where: { id: req.params.id },
-            data: { name, description, price: parseFloat(price), images, materials, personalizationOptions, tags, categoryId: categoryId || null },
+            data: { 
+                name, 
+                description, 
+                price: parseFloat(price), 
+                images, 
+                materials, 
+                personalizationOptions, 
+                tags, 
+                categoryId: categoryId || null,
+                isAvailable: isAvailable !== undefined ? isAvailable : true
+            },
         });
         res.json(product);
     } catch { res.status(500).json({ error: 'Server error' }); }
@@ -99,19 +133,8 @@ router.patch('/orders/:id', async (req, res) => {
             // Logic removed: products are prepared after ordering
         }
 
-        // Notify user via notification record
-        let title = 'Order Update 📦';
-        let msg = `Your order #${order.id.slice(0, 8)} status updated to: ${status}`;
+        // In-app notifications for order status updates removed as per user request
 
-        if (status === 'ACCEPTED') {
-            title = 'Order Accepted! ✅';
-            msg = `Your order #${order.id.slice(0, 8)} has been accepted! Estimated delivery: ${deliveryDate || 'TBD'}`;
-        } else if (status === 'REJECTED') {
-            title = 'Order Rejected ❌';
-            msg = `Your order #${order.id.slice(0, 8)} was rejected. Reason: ${rejectionReason || 'No reason provided'}`;
-        }
-
-        await (prisma.notification.create as any)({ data: { userId: order.userId, title, message: msg, type: 'USER' } });
 
         // Send email on status update
         try {
@@ -138,6 +161,33 @@ router.get('/users', async (_req, res) => {
         });
         res.json(users);
     } catch { res.status(500).json({ error: 'Server error' }); }
+});
+
+router.put('/users/:id/role', async (req, res) => {
+    try {
+        const { role } = req.body;
+        if (!['USER', 'ADMIN'].includes(role)) {
+            return res.status(400).json({ error: 'Invalid role' });
+        }
+
+        // Prevent demoting the last admin
+        if (role === 'USER') {
+            const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } });
+            if (adminCount <= 1) {
+                return res.status(400).json({ error: 'Cannot remove the last admin. Promote another user first.' });
+            }
+        }
+
+        const user = await prisma.user.update({
+            where: { id: req.params.id },
+            data: { role },
+            select: { id: true, name: true, email: true, role: true }
+        });
+        res.json(user);
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 // --- Analytics ---

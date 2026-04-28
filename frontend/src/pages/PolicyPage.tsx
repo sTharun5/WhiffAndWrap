@@ -64,17 +64,8 @@ export default function PolicyPage() {
     // If no slug, show the list of policies
     if (!slug) return (
         <div className="policy-page container">
-            <div className="policy-header" style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', top: 0, left: 0, display: 'flex', alignItems: 'center' }}>
-                    <button
-                        onClick={() => navigate('/')}
-                        className="btn btn-ghost btn-sm"
-                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
-                    >
-                        <span>←</span> Back to Home
-                    </button>
-                </div>
-                <h1 className="section-title" style={{ marginTop: 40 }}>Store Policies</h1>
+            <div className="policy-header">
+                <h1 className="section-title">Store Policies</h1>
                 <p className="section-subtitle">Transparency and trust are the foundation of Whiff & Wrap.</p>
             </div>
             <div className="policy-grid">

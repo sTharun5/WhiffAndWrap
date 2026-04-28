@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useCart } from '../contexts/CartContext';
 import { useToast } from '../contexts/ToastContext';
-import { useWishlist } from '../contexts/WishlistContext';
-import { FiHeart, FiShoppingBag, FiStar, FiX, FiSearch, FiArrowLeft } from 'react-icons/fi';
+import { useConfirm } from '../contexts/ConfirmContext';
+import { openInstagramDM } from '../utils/InstagramOrderHelper';
+import { FiInstagram, FiStar, FiX, FiSearch } from 'react-icons/fi';
 
 interface Props {
     product: any;
@@ -22,40 +22,50 @@ function getImage(images: any): string {
 
 export default function ProductCard({ product }: Props) {
     const { user } = useAuth();
-    const { addItem } = useCart();
     const { addToast } = useToast();
-    const { isWishlisted, toggleWishlist } = useWishlist();
-    const [adding, setAdding] = useState(false);
-    const [haptic, setHaptic] = useState(false);
+    const { confirm } = useConfirm();
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [haptic, setHaptic] = useState(false);
 
     const image = getImage(product.images);
-    const wishlisted = isWishlisted(product.id);
     const rating = Math.round(product.avgRating || 0);
 
-    const handleWishlist = async (e: React.MouseEvent) => {
+    const handleOrder = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        if (!user) { addToast('Please sign in to use wishlist', 'info'); return; }
-        try {
+        if (!user) {
+            addToast('Please sign in to place an order', 'info');
+            return;
+        }
+
+        const opts = Array.isArray(product.personalizationOptions)
+            ? product.personalizationOptions
+            : (typeof product.personalizationOptions === 'string' ? JSON.parse(product.personalizationOptions || '[]') : []);
+
+        if (opts.length > 0) {
+            addToast('Please fill in personalization details first', 'info');
+            return; // Link wrapper will handle navigation to detail page
+        }
+
+        const isConfirmed = await confirm({
+            title: 'Order via Instagram',
+            message: 'To place your order, the Product ID and details MUST be copied. Click below to copy them and open Instagram, then paste them into the DM.',
+            confirmText: 'Copy & Open Instagram',
+            cancelText: 'Cancel'
+        });
+
+        if (isConfirmed) {
+            openInstagramDM({
+                id: product.id,
+                name: product.name,
+                description: product.description || '',
+                price: product.price,
+                image: image
+            });
+            addToast('Product ID Copied! Paste it in the Instagram DM.', 'success');
             setHaptic(true);
             setTimeout(() => setHaptic(false), 300);
-            await toggleWishlist(product.id);
-            if (wishlisted) {
-                addToast('Removed from wishlist', 'info');
-            } else {
-                addToast('Added to wishlist', 'success');
-            }
-        } catch { addToast('Could not update wishlist', 'error'); }
-    };
-
-    const handleAddToCart = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setAdding(true);
-        addItem({ productId: product.id, name: product.name, price: product.price, quantity: 1, image });
-        addToast(`${product.name} added to cart`, 'success');
-        setTimeout(() => setAdding(false), 800);
+        }
     };
 
     const handlePreview = (e: React.MouseEvent) => {
@@ -73,46 +83,52 @@ export default function ProductCard({ product }: Props) {
                         alt={product.name}
                         className="product-card__image"
                         loading="lazy"
-                        onClick={handlePreview}
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setPreviewImage(image);
+                        }}
                         style={{ cursor: 'zoom-in' }}
                         title="Click to view full image"
                         onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400'; }}
                     />
-                    <button
-                        className={`product-card__wishlist ${wishlisted ? 'active' : ''} ${haptic ? 'animate-haptic' : ''}`}
-                        onClick={handleWishlist}
-                        title={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-                    >
-                        {wishlisted ? <FiHeart style={{ fill: 'currentColor' }} /> : <FiHeart />}
-                    </button>
                 </div>
                 <div className="product-card__body">
                     {product.category?.name && (
                         <p className="product-card__category">{product.category.name}</p>
                     )}
                     <h3 className="product-card__name">{product.name}</h3>
+                    <p className="product-card__description" style={{ 
+                        display: '-webkit-box', 
+                        WebkitLineClamp: 2, 
+                        WebkitBoxOrient: 'vertical', 
+                        overflow: 'hidden', 
+                        textOverflow: 'ellipsis',
+                        fontSize: '0.85rem',
+                        color: 'var(--color-text-light)',
+                        minHeight: '2.5rem'
+                    }}>
+                        {product.description || 'No description available'}
+                    </p>
                     <div className="product-card__footer">
                         <span className="product-card__price">₹{product.price.toLocaleString('en-IN')}</span>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 2 }}>
-                            {product.avgRating && (
-                                <span className="product-card__rating">
-                                    <span style={{ fontSize: '0.75rem', display: 'flex', gap: 1 }}>
-                                        {[...Array(5)].map((_, i) => (
-                                            <FiStar key={i} style={{ fill: i < rating ? 'var(--color-primary)' : 'none', color: i < rating ? 'var(--color-primary)' : 'var(--color-border)' }} />
-                                        ))}
-                                    </span>
-                                    <span style={{ color: 'var(--color-muted)', fontSize: '0.85rem' }}>({product.reviewCount})</span>
-                                </span>
-                            )}
-                        </div>
+                        {product.isAvailable === false && (
+                            <span className="badge badge-error" style={{ fontSize: '0.7rem', padding: '2px 8px' }}>Out of Stock</span>
+                        )}
                     </div>
-                    <button
-                        className={`btn btn-primary ${adding ? 'animate-haptic' : ''}`}
-                        style={{ width: '100%', marginTop: 12 }}
-                        onClick={handleAddToCart}
-                        disabled={adding}
+                    <button 
+                        className={`btn btn-primary product-card__atc ${haptic ? 'animate-haptic' : ''} ${product.isAvailable === false ? 'btn-disabled' : ''}`}
+                        style={{ 
+                            width: '100%', 
+                            marginTop: '16px',
+                            backgroundColor: product.isAvailable === false ? 'var(--color-muted)' : '#E1306C', 
+                            borderColor: product.isAvailable === false ? 'var(--color-muted)' : '#E1306C', 
+                            opacity: product.isAvailable === false ? 0.6 : 1 
+                        }}
+                        onClick={(e) => product.isAvailable !== false && handleOrder(e)}
+                        disabled={product.isAvailable === false}
                     >
-                        {adding ? <><FiShoppingBag /> Added!</> : <><FiShoppingBag /> Add to Cart</>}
+                        <FiInstagram style={{ marginRight: 8 }} /> {product.isAvailable === false ? 'Unavailable' : 'Copy & Order'}
                     </button>
                 </div>
             </Link>

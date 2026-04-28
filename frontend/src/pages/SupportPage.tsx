@@ -65,7 +65,8 @@ export default function SupportPage() {
                 formData.append('screenshots', file);
             });
 
-            const res = await fetch('http://localhost:5001/api/support', {
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+            const res = await fetch(`${apiBase}/api/support`, {
                 method: 'POST',
                 body: formData,
             });

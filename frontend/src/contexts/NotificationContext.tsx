@@ -8,6 +8,7 @@ interface NotificationContextType {
     loading: boolean;
     markRead: (id: string) => Promise<void>;
     markAllRead: (type?: 'USER' | 'ADMIN') => Promise<void>;
+    clearAll: (type?: 'USER' | 'ADMIN') => Promise<void>;
     refreshNotifications: () => Promise<void>;
 }
 
@@ -61,10 +62,20 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         }
     };
 
+    const clearAll = async (type?: 'USER' | 'ADMIN') => {
+        try {
+            await api.clearNotifications(type);
+            setNotifications(prev => prev.filter(n => (type && n.type !== type && !(!n.type && type === 'USER'))));
+            if (!type) setNotifications([]);
+        } catch (err) {
+            console.error('Clear all failed:', err);
+        }
+    };
+
     const unreadCount = notifications.filter(n => !n.read).length;
 
     return (
-        <NotificationContext.Provider value={{ notifications, unreadCount, loading, markRead, markAllRead, refreshNotifications }}>
+        <NotificationContext.Provider value={{ notifications, unreadCount, loading, markRead, markAllRead, clearAll, refreshNotifications }}>
             {children}
         </NotificationContext.Provider>
     );

@@ -1,9 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { CartProvider } from './contexts/CartContext';
 import { ToastProvider } from './contexts/ToastContext';
-import { WishlistProvider } from './contexts/WishlistContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { ConfirmProvider } from './contexts/ConfirmContext';
 import Navbar from './components/Navbar';
@@ -12,18 +10,16 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import TermsModal from './components/TermsModal';
-import CartPage from './pages/CartPage';
-import WishlistPage from './pages/WishlistPage';
 import NotificationsPage from './pages/NotificationsPage';
 import AuthPage from './pages/AuthPage';
 import ProfilePage from './pages/ProfilePage';
-import OrdersPage from './pages/OrdersPage';
-import OrderDetailPage from './pages/OrderDetailPage';
 import AdminDashboard from './pages/AdminDashboard';
 import ReelsPage from './pages/ReelsPage';
 import SupportPage from './pages/SupportPage';
 import PolicyPage from './pages/PolicyPage';
 import NotFoundPage from './pages/NotFoundPage';
+import OrdersPage from './pages/OrdersPage';
+import WishlistPage from './pages/WishlistPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -54,13 +50,11 @@ function AppRoutes() {
         <Route path="/products" element={<ProductsPage />} />
         <Route path="/reels" element={<ReelsPage />} />
         <Route path="/products/:id" element={<ProductDetailPage />} />
-        <Route path="/cart" element={<CartPage />} />
         <Route path="/auth" element={user ? <Navigate to="/" /> : <AuthPage />} />
-        <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
-        <Route path="/orders/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
+        <Route path="/wishlist" element={<ProtectedRoute><WishlistPage /></ProtectedRoute>} />
         <Route path="/support" element={<SupportPage />} />
         <Route path="/policies" element={<PolicyPage />} />
         <Route path="/policies/:slug" element={<PolicyPage />} />
@@ -90,15 +84,11 @@ export default function App() {
     <ToastProvider>
       <AuthProvider>
         <NotificationProvider>
-          <WishlistProvider>
-            <CartProvider>
-              <ConfirmProvider>
-                <BrowserRouter>
-                  <AppLayout />
-                </BrowserRouter>
-              </ConfirmProvider>
-            </CartProvider>
-          </WishlistProvider>
+          <ConfirmProvider>
+            <BrowserRouter>
+              <AppLayout />
+            </BrowserRouter>
+          </ConfirmProvider>
         </NotificationProvider>
       </AuthProvider>
     </ToastProvider>

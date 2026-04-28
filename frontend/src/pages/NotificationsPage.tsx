@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNotifications } from '../contexts/NotificationContext';
 import { useAuth } from '../contexts/AuthContext';
-import { FiBell, FiArrowLeft } from 'react-icons/fi';
+import { FiBell } from 'react-icons/fi';
 
 export default function NotificationsPage() {
-    const { notifications, loading, markRead, markAllRead } = useNotifications();
+    const { notifications, loading, markRead, markAllRead, clearAll } = useNotifications();
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState<'USER' | 'ADMIN'>('USER');
 
@@ -24,22 +24,21 @@ export default function NotificationsPage() {
     return (
         <div className="fade-in" style={{ padding: 'var(--space-10) 0 var(--space-16)' }}>
             <div className="container" style={{ maxWidth: 800 }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                    <button
-                        onClick={() => window.location.href = '/'}
-                        className="btn btn-ghost btn-sm"
-                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
-                    >
-                        <FiArrowLeft /> Back to Home
-                    </button>
-                </div>
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
                     <h1 className="section-title" style={{ margin: 0 }}>Notifications <FiBell style={{ verticalAlign: 'middle', fontSize: '1.5rem', opacity: 0.6 }} /></h1>
-                    {filteredNotifications.some(n => !n.read) && (
-                        <button className="btn btn-ghost btn-sm" onClick={() => markAllRead(activeTab)}>
-                            Mark all as read
-                        </button>
-                    )}
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                        {filteredNotifications.some(n => !n.read) && (
+                            <button className="btn btn-ghost btn-sm" onClick={() => markAllRead(activeTab)}>
+                                Mark all as read
+                            </button>
+                        )}
+                        {filteredNotifications.length > 0 && (
+                            <button className="btn btn-ghost btn-sm" style={{ color: 'var(--color-error)' }} onClick={() => clearAll(activeTab)}>
+                                Clear all
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {user?.role === 'ADMIN' && (

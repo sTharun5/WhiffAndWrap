@@ -170,6 +170,11 @@
     margin-bottom: 32px;
 }
 
+.admin-chart-card {
+    min-width: 0;
+    overflow: hidden;
+}
+
 .admin-stat-card {
     background: white;
     border-radius: var(--radius-lg);
@@ -225,7 +230,7 @@
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--color-text-light);
-    background: #F8F9FA;
+    background: #FFFFFF;
     border-bottom: 2px solid var(--color-border);
 }
 
@@ -313,10 +318,10 @@
         left: 0;
         right: 0;
         height: 60px;
-        background: var(--color-dark);
-        color: white;
+        background: #FFFFFF;
+        color: var(--color-text);
         z-index: 2000;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 1px solid var(--color-border);
     }
 
     .admin-mobile-header__inner {
@@ -457,7 +462,7 @@
     .admin-hamburger span {
         width: 100%;
         height: 2px;
-        background: white;
+        background: var(--color-text);
         transition: 0.3s;
     }
 

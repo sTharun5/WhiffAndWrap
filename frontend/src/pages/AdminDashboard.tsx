@@ -7,15 +7,12 @@ import Select from '../components/Select';
 import Cropper from 'react-easy-crop';
 import getCroppedImg from '../utils/cropImage';
 import {
-    LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
-} from 'recharts';
-import {
-    FiShoppingBag, FiCheckCircle, FiClock, FiXCircle, FiTrendingUp, FiScissors, FiUploadCloud, FiCheck, FiPhone, FiFileText, FiTruck, FiHome, FiArrowRight, FiX, FiPackage, FiPlus, FiBarChart2, FiUser, FiPlay, FiZap, FiArrowLeft
+    FiShoppingBag, FiClock, FiScissors, FiUploadCloud, FiCheck, FiFileText, FiArrowRight, FiX, FiPlus, FiUser, FiPlay, FiZap, FiArrowLeft, FiPackage, FiMessageSquare
 } from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 import './AdminDashboard.css';
 
-const BACKEND = 'http://localhost:5001';
+const BACKEND = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 function getImage(images: any): string {
     const list = Array.isArray(images) ? images : (typeof images === 'string' ? JSON.parse(images || '[]') : []);
@@ -23,123 +20,7 @@ function getImage(images: any): string {
     return list[0].startsWith('http') ? list[0] : `${BACKEND}${list[0]}`;
 }
 
-/* ---- Admin Analytics ---- */
-const COLORS = ['#D4A373', '#9B6B6B', '#6B8E23', '#4A3B31', '#D6D6D6']; // Muted luxury palette for charts
 
-function Analytics() {
-    const [data, setData] = useState<any>(null);
-    useEffect(() => { api.admin.getAnalytics().then(setData).catch(() => { }); }, []);
-    if (!data) return <div className="skeleton" style={{ height: 200, borderRadius: 16 }} />;
-
-    return (
-        <div>
-            <h2 className="admin__section-title">Overview</h2>
-
-            {/* Top Stat Cards */}
-            <div className="admin-analytics-grid">
-                {[
-                    { label: 'Total Orders', value: data.totalOrders, icon: <FiShoppingBag /> },
-                    { label: 'Completed', value: data.completedOrders, icon: <FiCheckCircle /> },
-                    { label: 'Pending', value: data.pendingOrders, icon: <FiClock /> },
-                    { label: 'Rejected', value: data.rejectedOrders, icon: <FiXCircle /> },
-                    { label: 'Revenue', value: `₹${(+data.totalRevenue).toLocaleString('en-IN')}`, icon: <FiTrendingUp /> },
-                ].map(s => (
-                    <div key={s.label} className="admin-stat-card">
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div className="admin-stat-card__value">{s.value}</div>
-                            <div className="admin-stat-card__icon" style={{ opacity: 0.4 }}>{s.icon}</div>
-                        </div>
-                        <div className="admin-stat-card__label">{s.label}</div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Charts Section */}
-            <div className="admin-charts-grid">
-
-                {/* Revenue Trend Chart */}
-                <div className="card" style={{ padding: 24, border: '1px solid var(--color-border)' }}>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: 24, color: 'var(--color-text)' }}>Revenue Trend (Last 7 Days)</h3>
-                    <div className="admin-chart-container" style={{ width: '100%', height: 350 }}>
-                        <ResponsiveContainer>
-                            <LineChart data={data.revenueTrend} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" opacity={0.5} vertical={false} />
-                                <XAxis
-                                    dataKey="date"
-                                    tickFormatter={(str) => {
-                                        const d = new Date(str);
-                                        return `${d.getDate()}/${d.getMonth() + 1}`;
-                                    }}
-                                    tick={{ fontSize: 12, fill: 'var(--color-muted)' }}
-                                    axisLine={false}
-                                    tickLine={false}
-                                />
-                                <YAxis
-                                    yAxisId="left"
-                                    tickFormatter={(val) => `₹${val / 1000}k`}
-                                    tick={{ fontSize: 12, fill: 'var(--color-muted)' }}
-                                    axisLine={false}
-                                    tickLine={false}
-                                />
-                                <YAxis
-                                    yAxisId="right"
-                                    orientation="right"
-                                    tick={{ fontSize: 12, fill: 'var(--color-muted)' }}
-                                    axisLine={false}
-                                    tickLine={false}
-                                />
-                                <RechartsTooltip
-                                    formatter={(value: any, name: any) => {
-                                        if (name === 'Revenue') return [`₹${Number(value).toLocaleString()}`, name];
-                                        return [value, name];
-                                    }}
-                                    contentStyle={{ borderRadius: 8, border: 'none', boxShadow: 'var(--shadow-md)' }}
-                                />
-                                <Legend />
-                                <Line yAxisId="left" type="monotone" dataKey="revenue" name="Revenue" stroke="var(--color-primary)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                                <Line yAxisId="right" type="monotone" dataKey="orders" name="Orders" stroke="var(--color-secondary)" strokeWidth={2} dot={{ r: 3 }} />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-
-                {/* Status Distribution Chart */}
-                <div className="card" style={{ padding: 24, border: '1px solid var(--color-border)' }}>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: 24, color: 'var(--color-text)' }}>Order Status</h3>
-                    <div className="admin-chart-container" style={{ width: '100%', height: 300 }}>
-                        {data.statusDistribution?.length > 0 ? (
-                            <ResponsiveContainer>
-                                <PieChart>
-                                    <Pie
-                                        data={data.statusDistribution}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={90}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                    >
-                                        {data.statusDistribution.map((_entry: any, index: number) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <RechartsTooltip
-                                        formatter={(value: any) => [value, 'Orders']}
-                                        contentStyle={{ borderRadius: 8, border: 'none', boxShadow: 'var(--shadow-md)' }}
-                                    />
-                                    <Legend verticalAlign="bottom" height={36} iconType="circle" />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        ) : (
-                            <div className="empty-state" style={{ height: '100%' }}>No orders yet</div>
-                        )}
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    );
-}
 
 /* ---- Image Cropper Modal ---- */
 function CropperModal({ files, onComplete, onCancel }: { files: File[], onComplete: (croppedFiles: File[]) => void, onCancel: () => void }) {
@@ -296,6 +177,7 @@ function ProductForm({ initial, onSave, onClose }: { initial?: any, onSave: () =
         images: Array.isArray(initial?.images) ? initial.images.join(',') : (typeof initial?.images === 'string' ? JSON.parse(initial.images || '[]').join(',') : ''),
         personalizationOptions: Array.isArray(initial?.personalizationOptions) ? initial.personalizationOptions.join(',') : '',
         tags: Array.isArray(initial?.tags) ? initial.tags.join(',') : '',
+        isAvailable: initial?.isAvailable !== undefined ? initial.isAvailable : true,
     });
     const [categories, setCategories] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -419,6 +301,18 @@ function ProductForm({ initial, onSave, onClose }: { initial?: any, onSave: () =
                                 <label className="form-label">Tags (comma separated)</label>
                                 <input type="text" className="form-input" placeholder="handmade, bouquet, roses" value={form.tags} onChange={e => setForm(p => ({ ...p, tags: e.target.value }))} />
                             </div>
+                            <div className="form-group" style={{ gridColumn: '1/-1', display: 'flex', alignItems: 'center', gap: 12, background: 'var(--color-cream)', padding: '12px 16px', borderRadius: 12 }}>
+                                <input
+                                    type="checkbox"
+                                    id="isAvailable"
+                                    checked={form.isAvailable}
+                                    onChange={e => setForm(p => ({ ...p, isAvailable: e.target.checked }))}
+                                    style={{ width: 20, height: 20, cursor: 'pointer' }}
+                                />
+                                <label htmlFor="isAvailable" className="form-label" style={{ marginBottom: 0, cursor: 'pointer', fontWeight: 600 }}>
+                                    Product is Available for Order
+                                </label>
+                            </div>
                             <div className="form-group" style={{ gridColumn: '1/-1' }}>
                                 <label className="form-label">Upload Images (JPG, PNG, WebP, HEIC)</label>
                                 <input type="file" multiple accept="image/*,.heic,.heif" onChange={handleImageSelect} className="form-input" />
@@ -536,7 +430,7 @@ function AdminProducts() {
                 <div className="admin-table-wrap">
                     <table className="admin-table">
                         <thead>
-                            <tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Actions</th></tr>
+                            <tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr>
                         </thead>
                         <tbody>
                             {products.map(p => (
@@ -554,6 +448,11 @@ function AdminProducts() {
                                     <td data-label="Name" style={{ fontWeight: 600 }}>{p.name}</td>
                                     <td data-label="Category"><span className="badge badge-primary">{p.category?.name || '—'}</span></td>
                                     <td data-label="Price" style={{ fontWeight: 700, color: 'var(--color-primary)' }}>₹{p.price.toLocaleString('en-IN')}</td>
+                                    <td data-label="Status">
+                                        <span className={`badge badge-${p.isAvailable ? 'success' : 'error'}`}>
+                                            {p.isAvailable ? 'Available' : 'Unavailable'}
+                                        </span>
+                                    </td>
                                     <td data-label="Actions">
                                         <button className="btn btn-ghost btn-sm" style={{ marginRight: 6 }} onClick={() => { setEditing(p); setFormOpen(true); }}>Edit</button>
                                         <button className="btn btn-sm" style={{ background: 'rgba(192,57,43,0.1)', color: 'var(--color-error)', borderRadius: 'var(--radius-full)', border: 'none', padding: '6px 16px', fontWeight: 600, cursor: 'pointer' }} onClick={() => handleDelete(p.id)}>Delete</button>
@@ -579,270 +478,60 @@ function AdminProducts() {
     );
 }
 
-/* ---- Product Preview Modal ---- */
-function ProductPreviewModal({ product, onClose }: { product: any, onClose: () => void }) {
-    const images = Array.isArray(product.images) ? product.images : (typeof product.images === 'string' ? JSON.parse(product.images || '[]') : []);
-    const [activeIdx, setActiveIdx] = useState(0);
 
-    return (
-        <div className="modal-overlay" onClick={onClose} style={{ zIndex: 11000 }}>
-            <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 600, padding: 0, overflow: 'hidden' }}>
-                <div style={{ position: 'relative', height: 400, background: '#000' }}>
-                    <img
-                        src={images[activeIdx]?.startsWith('http') ? images[activeIdx] : `${BACKEND}${images[activeIdx]}`}
-                        alt={product.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                    />
-                    <button className="btn btn-ghost" style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none', borderRadius: '50%', width: 32, height: 32, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={onClose}><FiX /></button>
-
-                    {images.length > 1 && (
-                        <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 8 }}>
-                            {images.map((_: any, i: number) => (
-                                <div key={i} onClick={() => setActiveIdx(i)} style={{ width: 8, height: 8, borderRadius: '50%', background: i === activeIdx ? 'white' : 'rgba(255,255,255,0.4)', cursor: 'pointer', border: '1px solid rgba(0,0,0,0.1)' }} />
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                <div style={{ padding: 24 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                        <div>
-                            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.5rem', marginBottom: 4 }}>{product.name}</h2>
-                            <span className="badge badge-primary">{product.category?.name || 'Handmade'}</span>
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary)' }}>₹{product.price.toLocaleString('en-IN')}</div>
-
-                        </div>
-                    </div>
-
-                    <div style={{ background: 'var(--color-cream)', padding: 16, borderRadius: 12, marginBottom: 16 }}>
-                        <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)', marginBottom: 8 }}>Description</h4>
-                        <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--color-text)' }}>{product.description}</p>
-                    </div>
-
-                    {product.materials && (
-                        <div>
-                            <h4 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-muted)', marginBottom: 8 }}>Materials</h4>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                {product.materials.split(',').map((m: string) => (
-                                    <span key={m} style={{ background: 'white', padding: '4px 12px', borderRadius: 20, fontSize: '0.8rem', border: '1px solid var(--color-border)' }}>
-                                        {m.trim()}
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <div className="modal__footer" style={{ borderTop: '1px solid var(--color-border)' }}>
-                    <button className="btn btn-primary" onClick={onClose} style={{ width: '100%' }}>Close Preview</button>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-/* ---- Admin Orders ---- */
-function AdminOrders() {
-    const [orders, setOrders] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [rejectionModal, setRejectionModal] = useState<{ id: string, reason: string } | null>(null);
-    const [previewProduct, setPreviewProduct] = useState<any>(null);
-    const [updating, setUpdating] = useState<string | null>(null);
-    const [deliveryDates, setDeliveryDates] = useState<Record<string, string>>({});
-    const { addToast } = useToast();
-
-    useEffect(() => {
-        api.admin.getOrders().then(setOrders).catch(() => { }).finally(() => setLoading(false));
-    }, []);
-
-    const updateOrder = async (orderId: string, status: string, deliveryDate?: string, rejectionReason?: string) => {
-        setUpdating(orderId);
-        try {
-            await api.admin.updateOrder(orderId, {
-                status,
-                deliveryDate: deliveryDate || deliveryDates[orderId] || undefined,
-                rejectionReason
-            });
-            setOrders(p => p.map(o => o.id === orderId ? {
-                ...o,
-                status,
-                deliveryDate: deliveryDate || deliveryDates[orderId] || o.deliveryDate,
-                rejectionReason: status === 'REJECTED' ? rejectionReason : o.rejectionReason
-            } : o));
-            addToast(`Order ${status.toLowerCase()}!`, 'success');
-            setRejectionModal(null);
-        } catch { addToast('Update failed', 'error'); }
-        finally { setUpdating(null); }
-    };
-
-    return (
-        <div>
-            <h2 className="admin__section-title">Orders</h2>
-            {loading ? (
-                <div className="skeleton" style={{ height: 300, borderRadius: 12 }} />
-            ) : (
-                <div className="admin-orders-list">
-                    {orders.map(order => (
-                        <div key={order.id} className="admin-order-card">
-                            <div className="admin-order-card__header">
-                                <div>
-                                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>#{order.id.slice(0, 8).toUpperCase()}</div>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>{new Date(order.createdAt).toLocaleDateString()}</div>
-                                    <div style={{ fontSize: '0.85rem', marginTop: 8 }}>
-                                        <div style={{ fontWeight: 600 }}>{order.user.name}</div>
-                                        <div style={{ color: 'var(--color-muted)' }}>{order.user.email}</div>
-                                        {order.phoneNumber && (
-                                            <div style={{ color: 'var(--color-primary)', marginTop: 2, fontWeight: 500, display: 'flex', alignItems: 'center', gap: 4 }}>
-                                                <FiPhone size={12} /> {order.phoneNumber}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                                <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontWeight: 800, color: 'var(--color-primary)', fontSize: '1.1rem' }}>₹{order.totalAmount.toLocaleString('en-IN')}</div>
-                                    <span className={`badge badge-${order.status === 'DELIVERED' ? 'success' : order.status === 'REJECTED' ? 'error' : order.status === 'PLACED' ? 'warning' : 'info'}`}>
-                                        {order.status.replace(/_/g, ' ')}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="admin-order-card__items">
-                                {order.orderItems.map((item: any) => (
-                                    <div
-                                        key={item.id}
-                                        style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#F8F9FA', padding: '6px 12px', borderRadius: 12, cursor: 'pointer', transition: 'transform 0.2s' }}
-                                        onClick={() => setPreviewProduct(item.product)}
-                                        onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-                                        onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-                                    >
-                                        <img
-                                            src={getImage(item.product.images)}
-                                            alt={item.product.name}
-                                            style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 8 }}
-                                        />
-                                        <span style={{ fontSize: '0.85rem', fontWeight: 500 }}>{item.product.name} ×{item.quantity}</span>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {order.status === 'REJECTED' && order.rejectionReason && (
-                                <div style={{ fontSize: '0.75rem', color: 'var(--color-error)', background: 'rgba(192,57,43,0.05)', padding: '8px 12px', borderRadius: 8, marginBottom: 16 }}>
-                                    <strong>Rejection Reason:</strong> {order.rejectionReason}
-                                </div>
-                            )}
-
-                            <div className="admin-order-card__actions" style={{ opacity: order.status === 'REJECTED' ? 0.7 : 1 }}>
-                                <div style={{ maxWidth: 240, flex: 1 }}>
-                                    <Select
-                                        value={order.status}
-                                        onChange={val => {
-                                            if (val === 'REJECTED') {
-                                                setRejectionModal({ id: order.id, reason: '' });
-                                            } else {
-                                                updateOrder(order.id, val);
-                                            }
-                                        }}
-                                        disabled={updating === order.id || order.status === 'REJECTED'}
-                                        options={[
-                                            { value: 'PLACED', label: 'Placed', icon: <FiFileText /> },
-                                            { value: 'ACCEPTED', label: 'Accepted', icon: <FiCheckCircle /> },
-                                            { value: 'PREPARING', label: 'Preparing', icon: <FiPackage /> },
-                                            { value: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', icon: <FiTruck /> },
-                                            { value: 'DELIVERED', label: 'Delivered', icon: <FiHome /> },
-                                            { value: 'REJECTED', label: 'Rejected (Locked)', disabled: true, icon: <FiXCircle /> }
-                                        ]}
-                                    />
-                                </div>
-                                {order.status === 'PLACED' && (
-                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                                        <input
-                                            type="date"
-                                            className="form-input"
-                                            style={{ maxWidth: 180, padding: '8px 12px' }}
-                                            value={deliveryDates[order.id] || ''}
-                                            onChange={e => setDeliveryDates(p => ({ ...p, [order.id]: e.target.value }))}
-                                        />
-                                        <button
-                                            className="btn btn-primary btn-sm"
-                                            onClick={() => updateOrder(order.id, 'ACCEPTED', deliveryDates[order.id])}
-                                            disabled={updating === order.id || !deliveryDates[order.id]}
-                                            style={{ display: 'flex', alignItems: 'center', gap: 6 }}
-                                        >
-                                            {updating === order.id ? 'Updating...' : <><FiCheck /> Accept</>}
-                                        </button>
-                                        <button
-                                            className="btn btn-sm"
-                                            style={{ background: 'rgba(192,57,43,0.1)', color: 'var(--color-error)', border: 'none', borderRadius: 'var(--radius-full)', padding: '8px 16px', fontWeight: 600, cursor: 'pointer' }}
-                                            onClick={() => setRejectionModal({ id: order.id, reason: '' })}
-                                            disabled={updating === order.id}
-                                        >
-                                            Reject
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {rejectionModal && (
-                <div className="modal-overlay" onClick={() => setRejectionModal(null)}>
-                    <div className="modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 400 }}>
-                        <div className="modal__header">
-                            <h2 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.2rem' }}>Reject Order</h2>
-                            <button className="btn btn-ghost btn-sm" onClick={() => setRejectionModal(null)}><FiX /></button>
-                        </div>
-                        <div className="modal__body">
-                            <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginBottom: 16 }}>
-                                Please provide a reason for rejecting this order. This will be sent to the customer.
-                            </p>
-                            <div className="form-group">
-                                <label className="form-label">Reason for Rejection</label>
-                                <textarea
-                                    className="form-input"
-                                    style={{ height: 100, padding: 12 }}
-                                    placeholder="e.g., Insufficient materials, delivery area not covered..."
-                                    value={rejectionModal.reason}
-                                    onChange={e => setRejectionModal(p => p ? { ...p, reason: e.target.value } : null)}
-                                    autoFocus
-                                />
-                            </div>
-                        </div>
-                        <div className="modal__footer">
-                            <button className="btn btn-ghost" onClick={() => setRejectionModal(null)}>Cancel</button>
-                            <button
-                                className="btn btn-primary"
-                                style={{ background: 'var(--color-error)' }}
-                                onClick={() => updateOrder(rejectionModal.id, 'REJECTED', undefined, rejectionModal.reason)}
-                                disabled={updating === rejectionModal.id || !rejectionModal.reason.trim()}
-                            >
-                                {updating === rejectionModal.id ? 'Rejecting...' : 'Confirm Rejection'}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {previewProduct && <ProductPreviewModal product={previewProduct} onClose={() => setPreviewProduct(null)} />}
-        </div>
-    );
-}
 
 /* ---- Admin Users ---- */
 function AdminUsers() {
     const [users, setUsers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    useEffect(() => { api.admin.getUsers().then(setUsers).catch(() => { }).finally(() => setLoading(false)); }, []);
+    const { addToast } = useToast();
+    const { confirm } = useConfirm();
+    const { user } = useAuth();
+
+    const load = () => {
+        setLoading(true);
+        api.admin.getUsers().then(setUsers).catch(() => { }).finally(() => setLoading(false));
+    };
+
+    useEffect(load, []);
+
+    const handleMakeAdmin = async (id: string, name: string) => {
+        if (!(await confirm({
+            title: 'Make Admin',
+            message: `Are you sure you want to grant admin privileges to ${name}? They will have full access to manage products, orders, and other users.`,
+            confirmText: 'Make Admin',
+            danger: true
+        }))) return;
+
+        try {
+            await api.admin.updateUserRole(id, 'ADMIN');
+            addToast(`${name} is now an admin!`, 'success');
+            load();
+        } catch { addToast('Failed to change role', 'error'); }
+    };
+
+    const handleRemoveAdmin = async (id: string, name: string) => {
+        if (!(await confirm({
+            title: 'Remove Admin Privileges',
+            message: `Are you sure you want to revoke admin privileges from ${name}? They will become a standard user.`,
+            confirmText: 'Remove Admin',
+            danger: true
+        }))) return;
+
+        try {
+            await api.admin.updateUserRole(id, 'USER');
+            addToast(`${name} is now a standard user`, 'success');
+            load();
+        } catch { addToast('Failed to change role', 'error'); }
+    };
+
     return (
         <div>
             <h2 className="admin__section-title">Users</h2>
             {loading ? <div className="skeleton" style={{ height: 200, borderRadius: 12 }} /> : (
                 <div className="admin-table-wrap">
                     <table className="admin-table">
-                        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Orders</th><th>Joined</th></tr></thead>
+                        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Orders</th><th>Joined</th><th>Actions</th></tr></thead>
                         <tbody>
                             {users.map((u: any) => (
                                 <tr key={u.id}>
@@ -851,6 +540,176 @@ function AdminUsers() {
                                     <td data-label="Role"><span className={`badge badge-${u.role === 'ADMIN' ? 'primary' : 'success'}`}>{u.role}</span></td>
                                     <td data-label="Orders">{u._count?.orders ?? 0}</td>
                                     <td data-label="Joined" style={{ fontSize: '0.83rem', color: 'var(--color-muted)' }}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                                    <td data-label="Actions">
+                                        {u.role !== 'ADMIN' && (
+                                            <button className="btn btn-sm" style={{ background: 'rgba(41, 128, 185, 0.1)', color: 'var(--color-info)', borderRadius: 'var(--radius-full)', border: 'none', padding: '6px 16px', fontWeight: 600, cursor: 'pointer' }} onClick={() => handleMakeAdmin(u.id, u.name)}>Make Admin</button>
+                                        )}
+                                        {u.role === 'ADMIN' && user?.id !== u.id && (
+                                            <button className="btn btn-sm" style={{ background: 'rgba(192, 57, 43, 0.1)', color: 'var(--color-error)', borderRadius: 'var(--radius-full)', border: 'none', padding: '6px 16px', fontWeight: 600, cursor: 'pointer' }} onClick={() => handleRemoveAdmin(u.id, u.name)}>Remove Admin</button>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ---- Admin Orders ---- */
+function AdminOrders() {
+    const [orders, setOrders] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState<string | null>(null);
+    const { addToast } = useToast();
+
+    const STATUS_OPTIONS = ['PLACED', 'ACCEPTED', 'PREPARING', 'OUT_FOR_DELIVERY', 'DELIVERED', 'REJECTED'];
+    const STATUS_COLOR: Record<string, string> = {
+        PLACED: 'var(--color-info)', ACCEPTED: 'var(--color-success)', PREPARING: 'var(--color-warning)',
+        OUT_FOR_DELIVERY: 'var(--color-warning)', DELIVERED: 'var(--color-success)', REJECTED: 'var(--color-error)'
+    };
+
+    const load = () => {
+        setLoading(true);
+        api.admin.getOrders().then(setOrders).catch(() => {}).finally(() => setLoading(false));
+    };
+
+    useEffect(load, []);
+
+    const handleStatusChange = async (id: string, status: string, deliveryDate?: string, rejectionReason?: string) => {
+        setUpdating(id);
+        try {
+            await api.admin.updateOrder(id, { status, deliveryDate, rejectionReason });
+            addToast('Order updated!', 'success');
+            load();
+        } catch { addToast('Update failed', 'error'); }
+        finally { setUpdating(null); }
+    };
+
+    return (
+        <div>
+            <h2 className="admin__section-title">Orders</h2>
+            {loading ? <div className="skeleton" style={{ height: 300, borderRadius: 12 }} /> : orders.length === 0 ? (
+                <div className="empty-state">No orders yet.</div>
+            ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    {orders.map(order => (
+                        <div key={order.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', borderBottom: '1px solid var(--color-border)', flexWrap: 'wrap', gap: 8 }}>
+                                <div>
+                                    <p style={{ fontWeight: 700, fontFamily: 'monospace' }}>#{order.id.slice(0, 8).toUpperCase()}</p>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>{order.user?.name} · {order.user?.email}</p>
+                                    {order.phoneNumber && <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>📞 {order.phoneNumber}</p>}
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 'var(--radius-full)', background: `${STATUS_COLOR[order.status] || '#888'}18`, color: STATUS_COLOR[order.status] || '#888', fontWeight: 700, fontSize: '0.75rem' }}>
+                                        {order.status.replace(/_/g, ' ')}
+                                    </span>
+                                    <p style={{ fontWeight: 800, color: 'var(--color-primary)', fontSize: '1rem' }}>₹{Number(order.totalAmount).toLocaleString('en-IN')}</p>
+                                    <p style={{ fontSize: '0.72rem', color: 'var(--color-muted)' }}>{new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                </div>
+                            </div>
+                            <div style={{ padding: '12px 20px', display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                                <div className="form-group" style={{ marginBottom: 0, minWidth: 180 }}>
+                                    <label className="form-label">Update Status</label>
+                                    <select className="form-input" defaultValue={order.status} disabled={updating === order.id}
+                                        onChange={e => {
+                                            const s = e.target.value;
+                                            if (s === 'ACCEPTED') {
+                                                const d = prompt('Enter delivery date (YYYY-MM-DD):');
+                                                if (!d) { e.target.value = order.status; return; }
+                                                handleStatusChange(order.id, s, d);
+                                            } else if (s === 'REJECTED') {
+                                                const r = prompt('Enter rejection reason:');
+                                                if (!r) { e.target.value = order.status; return; }
+                                                handleStatusChange(order.id, s, undefined, r);
+                                            } else {
+                                                handleStatusChange(order.id, s);
+                                            }
+                                        }}
+                                    >
+                                        {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
+                                    </select>
+                                </div>
+                                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                    {order.orderItems?.slice(0, 3).map((item: any) => (
+                                        <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'var(--color-cream)', padding: '4px 10px', borderRadius: 8, fontSize: '0.8rem' }}>
+                                            <img src={getImage(item.product?.images)} alt={item.product?.name} style={{ width: 28, height: 28, borderRadius: 4, objectFit: 'cover' }} />
+                                            {item.product?.name} ×{item.quantity}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
+/* ---- Admin Support Queries ---- */
+function AdminSupport() {
+    const [queries, setQueries] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const { addToast } = useToast();
+
+    const STATUS_COLOR: Record<string, string> = {
+        OPEN: 'var(--color-error)',
+        IN_PROGRESS: 'var(--color-warning)',
+        RESOLVED: 'var(--color-success)'
+    };
+
+    const load = () => {
+        setLoading(true);
+        api.admin.getSupportQueries().then(setQueries).catch(() => {}).finally(() => setLoading(false));
+    };
+
+    useEffect(load, []);
+
+    const handleStatusChange = async (id: string, status: string) => {
+        try {
+            await api.admin.updateSupportStatus(id, status);
+            addToast('Status updated', 'success');
+            load();
+        } catch { addToast('Update failed', 'error'); }
+    };
+
+    return (
+        <div>
+            <h2 className="admin__section-title">Support Queries</h2>
+            {loading ? <div className="skeleton" style={{ height: 300, borderRadius: 12 }} /> : queries.length === 0 ? (
+                <div className="empty-state">No support queries submitted yet.</div>
+            ) : (
+                <div className="admin-table-wrap">
+                    <table className="admin-table">
+                        <thead><tr><th>From</th><th>Subject</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                        <tbody>
+                            {queries.map(q => (
+                                <tr key={q.id}>
+                                    <td data-label="From">
+                                        <p style={{ fontWeight: 600 }}>{q.email}</p>
+                                        {q.user?.name && <p style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{q.user.name}</p>}
+                                    </td>
+                                    <td data-label="Subject">
+                                        <p style={{ fontWeight: 600 }}>{q.subject}</p>
+                                        <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)', maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{q.message}</p>
+                                    </td>
+                                    <td data-label="Status">
+                                        <span style={{ display: 'inline-flex', padding: '3px 10px', borderRadius: 'var(--radius-full)', background: `${STATUS_COLOR[q.status] || '#888'}18`, color: STATUS_COLOR[q.status] || '#888', fontWeight: 700, fontSize: '0.72rem' }}>
+                                            {q.status.replace(/_/g, ' ')}
+                                        </span>
+                                    </td>
+                                    <td data-label="Date" style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>{new Date(q.createdAt).toLocaleDateString()}</td>
+                                    <td data-label="Actions">
+                                        <select className="form-input" style={{ fontSize: '0.8rem', padding: '4px 8px' }} value={q.status} onChange={e => handleStatusChange(q.id, e.target.value)}>
+                                            <option value="OPEN">Open</option>
+                                            <option value="IN_PROGRESS">In Progress</option>
+                                            <option value="RESOLVED">Resolved</option>
+                                        </select>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -1181,10 +1040,10 @@ export default function AdminDashboard() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const navItems = [
-        { path: '/admin', label: 'Analytics', icon: <FiBarChart2 /> },
-        { path: '/admin/products', label: 'Products', icon: <FiShoppingBag /> },
+        { path: '/admin', label: 'Products', icon: <FiShoppingBag /> },
         { path: '/admin/orders', label: 'Orders', icon: <FiPackage /> },
         { path: '/admin/users', label: 'Users', icon: <FiUser /> },
+        { path: '/admin/support', label: 'Support', icon: <FiMessageSquare /> },
         { path: '/admin/reels', label: 'Reels', icon: <FiPlay /> },
         { path: '/admin/policies', label: 'Policies', icon: <FiFileText /> },
     ];
@@ -1259,10 +1118,10 @@ export default function AdminDashboard() {
             {/* Main */}
             <main className="admin-main">
                 <Routes>
-                    <Route path="/" element={<Analytics />} />
-                    <Route path="/products" element={<AdminProducts />} />
+                    <Route path="/" element={<AdminProducts />} />
                     <Route path="/orders" element={<AdminOrders />} />
                     <Route path="/users" element={<AdminUsers />} />
+                    <Route path="/support" element={<AdminSupport />} />
                     <Route path="/reels" element={<AdminReels />} />
                     <Route path="/policies" element={<AdminPolicies />} />
                 </Routes>

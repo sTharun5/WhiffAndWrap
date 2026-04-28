@@ -7,10 +7,8 @@
 
 .support-header {
     text-align: center;
-    margin-bottom: var(--space-6);
-    /* Further reduced for compactness */
-    max-width: 600px;
-    /* Constrain width for better centering appearance */
+    margin-bottom: var(--space-10);
+    max-width: 700px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -26,13 +24,10 @@
 
 .support-content {
     display: grid;
-    grid-template-columns: 6.5fr 3.5fr;
-    /* Exact 65/35 ratio */
-    gap: var(--space-10);
-    /* Increased gap for better column separation on laptop */
+    grid-template-columns: 1.2fr 1fr;
+    gap: var(--space-12);
     align-items: start;
-    /* CRITICAL: Force top-edge alignment */
-    max-width: 1200px;
+    max-width: 1100px;
     margin: 0 auto;
 }
 

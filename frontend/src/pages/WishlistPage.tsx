@@ -1,100 +1,90 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { api } from '../lib/api';
 import { useToast } from '../contexts/ToastContext';
-import { useCart } from '../contexts/CartContext';
-import { useWishlist } from '../contexts/WishlistContext';
-import Skeleton from '../components/Skeleton';
-import { FiHeart, FiArrowLeft, FiX, FiShoppingBag, FiStar } from 'react-icons/fi';
+import { FiHeart, FiTrash2, FiShoppingBag } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
-const BACKEND = 'http://localhost:5001';
+const BACKEND = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 function getImage(images: any): string {
-    const list = Array.isArray(images) ? images : (typeof images === 'string' ? JSON.parse(images) : []);
-    if (!list.length) return 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400';
+    const list = Array.isArray(images) ? images : [];
+    if (!list.length) return 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300';
     return list[0].startsWith('http') ? list[0] : `${BACKEND}${list[0]}`;
 }
 
 export default function WishlistPage() {
-    const { wishlist, loading, toggleWishlist } = useWishlist();
+    const { user } = useAuth();
     const { addToast } = useToast();
-    const { addItem } = useCart();
+    const [items, setItems] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    if (loading && wishlist.length === 0) return (
-        <div style={{ padding: 'var(--space-10) 0' }}>
-            <div className="container">
-                <div className="products-grid">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                        <div key={i} className="product-card">
-                            <Skeleton height="300px" style={{ aspectRatio: '1' }} />
-                            <div style={{ padding: 16 }}>
-                                <Skeleton height={20} width="70%" style={{ marginBottom: 8 }} />
-                                <Skeleton height={40} />
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
+    const load = () => {
+        setLoading(true);
+        api.getWishlist().then(setItems).catch(() => {}).finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        if (user) load();
+    }, [user]);
+
+    const handleRemove = async (productId: string) => {
+        try {
+            await api.removeWishlist(productId);
+            addToast('Removed from wishlist', 'success');
+            load();
+        } catch {
+            addToast('Failed to remove', 'error');
+        }
+    };
+
+    if (!user) return null;
 
     return (
         <div className="fade-in" style={{ padding: 'var(--space-10) 0 var(--space-16)' }}>
-            <div className="container">
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                    <button
-                        onClick={() => window.location.href = '/'}
-                        className="btn btn-ghost btn-sm"
-                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
-                    >
-                        <FiArrowLeft /> Back to Store
-                    </button>
+            <div className="container" style={{ maxWidth: 860 }}>
+                <div style={{ marginBottom: 32 }}>
+                    <span className="label-text">Account</span>
+                    <h1 className="section-title" style={{ marginTop: 6 }}>My Wishlist</h1>
+                    <p style={{ color: 'var(--color-muted)', marginTop: 4 }}>{items.length} saved item{items.length !== 1 ? 's' : ''}</p>
                 </div>
-                <h1 className="section-title" style={{ marginBottom: 32 }}>My Wishlist <FiHeart style={{ verticalAlign: 'middle', fontSize: '1.5rem', opacity: 0.6 }} /></h1>
 
-                {wishlist.length === 0 ? (
-                    <div className="empty-state" style={{ padding: 'var(--space-16) 0' }}>
-                        <div className="empty-state__icon" style={{ fontSize: '4rem', opacity: 0.1, color: 'var(--color-primary)' }}><FiStar /></div>
-                        <h2 className="empty-state__title" style={{ fontSize: '2rem' }}>You haven't saved any favorites yet</h2>
-                        <p style={{ maxWidth: 400, margin: '12px auto' }}>
-                            Love something? Tap the heart icon on any product to save it here for later.
-                        </p>
-                        <Link to="/products" className="btn btn-primary btn-lg" style={{ marginTop: 24 }}>Explore Collection</Link>
+                {loading ? (
+                    <div className="products-grid">
+                        {[1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 280, borderRadius: 16 }} />)}
+                    </div>
+                ) : items.length === 0 ? (
+                    <div className="empty-state">
+                        <div className="empty-state__icon"><FiHeart /></div>
+                        <h2 className="empty-state__title">Your wishlist is empty</h2>
+                        <p>Save items you love and come back to them later.</p>
+                        <Link to="/products" className="btn btn-primary" style={{ marginTop: 24 }}>Explore Products</Link>
                     </div>
                 ) : (
                     <div className="products-grid">
-                        {wishlist.map(item => {
-                            const p = item.product;
-                            if (!p) return null;
-                            const img = getImage(p.images);
+                        {items.map((item: any) => {
+                            const product = item.product || item;
                             return (
-                                <div key={item.id} className="product-card">
-                                    <Link to={`/products/${p.id}`} style={{ display: 'block' }}>
+                                <div key={item.id} className="product-card" style={{ position: 'relative' }}>
+                                    <Link to={`/products/${product.id}`} style={{ textDecoration: 'none', display: 'block' }}>
                                         <div className="product-card__image-wrap">
-                                            <img src={img} alt={p.name} className="product-card__image" />
+                                            <img src={getImage(product.images)} alt={product.name} className="product-card__image" />
                                         </div>
                                         <div className="product-card__body">
-                                            {p.category?.name && <p className="product-card__category">{p.category.name}</p>}
-                                            <h3 className="product-card__name">{p.name}</h3>
+                                            {product.category && <p className="product-card__category">{product.category.name}</p>}
+                                            <h3 className="product-card__name">{product.name}</h3>
                                             <div className="product-card__footer">
-                                                <span className="product-card__price">₹{p.price.toLocaleString('en-IN')}</span>
+                                                <span className="product-card__price">₹{Number(product.price).toLocaleString('en-IN')}</span>
                                             </div>
                                         </div>
                                     </Link>
-                                    <div style={{ display: 'flex', gap: 8, padding: '0 16px 16px' }}>
-                                        <button
-                                            className="btn btn-primary btn-sm"
-                                            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-                                            onClick={() => { addItem({ productId: p.id, name: p.name, price: p.price, quantity: 1, image: img }); addToast(`${p.name} added to cart!`, 'success'); }}
-                                        >
-                                            <FiShoppingBag /> Add to Cart
-                                        </button>
-                                        <button
-                                            className="btn btn-ghost btn-sm"
-                                            style={{ color: 'var(--color-error)' }}
-                                            onClick={() => toggleWishlist(p.id)}
-                                        >
-                                            <FiX />
-                                        </button>
-                                    </div>
+                                    <button
+                                        onClick={() => handleRemove(product.id)}
+                                        style={{ position: 'absolute', top: 10, right: 10, background: 'white', border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: 'var(--shadow-sm)', color: 'var(--color-error)', fontSize: '1rem' }}
+                                        title="Remove from wishlist"
+                                    >
+                                        <FiTrash2 />
+                                    </button>
                                 </div>
                             );
                         })}

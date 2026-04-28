@@ -3,7 +3,7 @@ import { api } from '../lib/api';
 import { FiPlay, FiX, FiArrowLeft, FiInstagram } from 'react-icons/fi';
 import './ReelsPage.css';
 
-const BACKEND = 'http://localhost:5001';
+const BACKEND = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 function getVideoUrl(url: string): string {
     if (!url) return '';
@@ -106,17 +106,8 @@ export default function ReelsPage() {
         <div className="reels-page fade-in">
             <section className="reels-hero">
                 <div className="container">
-                    <div className="section-header" style={{ position: 'relative' }}>
-                        <div style={{ position: 'absolute', top: 0, left: 0, display: 'flex', alignItems: 'center' }}>
-                            <button
-                                onClick={() => window.location.href = '/'}
-                                className="btn btn-ghost btn-sm"
-                                style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
-                            >
-                                <FiArrowLeft /> Back to Home
-                            </button>
-                        </div>
-                        <span className="label-text" style={{ display: 'inline-block', marginTop: 40 }}>Process In Motion</span>
+                    <div className="section-header">
+                        <span className="label-text" style={{ display: 'inline-block' }}>Process In Motion</span>
                         <h1 className="reels-page__title">Crafted Moments</h1>
                         <p className="section-subtitle">A glimpse into the artistry and care behind every single creation.</p>
                     </div>

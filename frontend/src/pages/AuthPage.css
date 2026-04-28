@@ -149,10 +149,11 @@
 /* Redesigned Pill-shaped Tabs */
 .auth-toggle {
     display: flex;
-    background: var(--color-background);
+    background: #FFFFFF;
     border-radius: var(--radius-full);
     padding: 4px;
     margin-bottom: var(--space-8);
+    border: 1px solid var(--color-border);
 }
 
 .auth-toggle__btn {

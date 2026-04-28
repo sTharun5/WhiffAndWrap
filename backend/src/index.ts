@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
@@ -61,8 +63,9 @@ const authLimiter = rateLimit({
 // Apply global rate limiter to all /api routes
 app.use('/api', globalLimiter);
 
-// Serve uploaded files
-app.use('/uploads', express.static('uploads'));
+// Serve uploaded files with absolute path (required for production)
+const uploadsDir = path.resolve(process.cwd(), 'uploads');
+app.use('/uploads', express.static(uploadsDir));
 
 // Ensure auth paths hit the stricter limiter
 app.use('/api/auth/register', authLimiter);

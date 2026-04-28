@@ -1,8 +1,17 @@
+node_modules/
 node_modules
-# Keep environment variables out of version control
+
+# Environment variables
 .env
 
+# Generated Prisma files
 /generated/prisma
+
+# OS files
 .DS_Store
-.env
-node_modules/
+
+# Uploaded media (stored in Cloudinary in production)
+uploads/
+
+# TypeScript build output
+dist/

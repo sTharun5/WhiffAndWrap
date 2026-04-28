@@ -1,15 +1,27 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
-import sharp from 'sharp';
+import rateLimit from 'express-rate-limit';
+import { v2 as cloudinary } from 'cloudinary';
 import { prisma } from '../prisma';
-import { authenticate } from '../middleware/auth';
+import { authenticate, requireAdmin } from '../middleware/auth';
 
 const router = Router();
 
-const uploadDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// Configure Cloudinary (shared config, but harmless to call again)
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key:    process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const supportLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 5, // max 5 support submissions per IP per hour
+    handler: (_req, res) => {
+        res.status(429).json({ error: 'Too many support requests. Please try again in an hour.' });
+    }
+});
 
 const storage = multer.memoryStorage();
 const upload = multer({
@@ -21,21 +33,22 @@ const upload = multer({
     },
 });
 
-async function processScreenshot(buffer: Buffer): Promise<string> {
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const filename = `${unique}.jpg`;
-
-    await sharp(buffer)
-        .rotate()
-        .jpeg({ quality: 80 })
-        .toFile(path.join(uploadDir, filename));
-
-    return `/uploads/${filename}`;
+/** Upload screenshot buffer to Cloudinary */
+function uploadScreenshot(buffer: Buffer): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            { folder: 'whiff-wrap/support', resource_type: 'image', transformation: [{ quality: 'auto' }] },
+            (error, result) => {
+                if (error || !result) return reject(error || new Error('Upload failed'));
+                resolve(result.secure_url);
+            }
+        );
+        stream.end(buffer);
+    });
 }
 
-// POST /api/support
-// Accessible by anyone (even guests can report issues), but if logged in, we link to their userId
-router.post('/', upload.array('screenshots', 5), async (req, res) => {
+// POST /api/support — rate limited, accessible by all (guests too)
+router.post('/', supportLimiter, upload.array('screenshots', 5), async (req, res) => {
     try {
         const { email, subject, message, userId } = req.body;
         const files = req.files as Express.Multer.File[];
@@ -46,7 +59,7 @@ router.post('/', upload.array('screenshots', 5), async (req, res) => {
         }
 
         const screenshotUrls = files?.length
-            ? await Promise.all(files.map(f => processScreenshot(f.buffer)))
+            ? await Promise.all(files.map(f => uploadScreenshot(f.buffer)))
             : [];
 
         const query = await prisma.supportQuery.create({
@@ -71,19 +84,34 @@ router.post('/', upload.array('screenshots', 5), async (req, res) => {
     }
 });
 
-// GET /api/support (Admin only, for completeness)
-router.get('/', authenticate, async (req, res) => {
-    if ((req as any).user.role !== 'ADMIN') {
-        res.status(403).json({ error: 'Unauthorized' });
-        return;
-    }
+// GET /api/support — Admin only
+router.get('/', authenticate, requireAdmin, async (_req, res) => {
     try {
         const queries = await prisma.supportQuery.findMany({
+            include: { user: { select: { name: true, email: true } } },
             orderBy: { createdAt: 'desc' }
         });
         res.json(queries);
-    } catch (err) {
+    } catch {
         res.status(500).json({ error: 'Failed to fetch support queries' });
+    }
+});
+
+// PATCH /api/support/:id — Admin: update status
+router.patch('/:id', authenticate, requireAdmin, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const id = String(req.params.id);
+        if (!['OPEN', 'IN_PROGRESS', 'RESOLVED'].includes(status)) {
+            res.status(400).json({ error: 'Invalid status' }); return;
+        }
+        const query = await prisma.supportQuery.update({
+            where: { id },
+            data: { status: String(status) }
+        });
+        res.json(query);
+    } catch {
+        res.status(500).json({ error: 'Failed to update support query' });
     }
 });
 

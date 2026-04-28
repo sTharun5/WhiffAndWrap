@@ -1,25 +1,17 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Link } from 'react-router-dom';
-import { FiPackage, FiHeart, FiArrowLeft } from 'react-icons/fi';
+import { FiPackage, FiHeart, FiLogOut } from 'react-icons/fi';
 
 export default function ProfilePage() {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     if (!user) return null;
 
     return (
         <div className="fade-in" style={{ padding: 'var(--space-10) 0 var(--space-16)' }}>
             <div className="container" style={{ maxWidth: 640 }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                    <button
-                        onClick={() => window.location.href = '/'}
-                        className="btn btn-ghost btn-sm"
-                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
-                    >
-                        <FiArrowLeft /> Back to Store
-                    </button>
-                </div>
-                <h1 className="section-title" style={{ marginBottom: 32 }}>My Profile</h1>
+                <span className="label-text">Account</span>
+                <h1 className="section-title" style={{ marginBottom: 32, marginTop: 6 }}>My Profile</h1>
 
                 <div className="card" style={{ padding: 'var(--space-8)', marginBottom: 24 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginBottom: 32 }}>
@@ -48,18 +40,26 @@ export default function ProfilePage() {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                    <Link to="/orders" className="card" style={{ padding: 'var(--space-6)', display: 'block', textDecoration: 'none' }}>
-                        <div style={{ fontSize: '2.5rem', marginBottom: 8, opacity: 0.1, color: 'var(--color-primary)' }}><FiPackage /></div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+                    <Link to="/orders" className="card" style={{ padding: 'var(--space-6)', display: 'block', textDecoration: 'none', transition: 'all 0.25s ease' }}>
+                        <div style={{ fontSize: '2rem', marginBottom: 8, color: 'var(--color-primary)' }}><FiPackage /></div>
                         <h3 style={{ fontWeight: 700, color: 'var(--color-text)' }}>My Orders</h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginTop: 4 }}>Track your handmade gifts</p>
                     </Link>
-                    <Link to="/wishlist" className="card" style={{ padding: 'var(--space-6)', display: 'block', textDecoration: 'none' }}>
-                        <div style={{ fontSize: '2.5rem', marginBottom: 8, opacity: 0.1, color: 'var(--color-primary)' }}><FiHeart /></div>
+                    <Link to="/wishlist" className="card" style={{ padding: 'var(--space-6)', display: 'block', textDecoration: 'none', transition: 'all 0.25s ease' }}>
+                        <div style={{ fontSize: '2rem', marginBottom: 8, color: 'var(--color-primary)' }}><FiHeart /></div>
                         <h3 style={{ fontWeight: 700, color: 'var(--color-text)' }}>My Wishlist</h3>
                         <p style={{ fontSize: '0.85rem', color: 'var(--color-muted)', marginTop: 4 }}>Saved items you love</p>
                     </Link>
                 </div>
+
+                <button
+                    onClick={logout}
+                    className="btn btn-outline"
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, color: 'var(--color-error)', borderColor: 'var(--color-error)' }}
+                >
+                    <FiLogOut /> Sign Out
+                </button>
             </div>
         </div>
     );

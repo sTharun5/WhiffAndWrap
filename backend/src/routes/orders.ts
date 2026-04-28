@@ -26,6 +26,12 @@ router.post('/', authenticate, async (req: any, res) => {
             const product = products.find(p => p.id === item.productId);
             if (!product) { res.status(404).json({ error: `Product not found: ${item.productId}` }); return; }
 
+            // Block orders for unavailable products
+            if (!product.isAvailable) {
+                res.status(400).json({ error: `"${product.name}" is currently unavailable` });
+                return;
+            }
+
             // CRITICAL: Prevent negative or fractional quantities
             if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
                 res.status(400).json({ error: `Invalid quantity for product: ${item.productId}. Must be a positive integer.` });
@@ -51,30 +57,8 @@ router.post('/', authenticate, async (req: any, res) => {
             include: { orderItems: { include: { product: true } }, user: true },
         });
 
-        // Notification for the user
-        const notificationData = {
-            userId: req.user.id,
-            title: 'Order Placed! 🛍',
-            message: `Your order #${order.id.slice(0, 8)} has been successfully placed. We're getting it ready!`,
-            type: 'USER',
-        };
-        await (prisma.notification.create as any)({
-            data: notificationData,
-        });
+        // In-app notifications for order placement removed as per user request
 
-        // Notify all admins with internal notification (concise)
-        const productSummary = order.orderItems.map(oi => `${oi.product.name} (x${oi.quantity})`).join(', ');
-        const admins = await prisma.user.findMany({ where: { role: 'ADMIN' } });
-        for (const admin of admins) {
-            await (prisma.notification.create as any)({
-                data: {
-                    userId: admin.id,
-                    title: 'New Order! 📦',
-                    message: `New order #${order.id.slice(0, 8)} by ${req.user.name}: ${productSummary}`,
-                    type: 'ADMIN',
-                },
-            });
-        }
 
         // Send detailed email to admin
         try {

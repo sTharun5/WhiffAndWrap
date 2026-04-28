@@ -1,115 +1,118 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
-import Skeleton from '../components/Skeleton';
-import { FiFileText, FiCheckCircle, FiPackage, FiTruck, FiHome, FiArrowLeft } from 'react-icons/fi';
-import './OrdersPage.css';
+import { FiPackage, FiClock, FiCheck, FiX, FiTruck, FiShoppingBag } from 'react-icons/fi';
 
-const STATUS_STEPS = [
-    { key: 'PLACED', label: 'Placed', icon: <FiFileText /> },
-    { key: 'ACCEPTED', label: 'Accepted', icon: <FiCheckCircle /> },
-    { key: 'PREPARING', label: 'Preparing', icon: <FiPackage /> },
-    { key: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', icon: <FiTruck /> },
-    { key: 'DELIVERED', label: 'Delivered', icon: <FiHome /> },
-];
+const BACKEND = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
+function getImage(images: any): string {
+    const list = Array.isArray(images) ? images : (typeof images === 'string' ? JSON.parse(images || '[]') : []);
+    if (!list.length) return 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=120';
+    return list[0].startsWith('http') ? list[0] : `${BACKEND}${list[0]}`;
+}
+
+const STATUS_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
+    PLACED:           { label: 'Order Placed',      color: 'var(--color-info)',    icon: <FiClock /> },
+    ACCEPTED:         { label: 'Accepted',           color: 'var(--color-success)', icon: <FiCheck /> },
+    PREPARING:        { label: 'Preparing',          color: 'var(--color-warning)', icon: <FiScissors /> },
+    OUT_FOR_DELIVERY: { label: 'Out for Delivery',   color: 'var(--color-warning)', icon: <FiTruck /> },
+    DELIVERED:        { label: 'Delivered',          color: 'var(--color-success)', icon: <FiCheck /> },
+    REJECTED:         { label: 'Rejected',           color: 'var(--color-error)',   icon: <FiX /> },
+};
+
+function FiScissors() { return <span>✂️</span>; }
 
 export default function OrdersPage() {
+    const { user } = useAuth();
     const [orders, setOrders] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!user) return;
         api.getMyOrders()
             .then(setOrders)
-            .catch(() => setOrders([]))
+            .catch(() => {})
             .finally(() => setLoading(false));
-    }, []);
+    }, [user]);
 
-    if (loading) return (
-        <div className="orders-page fade-in">
-            <div className="container">
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                    <button
-                        onClick={() => window.location.href = '/'}
-                        className="btn btn-ghost btn-sm"
-                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
-                    >
-                        <FiArrowLeft /> Back to Home
-                    </button>
-                </div>
-                <Skeleton height={40} width={200} style={{ marginBottom: 32 }} />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    {Array.from({ length: 3 }).map((_, i) => (
-                        <Skeleton key={i} height={140} borderRadius={16} />
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
+    if (!user) return null;
 
     return (
-        <div className="orders-page fade-in">
-            <div className="container">
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16 }}>
-                    <button
-                        onClick={() => window.location.href = '/'}
-                        className="btn btn-ghost btn-sm"
-                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
-                    >
-                        <FiArrowLeft /> Back to Home
-                    </button>
+        <div className="fade-in" style={{ padding: 'var(--space-10) 0 var(--space-16)' }}>
+            <div className="container" style={{ maxWidth: 860 }}>
+                <div style={{ marginBottom: 32 }}>
+                    <span className="label-text">Account</span>
+                    <h1 className="section-title" style={{ marginTop: 6 }}>My Orders</h1>
+                    <p style={{ color: 'var(--color-muted)', marginTop: 4 }}>{orders.length} order{orders.length !== 1 ? 's' : ''}</p>
                 </div>
-                <h1 className="section-title" style={{ marginBottom: 32 }}>My Orders</h1>
 
-                {orders.length === 0 ? (
-                    <div className="empty-state" style={{ padding: 'var(--space-16) 0' }}>
-                        <div className="empty-state__icon" style={{ fontSize: '4rem', opacity: 0.1, color: 'var(--color-primary)' }}><FiPackage /></div>
-                        <h2 className="empty-state__title" style={{ fontSize: '2rem' }}>No orders found</h2>
-                        <p style={{ maxWidth: 400, margin: '12px auto' }}>You haven't placed any orders yet. Discover our handmade gifts and place your first order!</p>
-                        <Link to="/products" className="btn btn-primary btn-lg" style={{ marginTop: 24 }}>Start Shopping</Link>
+                {loading ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        {[1, 2, 3].map(i => <div key={i} className="skeleton" style={{ height: 120, borderRadius: 16 }} />)}
+                    </div>
+                ) : orders.length === 0 ? (
+                    <div className="empty-state">
+                        <div className="empty-state__icon"><FiShoppingBag /></div>
+                        <h2 className="empty-state__title">No orders yet</h2>
+                        <p>When you place an order, it will appear here.</p>
+                        <a href="/products" className="btn btn-primary" style={{ marginTop: 24 }}>Browse Products</a>
                     </div>
                 ) : (
-                    <div className="orders-list">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                         {orders.map(order => {
-                            const stepIdx = STATUS_STEPS.findIndex(s => s.key === order.status);
+                            const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.PLACED;
                             return (
-                                <Link to={`/orders/${order.id}`} key={order.id} className="order-card">
-                                    <div className="order-card__header">
+                                <div key={order.id} className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                                    {/* Header */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid var(--color-border)', flexWrap: 'wrap', gap: 8 }}>
                                         <div>
-                                            <div className="label-text">Order #{order.id.slice(0, 8).toUpperCase()}</div>
-                                            <div style={{ fontSize: '0.83rem', color: 'var(--color-muted)', marginTop: 2 }}>
-                                                {new Date(order.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                            </div>
+                                            <p style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>Order ID</p>
+                                            <p style={{ fontWeight: 700, fontFamily: 'monospace', fontSize: '0.9rem', marginTop: 2 }}>#{order.id.slice(0, 8).toUpperCase()}</p>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <div style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--color-primary)' }}>
-                                                ₹{order.totalAmount.toLocaleString('en-IN')}
-                                            </div>
-                                            <span className={`badge badge-${order.status === 'DELIVERED' ? 'success' : order.status === 'PLACED' ? 'warning' : 'info'}`}>
-                                                {STATUS_STEPS[stepIdx]?.icon} {order.status.replace(/_/g, ' ')}
+                                            <p style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>{new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 4, padding: '4px 12px', borderRadius: 'var(--radius-full)', background: `${cfg.color}18`, color: cfg.color, fontWeight: 700, fontSize: '0.75rem' }}>
+                                                {cfg.icon} {cfg.label}
                                             </span>
                                         </div>
                                     </div>
 
-                                    {/* Mini Status Tracker */}
-                                    <div className="order-card__tracker">
-                                        {STATUS_STEPS.map((step, i) => (
-                                            <div
-                                                key={step.key}
-                                                className={`order-card__step ${i <= stepIdx ? 'done' : ''} ${i === stepIdx ? 'active' : ''}`}
-                                            >
-                                                <div className="order-card__step-dot">{i < stepIdx ? <FiCheckCircle /> : step.icon}</div>
-                                                <span className="order-card__step-label">{step.label}</span>
+                                    {/* Items */}
+                                    <div style={{ padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                                        {order.orderItems?.map((item: any) => (
+                                            <div key={item.id} style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                                                <img src={getImage(item.product?.images)} alt={item.product?.name} style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} />
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <p style={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.product?.name}</p>
+                                                    <p style={{ fontSize: '0.8rem', color: 'var(--color-muted)' }}>Qty: {item.quantity} × ₹{Number(item.price).toLocaleString('en-IN')}</p>
+                                                </div>
+                                                <p style={{ fontWeight: 700, color: 'var(--color-primary)', whiteSpace: 'nowrap' }}>₹{(item.quantity * item.price).toLocaleString('en-IN')}</p>
                                             </div>
                                         ))}
                                     </div>
 
-                                    <div className="order-card__items">
-                                        {order.orderItems.slice(0, 3).map((item: any) => (
-                                            <span key={item.id} className="order-card__item">{item.product.name}</span>
-                                        ))}
-                                        {order.orderItems.length > 3 && <span className="order-card__item">+{order.orderItems.length - 3} more</span>}
+                                    {/* Footer */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 24px', borderTop: '1px solid var(--color-border)', background: 'var(--color-cream)', flexWrap: 'wrap', gap: 8 }}>
+                                        <div style={{ display: 'flex', gap: 24 }}>
+                                            {order.deliveryDate && (
+                                                <div>
+                                                    <p style={{ fontSize: '0.72rem', color: 'var(--color-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Est. Delivery</p>
+                                                    <p style={{ fontWeight: 600, fontSize: '0.88rem' }}>{new Date(order.deliveryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</p>
+                                                </div>
+                                            )}
+                                            {order.rejectionReason && (
+                                                <div>
+                                                    <p style={{ fontSize: '0.72rem', color: 'var(--color-error)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Reason</p>
+                                                    <p style={{ fontWeight: 600, fontSize: '0.88rem', color: 'var(--color-error)' }}>{order.rejectionReason}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <p style={{ fontSize: '0.72rem', color: 'var(--color-muted)' }}>Total</p>
+                                            <p style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--color-primary)' }}>₹{Number(order.totalAmount).toLocaleString('en-IN')}</p>
+                                        </div>
                                     </div>
-                                </Link>
+                                </div>
                             );
                         })}
                     </div>

@@ -65,6 +65,8 @@
     align-items: center;
     padding-top: var(--space-12);
     padding-bottom: var(--space-12);
+    max-width: var(--container-max);
+    margin: 0 auto;
 }
 
 .hero__content {
@@ -319,6 +321,8 @@
     justify-content: center;
     gap: var(--space-12);
     flex-wrap: wrap;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 .trust-bar__item {
@@ -350,8 +354,9 @@
 /* Categories */
 .categories-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-6);
+    justify-content: center;
 }
 
 .category-card {
@@ -503,9 +508,11 @@
 
 .story-section__inner {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1.2fr;
     gap: var(--space-16);
     align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 .story-section__image {

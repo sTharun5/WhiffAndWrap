@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:5001'}/api`;
 
 function getToken() {
     return sessionStorage.getItem('ww_token');
@@ -71,6 +71,8 @@ export const api = {
     getNotifications: () => request('/notifications'),
     markRead: (id: string) => request(`/notifications/${id}/read`, { method: 'PATCH' }),
     markAllRead: (type?: string) => request(`/notifications/read-all${type ? `?type=${type}` : ''}`, { method: 'PATCH' }),
+    clearNotifications: (type?: string) => request(`/notifications${type ? `?type=${type}` : ''}`, { method: 'DELETE' }),
+
 
     // Admin
     admin: {
@@ -81,6 +83,7 @@ export const api = {
         getOrders: () => request('/admin/orders'),
         updateOrder: (id: string, body: any) => request(`/admin/orders/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
         getUsers: () => request('/admin/users'),
+        updateUserRole: (id: string, role: string) => request(`/admin/users/${id}/role`, { method: 'PUT', body: JSON.stringify({ role }) }),
         getAnalytics: () => request('/admin/analytics'),
         createCategory: (body: any) => request('/admin/categories', { method: 'POST', body: JSON.stringify(body) }),
         deleteCategory: (id: string) => request(`/admin/categories/${id}`, { method: 'DELETE' }),
@@ -92,6 +95,8 @@ export const api = {
         createPolicy: (body: any) => request('/admin/policies', { method: 'POST', body: JSON.stringify(body) }),
         updatePolicy: (id: string, body: any) => request(`/admin/policies/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
         deletePolicy: (id: string) => request(`/admin/policies/${id}`, { method: 'DELETE' }),
+        getSupportQueries: () => request('/support'),
+        updateSupportStatus: (id: string, status: string) => request(`/support/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }),
     },
 
     // Upload

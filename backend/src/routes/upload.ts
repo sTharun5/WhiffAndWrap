@@ -1,22 +1,24 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
-import sharp from 'sharp';
-import heicConvert from 'heic-convert';
+import { v2 as cloudinary } from 'cloudinary';
 import { authenticate } from '../middleware/auth';
 
 const router = Router();
 
-const uploadDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key:    process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
-// Memory storage — we process every file before saving
+// Memory storage — we stream every file directly to Cloudinary
 const storage = multer.memoryStorage();
 
 const upload = multer({
     storage,
-    limits: { fileSize: 50 * 1024 * 1024 }, // Increased to 50 MB for videos
+    limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB (Cloudinary handles large videos)
     fileFilter: (_req, file, cb) => {
         const isImage = /\.(jpeg|jpg|png|webp|heic|heif)$/i.test(path.extname(file.originalname));
         const isVideo = /\.(mp4|mov|webm)$/i.test(path.extname(file.originalname));
@@ -26,69 +28,67 @@ const upload = multer({
 });
 
 /**
- * Convert any image buffer → JPEG / WebP and save to disk.
- * HEIC / HEIF → JPEG via heic-convert (pure JS, works on Mac).
- * All other formats → JPEG via sharp (faster, handles PNG/WebP/JPG).
+ * Upload a buffer to Cloudinary.
+ * resourceType: 'image' | 'video' | 'raw'
+ * folder: organise assets in Cloudinary dashboard
  */
-async function processImage(buffer: Buffer, originalName: string): Promise<string> {
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const isHeic = /\.(heic|heif)$/i.test(originalName);
-
-    let outputBuffer: Buffer;
-    const ext = '.jpg';
-
-    if (isHeic) {
-        // heic-convert: pure JS HEIC decoder — always available
-        const raw = await heicConvert({ buffer, format: 'JPEG', quality: 0.88 });
-        outputBuffer = Buffer.from(raw);
-    } else {
-        // sharp: fast JPEG recompress + strip EXIF + auto-rotate
-        outputBuffer = await sharp(buffer)
-            .rotate()
-            .jpeg({ quality: 88, progressive: true })
-            .toBuffer();
-    }
-
-    const filename = `${unique}${ext}`;
-    fs.writeFileSync(path.join(uploadDir, filename), outputBuffer);
-    return filename;
+function uploadToCloudinary(
+    buffer: Buffer,
+    folder: string,
+    resourceType: 'image' | 'video' | 'raw' = 'image'
+): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                folder,
+                resource_type: resourceType,
+                // For images: auto quality + format optimisation
+                ...(resourceType === 'image' && {
+                    transformation: [{ quality: 'auto', fetch_format: 'auto' }]
+                }),
+            },
+            (error, result) => {
+                if (error || !result) return reject(error || new Error('Cloudinary upload failed'));
+                resolve(result.secure_url);
+            }
+        );
+        stream.end(buffer);
+    });
 }
 
-// POST /api/upload/image — single
+// POST /api/upload/image — single image
 router.post('/image', authenticate, upload.single('image'), async (req, res) => {
     if (!req.file) { res.status(400).json({ error: 'No file uploaded' }); return; }
     try {
-        const filename = await processImage(req.file.buffer, req.file.originalname);
-        res.json({ url: `/uploads/${filename}` });
+        const url = await uploadToCloudinary(req.file.buffer, 'whiff-wrap/products', 'image');
+        res.json({ url });
     } catch (err) {
         console.error('Upload error:', err);
-        res.status(500).json({ error: 'Image processing failed' });
+        res.status(500).json({ error: 'Image upload failed' });
     }
 });
 
-// POST /api/upload/images — multiple
+// POST /api/upload/images — multiple images (up to 10)
 router.post('/images', authenticate, upload.array('images', 10), async (req, res) => {
     const files = req.files as Express.Multer.File[];
     if (!files?.length) { res.status(400).json({ error: 'No files uploaded' }); return; }
     try {
-        const filenames = await Promise.all(files.map(f => processImage(f.buffer, f.originalname)));
-        res.json({ urls: filenames.map(f => `/uploads/${f}`) });
+        const urls = await Promise.all(
+            files.map(f => uploadToCloudinary(f.buffer, 'whiff-wrap/products', 'image'))
+        );
+        res.json({ urls });
     } catch (err) {
         console.error('Upload error:', err);
-        res.status(500).json({ error: 'Image processing failed' });
+        res.status(500).json({ error: 'Image upload failed' });
     }
 });
 
-// POST /api/upload/video — single
+// POST /api/upload/video — single video (reels)
 router.post('/video', authenticate, upload.single('video'), async (req, res) => {
     if (!req.file) { res.status(400).json({ error: 'No file uploaded' }); return; }
     try {
-        const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        const ext = path.extname(req.file.originalname).toLowerCase();
-        const filename = `${unique}${ext}`;
-
-        fs.writeFileSync(path.join(uploadDir, filename), req.file.buffer);
-        res.json({ url: `/uploads/${filename}` });
+        const url = await uploadToCloudinary(req.file.buffer, 'whiff-wrap/reels', 'video');
+        res.json({ url });
     } catch (err) {
         console.error('Video upload error:', err);
         res.status(500).json({ error: 'Video upload failed' });

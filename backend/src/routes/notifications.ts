@@ -37,4 +37,17 @@ router.patch('/read-all', authenticate, async (req: any, res) => {
     } catch { res.status(500).json({ error: 'Server error' }); }
 });
 
+// DELETE /api/notifications
+router.delete('/', authenticate, async (req: any, res) => {
+    try {
+        const { type } = req.query;
+        const whereClause: any = { userId: req.user.id };
+        if (type) {
+            whereClause.type = type;
+        }
+        await prisma.notification.deleteMany({ where: whereClause });
+        res.json({ success: true });
+    } catch { res.status(500).json({ error: 'Server error' }); }
+});
+
 export default router;

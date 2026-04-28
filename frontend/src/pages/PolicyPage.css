@@ -1,5 +1,5 @@
 .policy-page {
-    padding: var(--space-20) 0;
+    padding: var(--space-12) 0 var(--space-20);
     min-height: 70vh;
     animation: fade-in 0.8s ease-out;
 }

@@ -51,17 +51,8 @@ export default function ProductsPage() {
 
     return (
         <div className="products-page fade-in">
-            <div className="products-page__hero" style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 10 }}>
-                    <button
-                        onClick={() => window.location.href = '/'}
-                        className="btn btn-ghost btn-sm"
-                        style={{ padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6, color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}
-                    >
-                        <span>←</span> Back to Home
-                    </button>
-                </div>
-                <div className="container" style={{ paddingTop: 40 }}>
+            <div className="products-page__hero">
+                <div className="container">
                     <span className="label-text">Our Crafts</span>
                     <h1 className="section-title" style={{ marginTop: 8, color: 'white' }}>All Products</h1>
                     <p style={{ color: 'rgba(255,255,255,0.75)', marginTop: 8 }}>{total} handcrafted items</p>

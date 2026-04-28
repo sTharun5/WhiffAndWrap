@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-    FiShoppingBag, FiKey, FiGift, FiHeart, FiStar, FiInstagram, FiTruck, FiAward, FiShield, FiArrowLeft, FiArrowRight, FiZap
+    FiKey, FiGift, FiHeart, FiStar, FiInstagram, FiTruck, FiAward, FiShield, FiArrowLeft, FiArrowRight, FiZap
 } from 'react-icons/fi';
 import { api } from '../lib/api';
 import './HomePage.css';
@@ -9,7 +9,7 @@ import './HomePage.css';
 const CATEGORIES = [
     { name: 'Bouquets', icon: <FiGift />, desc: 'Preserved & fresh bouquets' },
     { name: 'Keychains', icon: <FiKey />, desc: 'Personalized & handcrafted' },
-    { name: 'Gift Wraps', icon: <FiShoppingBag />, desc: 'Elegant custom wrapping' },
+    { name: 'Gift Wraps', icon: <FiGift />, desc: 'Elegant custom wrapping' },
     { name: 'Personalized Crafts', icon: <FiZap />, desc: 'Your name, your story' },
     { name: 'Custom Gifts', icon: <FiStar />, desc: 'Unique handmade gifts' },
 ];
@@ -269,8 +269,8 @@ export default function HomePage() {
                         Discover our newest handcrafted gifts, see behind-the-scenes magic, and place custom orders directly through DMs.
                     </p>
                     <div className="instagram-actions" style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                        <a href="https://ig.me/m/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-lg" style={{ background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', border: 'none', color: 'white', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <FiShoppingBag /> Order Us on Instagram
+                        <a href="https://ig.me/m/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-primary btn-lg" style={{ background: '#E1306C', border: 'none', color: 'white', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <FiInstagram /> Order Us on Instagram
                         </a>
                         <a href="https://instagram.com/_whiffandwrap_" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-lg" style={{ borderColor: '#bc1888', color: '#bc1888', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <FiInstagram /> Follow Us on Instagram

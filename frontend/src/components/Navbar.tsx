@@ -1,8 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useCart } from '../contexts/CartContext';
-import { useWishlist } from '../contexts/WishlistContext';
 import { useNotifications } from '../contexts/NotificationContext';
 import { useConfirm } from '../contexts/ConfirmContext';
 import {
@@ -12,8 +10,6 @@ import './Navbar.css';
 
 export default function Navbar() {
     const { user, logout } = useAuth();
-    const { totalItems } = useCart();
-    const { wishlist } = useWishlist();
     const { unreadCount } = useNotifications();
     const navigate = useNavigate();
     const location = useLocation();
@@ -84,26 +80,17 @@ export default function Navbar() {
                 <div className="navbar__actions">
                     <div className="navbar__desktop-actions">
                         {user && (
-                            <>
-                                <Link to="/notifications" className="navbar__icon-btn" title="Notifications">
-                                    <FiBell size={20} />
-                                    {unreadCount > 0 && <span className="navbar__cart-badge">{unreadCount}</span>}
-                                </Link>
-                                <Link to="/wishlist" className="navbar__icon-btn" title="Wishlist">
-                                    <FiHeart size={20} />
-                                    {wishlist.length > 0 && <span className="navbar__cart-badge" style={{ background: 'var(--color-secondary)' }}>{wishlist.length}</span>}
-                                </Link>
-                            </>
+                            <Link to="/notifications" className="navbar__icon-btn" title="Notifications">
+                                <FiBell size={20} />
+                                {unreadCount > 0 && <span className="navbar__cart-badge">{unreadCount}</span>}
+                            </Link>
                         )}
                         <Link to="/support" className="navbar__icon-btn" title="Help & Support">
                             <FiHelpCircle size={20} />
                         </Link>
                     </div>
 
-                    <Link to="/cart" className="navbar__icon-btn navbar__cart-btn" title="Cart">
-                        <FiShoppingBag size={20} />
-                        {totalItems > 0 && <span className="navbar__cart-badge">{totalItems}</span>}
-                    </Link>
+
 
                     {user ? (
                         <div className="navbar__profile" ref={profileRef}>
@@ -130,8 +117,6 @@ export default function Navbar() {
                                     </div>
                                     <div className="navbar__dropdown-divider" />
                                     <Link to="/profile" className="navbar__dropdown-item"><FiUser /> My Profile</Link>
-                                    <Link to="/orders" className="navbar__dropdown-item"><FiPackage /> My Orders</Link>
-                                    <Link to="/wishlist" className="navbar__dropdown-item"><FiHeart /> Wishlist</Link>
                                     {user.role === 'ADMIN' && (
                                         <Link to="/admin" className="navbar__dropdown-item"><FiSettings /> Admin Dashboard</Link>
                                     )}
@@ -195,9 +180,7 @@ export default function Navbar() {
                     {user ? (
                         <>
                             <Link to="/profile" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiUser style={{ marginRight: '12px' }} /> My Profile</Link>
-                            <Link to="/orders" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiPackage style={{ marginRight: '12px' }} /> My Orders</Link>
                             <Link to="/notifications" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiBell style={{ marginRight: '12px' }} /> Notifications {unreadCount > 0 && `(${unreadCount})`}</Link>
-                            <Link to="/wishlist" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiHeart style={{ marginRight: '12px' }} /> Wishlist {wishlist.length > 0 && `(${wishlist.length})`}</Link>
                             {user.role === 'ADMIN' && (
                                 <Link to="/admin" className="navbar__mobile-link" onClick={() => setMenuOpen(false)}><FiSettings style={{ marginRight: '12px' }} /> Admin Dashboard</Link>
                             )}
