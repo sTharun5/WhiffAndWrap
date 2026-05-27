@@ -8,12 +8,16 @@ const router = (0, express_1.Router)();
 // POST /api/orders - place order
 router.post('/', auth_1.authenticate, async (req, res) => {
     try {
-        const { items } = req.body; // [{productId, quantity, personalizationData}]
+        const { items, phoneNumber } = req.body; // [{productId, quantity, personalizationData}], phoneNumber
         if (!items || items.length === 0) {
             res.status(400).json({ error: 'Cart is empty' });
             return;
         }
-        // Fetch products and validate stock
+        if (!phoneNumber) {
+            res.status(400).json({ error: 'Phone number is required' });
+            return;
+        }
+        // Fetch products
         const productIds = items.map((i) => i.productId);
         const products = await prisma_1.prisma.product.findMany({ where: { id: { in: productIds } } });
         let totalAmount = 0;
@@ -24,8 +28,14 @@ router.post('/', auth_1.authenticate, async (req, res) => {
                 res.status(404).json({ error: `Product not found: ${item.productId}` });
                 return;
             }
-            if (product.stock < item.quantity) {
-                res.status(400).json({ error: `Insufficient stock for ${product.name}` });
+            // Block orders for unavailable products
+            if (!product.isAvailable) {
+                res.status(400).json({ error: `"${product.name}" is currently unavailable` });
+                return;
+            }
+            // CRITICAL: Prevent negative or fractional quantities
+            if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
+                res.status(400).json({ error: `Invalid quantity for product: ${item.productId}. Must be a positive integer.` });
                 return;
             }
             totalAmount += product.price * item.quantity;
@@ -39,33 +49,26 @@ router.post('/', auth_1.authenticate, async (req, res) => {
         const order = await prisma_1.prisma.order.create({
             data: {
                 userId: req.user.id,
+                phoneNumber,
                 totalAmount,
                 orderItems: { create: orderItemsData },
             },
             include: { orderItems: { include: { product: true } }, user: true },
         });
-        // Decrement stock
-        for (const item of items) {
-            await prisma_1.prisma.product.update({
-                where: { id: item.productId },
-                data: { stock: { decrement: item.quantity } },
-            });
-        }
-        // Notification for the user
-        await prisma_1.prisma.notification.create({
-            data: {
-                userId: req.user.id,
-                title: 'Order Placed! 🛍',
-                message: `Your order #${order.id.slice(0, 8)} has been successfully placed. We're getting it ready!`,
-            },
-        });
-        // Send email to admin
+        // In-app notifications for order placement removed as per user request
+        // Send detailed email to admin
         try {
             await (0, email_1.sendOrderPlacedAdmin)({
                 orderId: order.id,
                 userName: req.user.name,
                 userEmail: req.user.email,
-                items: order.orderItems.map(oi => ({ name: oi.product.name, quantity: oi.quantity, price: oi.price })),
+                phoneNumber: phoneNumber,
+                items: order.orderItems.map(oi => ({
+                    name: oi.product.name,
+                    quantity: oi.quantity,
+                    price: oi.price,
+                    image: oi.product.images?.[0]
+                })),
                 totalAmount,
             });
         }

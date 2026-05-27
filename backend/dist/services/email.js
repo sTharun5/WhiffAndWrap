@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sendOrderStatusUpdateUser = exports.sendOrderAcceptedUser = exports.sendOrderPlacedAdmin = void 0;
+exports.sendOrderRejectedUser = exports.sendOrderStatusUpdateUser = exports.sendOrderAcceptedUser = exports.sendOrderPlacedAdmin = void 0;
 const nodemailer_1 = __importDefault(require("nodemailer"));
 const transporter = nodemailer_1.default.createTransport({
     service: 'gmail',
@@ -14,23 +14,45 @@ const transporter = nodemailer_1.default.createTransport({
 });
 const sendOrderPlacedAdmin = async (orderDetails) => {
     const itemsHtml = orderDetails.items
-        .map(i => `<tr><td>${i.name}</td><td>${i.quantity}</td><td>₹${i.price.toFixed(2)}</td></tr>`)
+        .map(i => `
+      <tr>
+        <td style="padding:10px;border-bottom:1px solid #eee">
+          ${i.image ? `<img src="${i.image}" alt="${i.name}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;margin-right:10px;vertical-align:middle">` : ''}
+          <span style="vertical-align:middle">${i.name}</span>
+        </td>
+        <td style="padding:10px;border-bottom:1px solid #eee;text-align:center">${i.quantity}</td>
+        <td style="padding:10px;border-bottom:1px solid #eee;text-align:right">₹${i.price.toFixed(2)}</td>
+      </tr>
+    `)
         .join('');
     await transporter.sendMail({
         from: `"Whiff & Wrap" <${process.env.EMAIL_USER}>`,
         to: process.env.EMAIL_USER,
         subject: `New Order Received - #${orderDetails.orderId.slice(0, 8)}`,
         html: `
-      <div style="font-family:sans-serif;max-width:600px;margin:auto">
-        <h2 style="color:#8B5CF6">🌸 Whiff & Wrap – New Order!</h2>
+      <div style="font-family:sans-serif;max-width:600px;margin:auto;border:1px solid #eee;padding:20px;border-radius:12px">
+        <h2 style="color:#8B5CF6;text-align:center">🌸 New Order Received!</h2>
+        <hr style="border:0;border-top:1px solid #eee;margin:20px 0">
         <p><strong>Customer:</strong> ${orderDetails.userName} (${orderDetails.userEmail})</p>
-        <p><strong>Order ID:</strong> ${orderDetails.orderId}</p>
-        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%">
-          <tr style="background:#f3f4f6"><th>Item</th><th>Qty</th><th>Price</th></tr>
+        <p><strong>Phone Number:</strong> <a href="tel:${orderDetails.phoneNumber}" style="color:#8B5CF6;text-decoration:none">${orderDetails.phoneNumber}</a></p>
+        <p><strong>Order ID:</strong> #${orderDetails.orderId}</p>
+        
+        <table style="width:100%;border-collapse:collapse;margin-top:20px">
+          <tr style="background:#f9fafb">
+            <th style="padding:10px;text-align:left">Item</th>
+            <th style="padding:10px;text-align:center">Qty</th>
+            <th style="padding:10px;text-align:right">Price</th>
+          </tr>
           ${itemsHtml}
         </table>
-        <p style="font-size:1.2em;margin-top:12px"><strong>Total: ₹${orderDetails.totalAmount.toFixed(2)}</strong></p>
-        <p>Please review and accept this order in your <strong>Admin Dashboard</strong>.</p>
+        
+        <div style="text-align:right;margin-top:20px;padding-top:10px;border-top:2px solid #eee">
+          <p style="font-size:1.2em;margin:0"><strong>Total Amount: ₹${orderDetails.totalAmount.toFixed(2)}</strong></p>
+        </div>
+        
+        <div style="text-align:center;margin-top:30px">
+          <a href="${process.env.ADMIN_DASHBOARD_URL || '#'}" style="background:#8B5CF6;color:white;padding:12px 24px;text-decoration:none;border-radius:8px;font-weight:bold">View in Dashboard</a>
+        </div>
       </div>
     `,
     });
@@ -88,3 +110,24 @@ const sendOrderStatusUpdateUser = async (userEmail, userName, orderId, status) =
     });
 };
 exports.sendOrderStatusUpdateUser = sendOrderStatusUpdateUser;
+const sendOrderRejectedUser = async (userEmail, userName, orderId, reason) => {
+    await transporter.sendMail({
+        from: `"Whiff & Wrap" <${process.env.EMAIL_USER}>`,
+        to: userEmail,
+        subject: 'Update Regarding Your Order - Whiff & Wrap',
+        html: `
+      <div style="font-family:sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:12px;padding:24px">
+        <h2 style="color:#C0392B">Whiff & Wrap</h2>
+        <p>Hi <strong>${userName}</strong>,</p>
+        <p>We're writing to let you know that your order <strong>#${orderId.slice(0, 8)}</strong> could not be accepted at this time.</p>
+        <div style="background:#f9fafb;padding:16px;border-radius:8px;margin:20px 0;border-left:4px solid #C0392B">
+          <p style="margin:0;font-style:italic"><strong>Reason:</strong> ${reason}</p>
+        </div>
+        <p>Your payment (if any) will be refunded to your original payment method within 5-7 business days.</p>
+        <p>We apologize for any inconvenience caused and hope you'll visit us again soon.</p>
+        <p style="color:#888;font-size:0.9em;margin-top:20px">Warmly,<br>Team Whiff & Wrap 🌸</p>
+      </div>
+    `,
+    });
+};
+exports.sendOrderRejectedUser = sendOrderRejectedUser;

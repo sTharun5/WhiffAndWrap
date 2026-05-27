@@ -6,67 +6,65 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
-const sharp_1 = __importDefault(require("sharp"));
-const heic_convert_1 = __importDefault(require("heic-convert"));
+const cloudinary_1 = require("cloudinary");
 const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
-const uploadDir = path_1.default.join(process.cwd(), 'uploads');
-if (!fs_1.default.existsSync(uploadDir))
-    fs_1.default.mkdirSync(uploadDir, { recursive: true });
-// Memory storage — we process every file before saving
+// Configure Cloudinary
+cloudinary_1.v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+// Memory storage — we stream every file directly to Cloudinary
 const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({
     storage,
-    limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+    limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB (Cloudinary handles large videos)
     fileFilter: (_req, file, cb) => {
-        const extOk = /\.(jpeg|jpg|png|webp|heic|heif)$/i.test(path_1.default.extname(file.originalname));
-        const mimeOk = /^image\//i.test(file.mimetype) || file.mimetype === 'application/octet-stream';
-        (extOk || mimeOk) ? cb(null, true) : cb(new Error('Only image files are allowed'));
+        const isImage = /\.(jpeg|jpg|png|webp|heic|heif)$/i.test(path_1.default.extname(file.originalname));
+        const isVideo = /\.(mp4|mov|webm)$/i.test(path_1.default.extname(file.originalname));
+        const mimeOk = /^(image|video)\//i.test(file.mimetype) || file.mimetype === 'application/octet-stream';
+        (isImage || isVideo || mimeOk) ? cb(null, true) : cb(new Error('Only image and video files are allowed'));
     },
 });
 /**
- * Convert any image buffer → JPEG / WebP and save to disk.
- * HEIC / HEIF → JPEG via heic-convert (pure JS, works on Mac).
- * All other formats → JPEG via sharp (faster, handles PNG/WebP/JPG).
+ * Upload a buffer to Cloudinary.
+ * resourceType: 'image' | 'video' | 'raw'
+ * folder: organise assets in Cloudinary dashboard
  */
-async function processImage(buffer, originalName) {
-    const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const isHeic = /\.(heic|heif)$/i.test(originalName);
-    let outputBuffer;
-    const ext = '.jpg';
-    if (isHeic) {
-        // heic-convert: pure JS HEIC decoder — always available
-        const raw = await (0, heic_convert_1.default)({ buffer, format: 'JPEG', quality: 0.88 });
-        outputBuffer = Buffer.from(raw);
-    }
-    else {
-        // sharp: fast JPEG recompress + strip EXIF + auto-rotate
-        outputBuffer = await (0, sharp_1.default)(buffer)
-            .rotate()
-            .jpeg({ quality: 88, progressive: true })
-            .toBuffer();
-    }
-    const filename = `${unique}${ext}`;
-    fs_1.default.writeFileSync(path_1.default.join(uploadDir, filename), outputBuffer);
-    return filename;
+function uploadToCloudinary(buffer, folder, resourceType = 'image') {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary_1.v2.uploader.upload_stream({
+            folder,
+            resource_type: resourceType,
+            // For images: auto quality + format optimisation
+            ...(resourceType === 'image' && {
+                transformation: [{ quality: 'auto', fetch_format: 'auto' }]
+            }),
+        }, (error, result) => {
+            if (error || !result)
+                return reject(error || new Error('Cloudinary upload failed'));
+            resolve(result.secure_url);
+        });
+        stream.end(buffer);
+    });
 }
-// POST /api/upload/image — single
+// POST /api/upload/image — single image
 router.post('/image', auth_1.authenticate, upload.single('image'), async (req, res) => {
     if (!req.file) {
         res.status(400).json({ error: 'No file uploaded' });
         return;
     }
     try {
-        const filename = await processImage(req.file.buffer, req.file.originalname);
-        res.json({ url: `/uploads/${filename}` });
+        const url = await uploadToCloudinary(req.file.buffer, 'whiff-wrap/products', 'image');
+        res.json({ url });
     }
     catch (err) {
         console.error('Upload error:', err);
-        res.status(500).json({ error: 'Image processing failed' });
+        res.status(500).json({ error: 'Image upload failed' });
     }
 });
-// POST /api/upload/images — multiple
+// POST /api/upload/images — multiple images (up to 10)
 router.post('/images', auth_1.authenticate, upload.array('images', 10), async (req, res) => {
     const files = req.files;
     if (!files?.length) {
@@ -74,12 +72,27 @@ router.post('/images', auth_1.authenticate, upload.array('images', 10), async (r
         return;
     }
     try {
-        const filenames = await Promise.all(files.map(f => processImage(f.buffer, f.originalname)));
-        res.json({ urls: filenames.map(f => `/uploads/${f}`) });
+        const urls = await Promise.all(files.map(f => uploadToCloudinary(f.buffer, 'whiff-wrap/products', 'image')));
+        res.json({ urls });
     }
     catch (err) {
         console.error('Upload error:', err);
-        res.status(500).json({ error: 'Image processing failed' });
+        res.status(500).json({ error: 'Image upload failed' });
+    }
+});
+// POST /api/upload/video — single video (reels)
+router.post('/video', auth_1.authenticate, upload.single('video'), async (req, res) => {
+    if (!req.file) {
+        res.status(400).json({ error: 'No file uploaded' });
+        return;
+    }
+    try {
+        const url = await uploadToCloudinary(req.file.buffer, 'whiff-wrap/reels', 'video');
+        res.json({ url });
+    }
+    catch (err) {
+        console.error('Video upload error:', err);
+        res.status(500).json({ error: 'Video upload failed' });
     }
 });
 exports.default = router;

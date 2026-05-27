@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "nodemon --exec ./node_modules/.bin/ts-node src/index.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/index.js",
     "seed": "./node_modules/.bin/ts-node prisma/seed.ts"
   },

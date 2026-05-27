@@ -31,7 +31,27 @@ router.patch('/:id/read', auth_1.authenticate, async (req, res) => {
 // PATCH /api/notifications/read-all
 router.patch('/read-all', auth_1.authenticate, async (req, res) => {
     try {
-        await prisma_1.prisma.notification.updateMany({ where: { userId: req.user.id, read: false }, data: { read: true } });
+        const { type } = req.query;
+        const whereClause = { userId: req.user.id, read: false };
+        if (type) {
+            whereClause.type = type;
+        }
+        await prisma_1.prisma.notification.updateMany({ where: whereClause, data: { read: true } });
+        res.json({ success: true });
+    }
+    catch {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+// DELETE /api/notifications
+router.delete('/', auth_1.authenticate, async (req, res) => {
+    try {
+        const { type } = req.query;
+        const whereClause = { userId: req.user.id };
+        if (type) {
+            whereClause.type = type;
+        }
+        await prisma_1.prisma.notification.deleteMany({ where: whereClause });
         res.json({ success: true });
     }
     catch {

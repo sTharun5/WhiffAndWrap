@@ -7,5 +7,7 @@ const router = (0, express_1.Router)();
 router.post('/register', auth_1.register);
 router.post('/login', auth_1.login);
 router.post('/google', auth_1.googleLogin);
-router.get('/me', auth_2.authenticate, auth_1.me);
+router.get('/me', auth_2.optionalAuthenticate, auth_1.me);
+router.post('/logout', auth_1.logout);
+router.post('/accept-terms', auth_2.authenticate, auth_1.acceptTerms);
 exports.default = router;

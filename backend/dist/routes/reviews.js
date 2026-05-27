@@ -12,6 +12,14 @@ router.post('/:productId', auth_1.authenticate, async (req, res) => {
             res.status(400).json({ error: 'Rating must be 1-5' });
             return;
         }
+        // Prevent duplicate reviews
+        const existing = await prisma_1.prisma.review.findFirst({
+            where: { userId: req.user.id, productId: req.params.productId }
+        });
+        if (existing) {
+            res.status(409).json({ error: 'You have already reviewed this product' });
+            return;
+        }
         const review = await prisma_1.prisma.review.create({
             data: { userId: req.user.id, productId: req.params.productId, rating: parseInt(rating), comment },
             include: { user: { select: { name: true, image: true } } },

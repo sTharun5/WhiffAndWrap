@@ -22,6 +22,7 @@ router.post('/:productId', auth_1.authenticate, async (req, res) => {
     try {
         const item = await prisma_1.prisma.wishlist.create({
             data: { userId: req.user.id, productId: req.params.productId },
+            include: { product: { include: { category: true, reviews: { select: { rating: true } } } } },
         });
         res.status(201).json(item);
     }
