@@ -48,12 +48,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     const login = (newToken: string, newUser: User) => {
+        sessionStorage.setItem('ww_token', newToken);
         setToken(newToken);
         setUser(newUser);
     };
 
     const logout = async () => {
         try { await api.logout(); } catch (err) { console.error(err); }
+        sessionStorage.removeItem('ww_token');
         setToken(null);
         setUser(null);
     };
