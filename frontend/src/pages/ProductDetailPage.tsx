@@ -305,8 +305,7 @@ export default function ProductDetailPage() {
                         {/* Quantity & Cart */}
                         <div className="pd-actions">
                             <button
-                                className={`btn btn-primary btn-lg ${haptic ? 'animate-haptic' : ''} ${product.isAvailable === false ? 'btn-disabled' : ''}`}
-                                style={{ flex: 1, backgroundColor: product.isAvailable === false ? 'var(--color-muted)' : '#E1306C', borderColor: product.isAvailable === false ? 'var(--color-muted)' : '#E1306C' }}
+                                className={`pd-order-btn ${haptic ? 'animate-haptic' : ''}`}
                                 onClick={handleOrder}
                                 disabled={product.isAvailable === false}
                             >

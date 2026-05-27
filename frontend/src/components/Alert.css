@@ -11,32 +11,32 @@
 }
 
 .alert--info {
-    background: #EFF6FF;
-    border-color: #BFDBFE;
-    color: #1E40AF;
+    background: #FDF9F6;
+    border-color: #EAD7C6;
+    color: #6E553F;
 }
 
 .alert--success {
-    background: #F0FDF4;
-    border-color: #BBF7D0;
-    color: #166534;
+    background: #F1F9F5;
+    border-color: #D1EAE0;
+    color: #25664F;
 }
 
 .alert--warning {
-    background: #FFFBEB;
-    border-color: #FDE68A;
-    color: #92400E;
+    background: #FCF8F0;
+    border-color: #F3E2CE;
+    color: #8B572A;
 }
 
 .alert--error {
-    background: #FEF2F2;
-    border-color: #FECACA;
-    color: #991B1B;
+    background: #FFF5F5;
+    border-color: #FED7D7;
+    color: #9B2C2C;
 }
 
 .alert--tip {
-    background: linear-gradient(135deg, rgba(139, 74, 115, 0.06) 0%, rgba(201, 149, 106, 0.06) 100%);
-    border-color: rgba(139, 74, 115, 0.2);
+    background: linear-gradient(135deg, rgba(139, 74, 115, 0.05) 0%, rgba(201, 149, 106, 0.05) 100%);
+    border-color: rgba(139, 74, 115, 0.18);
     color: var(--color-primary-dark);
 }
 
