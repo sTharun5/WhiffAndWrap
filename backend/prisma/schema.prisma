@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -54,7 +54,7 @@ model Product {
   reviews                Review[]
   wishlists              Wishlist[]
 
-  @@index([categoryId], map: "Product_categoryId_fkey")
+  @@index([categoryId], map: "Product_categoryId_idx")
 }
 
 model Order {
@@ -70,7 +70,7 @@ model Order {
   user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   orderItems      OrderItem[]
 
-  @@index([userId], map: "Order_userId_fkey")
+  @@index([userId], map: "Order_userId_idx")
 }
 
 model OrderItem {
@@ -85,8 +85,8 @@ model OrderItem {
   order               Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product             Product  @relation(fields: [productId], references: [id])
 
-  @@index([orderId], map: "OrderItem_orderId_fkey")
-  @@index([productId], map: "OrderItem_productId_fkey")
+  @@index([orderId], map: "OrderItem_orderId_idx")
+  @@index([productId], map: "OrderItem_productId_idx")
 }
 
 model Wishlist {
@@ -98,7 +98,7 @@ model Wishlist {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, productId])
-  @@index([productId], map: "Wishlist_productId_fkey")
+  @@index([productId], map: "Wishlist_productId_idx")
 }
 
 model Review {
@@ -112,8 +112,8 @@ model Review {
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([productId], map: "Review_productId_fkey")
-  @@index([userId], map: "Review_userId_fkey")
+  @@index([productId], map: "Review_productId_idx")
+  @@index([userId], map: "Review_userId_idx")
 }
 
 model Notification {
@@ -126,7 +126,7 @@ model Notification {
   type      String   @default("USER")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId], map: "Notification_userId_fkey")
+  @@index([userId], map: "Notification_userId_idx")
 }
 
 model Reel {
@@ -158,7 +158,7 @@ model Policy {
   id        String   @id @default(uuid())
   title     String
   slug      String   @unique
-  content   String   @db.LongText
+  content   String   @db.Text
   updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
 }
