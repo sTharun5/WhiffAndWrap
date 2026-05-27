@@ -1,10 +1,10 @@
 # 🎁 Whiff & Wrap
 
-A beautifully crafted handmade gifts platform offering unique, personalized products for every occasion. Explore, customize, and order creative gift items online with a simple and smooth experience.
+A beautifully crafted handmade gifts platform offering unique, personalized products for every occasion. Explore, customize, and order creative gift items online with a simple and smooth experience
 
 ## 📋 Overview
 
-Whiff & Wrap is a modern e-commerce showcase dedicated to handmade gifts. Whether you're looking for personalized presents, artisanal creations, or custom-designed items, our platform connects you with beautifully crafted products made with care and creativity.
+Whiff & Wrap is a modern e-commerce showcase dedicated to handmade gifts. Whether you're looking for personalized presents, artisanal creations, or custom-designed items, our platform connects you with unique handcrafted treasures.
 
 ### Key Features
 
@@ -151,6 +151,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-**Visit us at**: [Whiff & Wrap](https://github.com/sTharun5/WhiffAndWrap)
+**Visit us at**: [Whiff & Wrap](https://whiff-and-wrap.vercel.app/)
 
 *Handmade with love, delivered with care.* 🎁✨
