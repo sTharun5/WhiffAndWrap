@@ -24,6 +24,9 @@ import policyRoutes from './routes/policies';
 
 const app = express();
 
+// Trust proxy for rate limiters behind Render/load balancers
+app.set('trust proxy', 1);
+
 // Security Headers
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" },

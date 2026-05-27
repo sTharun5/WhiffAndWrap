@@ -24,6 +24,8 @@ const reels_1 = __importDefault(require("./routes/reels"));
 const support_1 = __importDefault(require("./routes/support"));
 const policies_1 = __importDefault(require("./routes/policies"));
 const app = (0, express_1.default)();
+// Trust proxy for rate limiters behind Render/load balancers
+app.set('trust proxy', 1);
 // Security Headers
 app.use((0, helmet_1.default)({
     crossOriginResourcePolicy: { policy: "cross-origin" },
