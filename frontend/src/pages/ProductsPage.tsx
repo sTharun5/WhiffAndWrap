@@ -56,9 +56,14 @@ export default function ProductsPage() {
                 <div className="products-page__hero-glow-1"></div>
                 <div className="products-page__hero-glow-2"></div>
                 <div className="container products-page__hero-content">
-                    <span className="label-text">Our Crafts</span>
-                    <h1 className="section-title">All Products</h1>
-                    <p className="hero-subtext">{total} handcrafted items</p>
+                    <span className="label-text">Our Collection</span>
+                    <h1 className="section-title">Bespoke Handcrafted Creations</h1>
+                    <p className="hero-desc">
+                        Explore our curated selection of premium handcrafted hampers, aromatic scents, and artisanal gift wraps. Every item is meticulously designed and handmade to add warmth and elegance to your celebrations.
+                    </p>
+                    <div className="hero-meta">
+                        <span className="hero-count">{total} unique items available</span>
+                    </div>
                 </div>
             </div>
 

@@ -4,11 +4,11 @@
 }
 
 .products-page__hero {
-  background: var(--color-dark);
+  background: var(--gradient-hero);
   padding: var(--space-16) 0 var(--space-12);
   position: relative;
   overflow: hidden;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   text-align: center;
@@ -21,7 +21,7 @@
   left: 5%;
   width: 350px;
   height: 350px;
-  background: radial-gradient(circle, rgba(139, 74, 115, 0.16) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(179, 106, 91, 0.12) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   filter: blur(40px);
@@ -34,7 +34,7 @@
   right: 10%;
   width: 450px;
   height: 450px;
-  background: radial-gradient(circle, rgba(201, 149, 106, 0.14) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(217, 162, 127, 0.1) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   filter: blur(50px);
@@ -58,7 +58,7 @@
 }
 
 .products-page__hero .label-text {
-  color: var(--color-secondary);
+  color: var(--color-primary);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -69,20 +69,39 @@
 
 .products-page__hero .section-title {
   font-family: var(--font-serif);
-  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  font-size: clamp(2rem, 4.5vw, 3rem);
   font-weight: 700;
-  color: var(--color-white);
-  line-height: 1.15;
-  margin: 0;
+  color: var(--color-text);
+  line-height: 1.2;
+  margin: 0 auto;
+  max-width: 800px;
   letter-spacing: -0.01em;
 }
 
-.products-page__hero .hero-subtext {
-  color: rgba(255, 255, 255, 0.65);
-  font-size: 0.95rem;
+.products-page__hero .hero-desc {
+  color: var(--color-text-light);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 680px;
+  margin: var(--space-4) auto 0;
   font-weight: 400;
-  margin-top: var(--space-3);
-  letter-spacing: 0.05em;
+}
+
+.products-page__hero .hero-meta {
+  margin-top: var(--space-4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.products-page__hero .hero-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: rgba(179, 106, 91, 0.08);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.03em;
 }
 
 .products-page__body {
