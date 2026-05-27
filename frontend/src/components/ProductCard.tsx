@@ -117,14 +117,7 @@ export default function ProductCard({ product }: Props) {
                         )}
                     </div>
                     <button 
-                        className={`btn btn-primary product-card__atc ${haptic ? 'animate-haptic' : ''} ${product.isAvailable === false ? 'btn-disabled' : ''}`}
-                        style={{ 
-                            width: '100%', 
-                            marginTop: '16px',
-                            backgroundColor: product.isAvailable === false ? 'var(--color-muted)' : '#E1306C', 
-                            borderColor: product.isAvailable === false ? 'var(--color-muted)' : '#E1306C', 
-                            opacity: product.isAvailable === false ? 0.6 : 1 
-                        }}
+                        className={`product-card__atc ${haptic ? 'animate-haptic' : ''} ${product.isAvailable === false ? 'is-unavailable' : ''}`}
                         onClick={(e) => product.isAvailable !== false && handleOrder(e)}
                         disabled={product.isAvailable === false}
                     >

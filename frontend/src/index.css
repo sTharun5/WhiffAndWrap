@@ -583,6 +583,11 @@ h4, h5, h6 {
   color: var(--color-text);
   margin-bottom: var(--space-2);
   line-height: 1.3;
+  transition: color var(--transition-base);
+}
+
+.product-card:hover .product-card__name {
+  color: var(--color-primary);
 }
 
 .product-card__footer {
@@ -604,6 +609,44 @@ h4, h5, h6 {
   gap: 4px;
   font-size: 0.8rem;
   color: var(--color-secondary);
+}
+
+.product-card__atc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 16px;
+  background: #E1306C;
+  border: 1px solid #E1306C;
+  color: white;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-full);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 12px rgba(225, 48, 108, 0.15);
+}
+
+.product-card__atc:hover:not(:disabled) {
+  background: #d0255e;
+  border-color: #d0255e;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(225, 48, 108, 0.3);
+}
+
+.product-card__atc:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.product-card__atc.is-unavailable {
+  background: var(--color-muted) !important;
+  border-color: var(--color-muted) !important;
+  color: white !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* ============ GRID ============ */

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { api } from '../lib/api';
 import ProductCard from '../components/ProductCard';
 import Skeleton from '../components/Skeleton';
+import { FiSearch } from 'react-icons/fi';
 import './ProductsPage.css';
 
 export default function ProductsPage() {
@@ -52,10 +53,12 @@ export default function ProductsPage() {
     return (
         <div className="products-page fade-in">
             <div className="products-page__hero">
-                <div className="container">
+                <div className="products-page__hero-glow-1"></div>
+                <div className="products-page__hero-glow-2"></div>
+                <div className="container products-page__hero-content">
                     <span className="label-text">Our Crafts</span>
-                    <h1 className="section-title" style={{ marginTop: 8, color: 'white' }}>All Products</h1>
-                    <p style={{ color: 'rgba(255,255,255,0.75)', marginTop: 8 }}>{total} handcrafted items</p>
+                    <h1 className="section-title">All Products</h1>
+                    <p className="hero-subtext">{total} handcrafted items</p>
                 </div>
             </div>
 
@@ -64,20 +67,25 @@ export default function ProductsPage() {
                 <aside className="products-page__sidebar">
                     <div className="products-page__filter-group">
                         <h3 className="products-page__filter-title">Search</h3>
-                        <input
-                            type="text"
-                            className="form-input"
-                            placeholder="Search gifts..."
-                            value={search}
-                            onChange={e => setParam('search', e.target.value)}
-                        />
+                        <div className="products-page__search-wrapper">
+                            <FiSearch className="products-page__search-icon" />
+                            <input
+                                type="text"
+                                className="form-input products-page__search-input"
+                                placeholder="Search gifts..."
+                                value={search}
+                                onChange={e => setParam('search', e.target.value)}
+                            />
+                        </div>
                     </div>
                     <div className="products-page__filter-group">
                         <h3 className="products-page__filter-title">Categories</h3>
                         <button
                             className={`products-page__cat-btn ${!category ? 'active' : ''}`}
                             onClick={() => setParam('category', '')}
-                        >All</button>
+                        >
+                            All
+                        </button>
                         {categories.map((c: any) => (
                             <button
                                 key={c.id}
