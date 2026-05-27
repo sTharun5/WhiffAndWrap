@@ -271,7 +271,7 @@
 
 .pd-personalization .form-input:focus {
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px rgba(139, 74, 115, 0.1) !important;
+  box-shadow: 0 0 0 3px rgba(179, 106, 91, 0.1) !important;
 }
 
 /* Custom Image Upload Row */
@@ -310,21 +310,21 @@
   justify-content: center;
   width: 100%;
   min-height: 52px;
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   border: none;
   color: white;
   font-size: 1.05rem;
   font-weight: 700;
   border-radius: var(--radius-full);
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(220, 39, 67, 0.25);
+  box-shadow: 0 6px 20px rgba(179, 106, 91, 0.25);
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   -webkit-tap-highlight-color: transparent;
 }
 
 .pd-order-btn:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 10px 28px rgba(220, 39, 67, 0.45);
+  box-shadow: 0 10px 28px rgba(179, 106, 91, 0.4);
   filter: brightness(1.05);
 }
 

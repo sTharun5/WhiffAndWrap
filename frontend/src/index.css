@@ -8,32 +8,32 @@
 /* ============ CSS VARIABLES ============ */
 :root {
   /* Brand Colors */
-  --color-primary: #8B4A73;
-  --color-primary-light: #A8628F;
-  --color-primary-dark: #6D3459;
-  --color-secondary: #C9956A;
-  --color-secondary-light: #D6A880;
-  --color-accent: #E8C9B0;
-  --color-accent-light: #FDF8F5;
+  --color-primary: #B36A5B;
+  --color-primary-light: #D3A297;
+  --color-primary-dark: #8A4C40;
+  --color-secondary: #C87A53;
+  --color-secondary-light: #D99E7D;
+  --color-accent: #F3D8C7;
+  --color-accent-light: #FDFBF9;
   --color-gold: #D4AF7A;
 
   /* Neutrals — properly distinct values for depth */
   --color-white: #FFFFFF;
-  --color-off-white: #FBF8F5;
+  --color-off-white: #FAF8F5;
   --color-cream: #F5EDE4;
   --color-light: #EDE4DC;
-  --color-muted: #9C8D82;
-  --color-text: #2C2018;
-  --color-text-light: #5C4F46;
-  --color-border: #E2D4C8;
-  --color-dark: #1A120E;
+  --color-muted: #A18E81;
+  --color-text: #2C201A;
+  --color-text-light: #614E43;
+  --color-border: #E6D8CE;
+  --color-dark: #1E140F;
 
   /* Status Colors */
-  --color-success: #4A9B6F;
-  --color-warning: #D4940A;
-  --color-error: #C0392B;
-  --color-info: #2980B9;
-  --color-danger: #C0392B;
+  --color-success: #25664F;
+  --color-warning: #8B572A;
+  --color-error: #9B2C2C;
+  --color-info: #6E553F;
+  --color-danger: #9B2C2C;
 
   /* Glassmorphism */
   --color-glass: rgba(255, 255, 255, 0.72);
@@ -41,8 +41,8 @@
 
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  --gradient-warm: linear-gradient(135deg, #FEF3E2 0%, #FDE8D0 100%);
-  --gradient-hero: linear-gradient(135deg, #F5ECE6 0%, #EDE0F5 100%);
+  --gradient-warm: linear-gradient(135deg, #FDF5F2 0%, #FAE5DE 100%);
+  --gradient-hero: linear-gradient(135deg, #FAF4F0 0%, #F2E4DF 100%);
 
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(44, 32, 24, 0.08);
@@ -617,8 +617,8 @@ h4, h5, h6 {
   justify-content: center;
   width: 100%;
   margin-top: 16px;
-  background: #E1306C;
-  border: 1px solid #E1306C;
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
   color: white;
   font-weight: 600;
   padding: 10px 18px;
@@ -626,14 +626,14 @@ h4, h5, h6 {
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 12px rgba(225, 48, 108, 0.15);
+  box-shadow: 0 4px 12px rgba(179, 106, 91, 0.2);
 }
 
 .product-card__atc:hover:not(:disabled) {
-  background: #d0255e;
-  border-color: #d0255e;
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(225, 48, 108, 0.3);
+  box-shadow: 0 6px 20px rgba(179, 106, 91, 0.35);
 }
 
 .product-card__atc:active:not(:disabled) {
