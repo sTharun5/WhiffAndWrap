@@ -30,8 +30,25 @@ app.use((0, helmet_1.default)({
     crossOriginOpenerPolicy: false,
 }));
 // CORS rules
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:5173',
+    'http://localhost:3000'
+].filter(Boolean);
 app.use((0, cors_1.default)({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+        if (!origin)
+            return callback(null, true);
+        const originNormalized = origin.replace(/\/$/, '');
+        const isAllowed = allowedOrigins.some(allowed => allowed.replace(/\/$/, '') === originNormalized);
+        if (isAllowed) {
+            callback(null, true);
+        }
+        else {
+            console.warn(`CORS blocked for origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
 }));
 // Parse cookies immediately after CORS
