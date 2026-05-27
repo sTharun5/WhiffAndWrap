@@ -155,3 +155,26 @@
         padding: var(--space-6);
     }
 }
+
+@media (max-width: 480px) {
+    .policy-page {
+        padding: var(--space-6) 0 var(--space-12);
+    }
+
+    .policy-title {
+        font-size: 1.6rem;
+    }
+
+    .policy-content {
+        padding: var(--space-4);
+        border-radius: var(--radius-md);
+    }
+
+    .policy-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .policy-card {
+        padding: var(--space-6);
+    }
+}

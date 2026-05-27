@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 const BACKEND = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 function getImage(images: any): string {
-    const list = Array.isArray(images) ? images : [];
+    const list = Array.isArray(images) ? images : (typeof images === 'string' ? JSON.parse(images || '[]') : []);
     if (!list.length) return 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300';
     return list[0].startsWith('http') ? list[0] : `${BACKEND}${list[0]}`;
 }

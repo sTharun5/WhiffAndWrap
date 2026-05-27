@@ -15,3 +15,8 @@ uploads/
 
 # TypeScript build output
 dist/
+
+# SQLite dev database — never commit this
+prisma/dev.db
+prisma/*.db
+prisma/dev.db-journal

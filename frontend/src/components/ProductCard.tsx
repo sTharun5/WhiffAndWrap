@@ -10,7 +10,7 @@ interface Props {
     product: any;
 }
 
-const BACKEND = 'http://localhost:5001';
+const BACKEND = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 function getImage(images: any): string {
     if (!images) return 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400';

@@ -12,7 +12,7 @@ import {
 } from 'react-icons/fi';
 import './ProductDetailPage.css';
 
-const BACKEND = 'http://localhost:5001';
+const BACKEND = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 function getImages(images: any): string[] {
     if (!images) return [];
     const list = Array.isArray(images) ? images : (typeof images === 'string' ? JSON.parse(images) : []);

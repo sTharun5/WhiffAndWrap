@@ -9,7 +9,7 @@ import './AuthPage.css';
 
 declare const google: any;
 
-const GOOGLE_CLIENT_ID = '51013230604-5nvi6vkl1p6mb145j22h44iiaat1hi3d.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '51013230604-5nvi6vkl1p6mb145j22h44iiaat1hi3d.apps.googleusercontent.com';
 
 type Mode = 'login' | 'register';
 
